@@ -28,7 +28,7 @@
             android:backgroundTint="@color/PM_white"
             android:text="@string/search"
             android:textColor="@color/PM_black"
-            app:icon="@drawable/lens"
+            app:icon="@drawable/ic_lens"
             app:iconGravity="textStart"
             app:iconTint="@color/PM_black"/>
 
@@ -40,7 +40,7 @@
             android:backgroundTint="@color/PM_white"
             android:text="@string/media_library"
             android:textColor="@color/PM_black"
-            app:icon="@drawable/media_library"
+            app:icon="@drawable/ic_media_library"
             app:iconGravity="textStart"
             app:iconTint="@color/PM_black"/>
 
@@ -52,7 +52,7 @@
             android:backgroundTint="@color/PM_white"
             android:text="@string/settings"
             android:textColor="@color/PM_black"
-            app:icon="@drawable/cogwheel"
+            app:icon="@drawable/ic_cogwheel"
             app:iconGravity="textStart"
             app:iconTint="@color/PM_black"/>
 
