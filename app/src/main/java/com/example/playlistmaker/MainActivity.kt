@@ -1,7 +1,6 @@
 package com.example.playlistmaker
 
 import android.os.Bundle
-import android.view.View
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import android.content.Intent
@@ -19,13 +18,10 @@ class MainActivity : AppCompatActivity() {
         }
 
         val mediaLibraryButton = findViewById<Button>(R.id.main_screen_media_library_button)
+        mediaLibraryButton.setOnClickListener {
         val mediaLibraryIntent = Intent(this, MediaLibraryActivity::class.java)
-        val mediaLibraryButtonListener = object: View.OnClickListener {
-            override fun onClick(v: View?) {
-                startActivity(mediaLibraryIntent)
-            }
+            startActivity(mediaLibraryIntent)
         }
-        mediaLibraryButton.setOnClickListener(mediaLibraryButtonListener)
 
         val settingsButton = findViewById<Button>(R.id.main_screen_settings_button)
         settingsButton.setOnClickListener {
