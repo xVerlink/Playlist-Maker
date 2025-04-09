@@ -60,6 +60,7 @@
                 style="@style/SettingsScreenTextStyle"/>
 
             <ImageView
+                android:id="@+id/shareAppButton"
                 style="@style/SettingsScreenIconStyle"
                 android:src="@drawable/ic_share" />
 
@@ -74,6 +75,7 @@
                 style="@style/SettingsScreenTextStyle"/>
 
             <ImageView
+                android:id="@+id/textSupportButton"
                 style="@style/SettingsScreenIconStyle"
                 android:src="@drawable/ic_support"/>
 
@@ -88,6 +90,7 @@
                 style="@style/SettingsScreenTextStyle"/>
 
             <ImageView
+                android:id="@+id/licenseAgreementButton"
                 style="@style/SettingsScreenIconStyle"
                 android:src="@drawable/ic_arrow_right"/>
 
