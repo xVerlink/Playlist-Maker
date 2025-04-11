@@ -14,20 +14,12 @@
 
         <ImageView
             android:id="@+id/settings_screen_return_button"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:src="@drawable/ic_arrow_back"
+            style="@style/ActivityTitleIconStyle"
             app:tint="?attr/colorPrimary"/>
 
         <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/settings"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:textColor="?attr/colorPrimary"
-            android:layout_marginStart="12dp"
-            android:fontFamily="@font/ys_display_medium"/>
+            style="@style/ActivityTitleTextStyle"
+            android:text="@string/settings"/>
     </LinearLayout>
 
     <LinearLayout
