@@ -48,4 +48,10 @@
         <item name="android:fontFamily">@font/ys_display_medium</item>
     </style>
 
+    <style name="SearchFieldColorStyle">
+        <item name="android:background">@drawable/rounded</item>
+        <item name="android:drawableTint">@color/PM_black</item>
+        <item name="android:textColorHint">@color/PM_black</item>
+    </style>
+
 </resources>
