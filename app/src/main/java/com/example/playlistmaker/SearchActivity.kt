@@ -12,6 +12,12 @@ import androidx.appcompat.app.AppCompatActivity
 
 
 class SearchActivity : AppCompatActivity() {
+
+    companion object {
+        private const val SAVED_STRING: String = "SAVED_STRING"
+    }
+    private var input: String? = ""
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search)
@@ -19,7 +25,7 @@ class SearchActivity : AppCompatActivity() {
         val returnBackButton = findViewById<ImageView>(R.id.search_screen_return_button)
         val inputEditText = findViewById<EditText>(R.id.edit_text_search)
         val clearButton = findViewById<ImageView>(R.id.clear_text_icon)
-
+        inputEditText.setText(input)
 
         returnBackButton.setOnClickListener {
             finish()
@@ -49,10 +55,20 @@ class SearchActivity : AppCompatActivity() {
             }
 
             override fun afterTextChanged(s: Editable?) {
-
+                input = s.toString()
             }
-
         }
         inputEditText.addTextChangedListener(textWatcher)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString(SAVED_STRING, input)
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        input = savedInstanceState.getString(SAVED_STRING)
+
     }
 }
