@@ -3,12 +3,12 @@ package com.example.playlistmaker
 import android.content.Context
 import android.os.Bundle
 import android.text.Editable
-import android.text.TextWatcher
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.addTextChangedListener
 
 
 class SearchActivity : AppCompatActivity() {
@@ -41,24 +41,17 @@ class SearchActivity : AppCompatActivity() {
             inputMethodManager?.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
         }
 
-        val textWatcher = object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-
-            }
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                if (s.isNullOrEmpty()) {
+        inputEditText.addTextChangedListener(
+            {text: CharSequence?, start: Int, count: Int, after: Int ->  },
+            {text: CharSequence?, start: Int, before: Int, count: Int ->
+                if (text.isNullOrEmpty()) {
                     clearButton.visibility = View.GONE
                 } else {
                     clearButton.visibility = View.VISIBLE
                 }
-            }
-
-            override fun afterTextChanged(s: Editable?) {
-                input = s.toString()
-            }
-        }
-        inputEditText.addTextChangedListener(textWatcher)
+            },
+            {text: Editable? ->  input = text.toString()}
+        )
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

@@ -1,10 +1,11 @@
 package com.example.playlistmaker
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.net.toUri
 
 
 class SettingsActivity : AppCompatActivity() {
@@ -17,7 +18,7 @@ class SettingsActivity : AppCompatActivity() {
             finish()
         }
 
-        val shareButton = findViewById<ImageView>(R.id.shareAppButton)
+        val shareButton = findViewById<TextView>(R.id.shareAppButton)
         shareButton.setOnClickListener {
             val shareIntent = Intent(Intent.ACTION_SEND)
             val sharedText = resources.getText(R.string.course_link)
@@ -26,10 +27,10 @@ class SettingsActivity : AppCompatActivity() {
             startActivity(Intent.createChooser(shareIntent, "Куда отправить?"))
         }
 
-        val textSupportButton = findViewById<ImageView>(R.id.textSupportButton)
+        val textSupportButton = findViewById<TextView>(R.id.textSupportButton)
         textSupportButton.setOnClickListener {
-            val email = "justverlink@yandex.ru"
-            val uri = Uri.parse("mailto:")
+            val email = resources.getString(R.string.developers_email)
+            val uri = "mailto:".toUri()
             val mailTitle = resources.getText(R.string.text_support_mail_title)
             val mailText = resources.getText(R.string.text_support_mail_text)
             val emailIntent = Intent(Intent.ACTION_SENDTO, uri)
@@ -39,10 +40,10 @@ class SettingsActivity : AppCompatActivity() {
             startActivity(emailIntent)
         }
 
-        val licenseAgreementButton = findViewById<ImageView>(R.id.licenseAgreementButton)
+        val licenseAgreementButton = findViewById<TextView>(R.id.licenseAgreementButton)
         licenseAgreementButton.setOnClickListener {
             val browserIntent = Intent(Intent.ACTION_VIEW)
-            browserIntent.data = Uri.parse(resources.getString(R.string.practicum_offer))
+            browserIntent.data = resources.getString(R.string.practicum_offer).toUri()
             startActivity(browserIntent)
         }
     }

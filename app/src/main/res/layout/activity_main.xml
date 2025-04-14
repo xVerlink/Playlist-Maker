@@ -23,6 +23,9 @@
 
         <Button
             android:id="@+id/main_screen_search_button"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             style="@style/MainScreenButtonStyle"
             android:text="@string/search"
             app:icon="@drawable/ic_lens"
@@ -31,6 +34,9 @@
 
         <Button
             android:id="@+id/main_screen_media_library_button"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             style="@style/MainScreenButtonStyle"
             android:text="@string/media_library"
             app:icon="@drawable/ic_media_library"
@@ -39,6 +45,9 @@
 
         <Button
             android:id="@+id/main_screen_settings_button"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             style="@style/MainScreenButtonStyle"
             android:text="@string/settings"
             app:icon="@drawable/ic_cogwheel"
