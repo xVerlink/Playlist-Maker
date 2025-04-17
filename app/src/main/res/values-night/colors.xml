@@ -2,10 +2,9 @@
 <resources>
     <color name="PM_white">#FFFFFFFF</color>
     <color name="PM_blue">#3772E7</color>
-    <color name="PM_light_blue">#9FBBF3</color>
     <color name="PM_black">#1A1B22</color>
     <color name="PM_grey">#AEAFB4</color>
     <color name="PM_light_grey">#E6E8EB</color>
     <color name="PM_text_grey">#AEAFB4</color>
-    <color name="searchFieldBackgroundColor">#E6E8EB</color>
+    <color name="searchFieldBackgroundColor">#FFFFFFFF</color>
 </resources>

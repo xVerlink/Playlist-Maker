@@ -1,118 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="@dimen/padding">
-
+    android:layout_height="match_parent">
 
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:layout_marginStart="@dimen/padding">
 
         <ImageView
             android:id="@+id/settings_screen_return_button"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:src="@drawable/ic_arrow_back"/>
+            style="@style/ActivityTitleIconStyle"
+            app:tint="?attr/colorPrimary"/>
 
         <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/settings"
-            android:textSize="22sp"
-            android:textColor="@color/PM_black"
-            android:textStyle="bold"
-            android:layout_marginStart="12dp"/>
+            style="@style/ActivityTitleTextStyle"
+            android:text="@string/settings"/>
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="40dp"
+        android:layout_marginStart="@dimen/padding"
+        android:layout_marginEnd="@dimen/padding"
         android:orientation="vertical">
 
-        <FrameLayout
+        <androidx.appcompat.widget.SwitchCompat
             android:layout_width="match_parent"
-            android:layout_height="61dp">
+            android:layout_height="61dp"
+            android:text="@string/dark_theme"
+            android:textColor="?attr/colorPrimary"
+            android:textSize="@dimen/settings_screen_text_size"
+            android:fontFamily="@font/ys_display_regular">
+        </androidx.appcompat.widget.SwitchCompat>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/dark_theme"
-                android:textColor="@color/PM_black"
-                android:textSize="@dimen/settings_screen_text_size"
-                android:layout_gravity="start|center"/>
-
-            <Switch
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center|right"/>
-
-        </FrameLayout>
-
-        <FrameLayout
+        <TextView
+            android:id="@+id/shareAppButton"
             android:layout_width="match_parent"
-            android:layout_height="61dp">
+            android:layout_height="61dp"
+            style="@style/SettingsScreenTextStyle"
+            android:text="@string/share_app"
+            app:drawableEndCompat="@drawable/ic_share">
+        </TextView>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/share_app"
-                android:textColor="@color/PM_black"
-                android:textSize="@dimen/settings_screen_text_size"
-                android:layout_gravity="start|center"/>
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_share"
-                android:layout_gravity="end|center"/>
-
-        </FrameLayout>
-
-        <FrameLayout
+        <TextView
+            android:id="@+id/textSupportButton"
             android:layout_width="match_parent"
-            android:layout_height="61dp">
+            android:layout_height="61dp"
+            style="@style/SettingsScreenTextStyle"
+            android:text="@string/text_support"
+            app:drawableEndCompat="@drawable/ic_support">
+        </TextView>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/text_support"
-                android:textColor="@color/PM_black"
-                android:textSize="@dimen/settings_screen_text_size"
-                android:layout_gravity="start|center"/>
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_support"
-                android:layout_gravity="end|center"/>
-
-        </FrameLayout>
-
-        <FrameLayout
+        <TextView
+            android:id="@+id/licenseAgreementButton"
             android:layout_width="match_parent"
-            android:layout_height="61dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/license_agreement"
-                android:textColor="@color/PM_black"
-                android:textSize="@dimen/settings_screen_text_size"
-                android:layout_gravity="start|center"/>
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_arrow_right"
-                android:layout_gravity="end|center"/>
-
-        </FrameLayout>
+            android:layout_height="61dp"
+            style="@style/SettingsScreenTextStyle"
+            android:text="@string/license_agreement"
+            app:drawableEndCompat="@drawable/ic_arrow_right">
+        </TextView>
 
     </LinearLayout>
 
-    </LinearLayout>
+</LinearLayout>
