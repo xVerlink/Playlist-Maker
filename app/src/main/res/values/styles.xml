@@ -50,4 +50,21 @@
         <item name="android:textColorHint">@color/PM_text_grey</item>
     </style>
 
+    <style name="DefaultText">
+        <item name="android:textColor">@color/PM_black</item>
+        <item name="android:textSize">@dimen/default_text_size</item>
+        <item name="android:fontFamily">@font/ys_display_regular</item>
+    </style>
+    
+    <style name="DefaultTextSmall">
+        <item name="android:textColor">@color/PM_light_grey</item>
+        <item name="android:textSize">@dimen/small_text_size</item>
+        <item name="android:fontFamily">@font/ys_display_regular</item>
+    </style>
+    
+    <style name="RightSideIconsStyle">
+        <item name="android:tint">@color/PM_grey</item>
+        <item name="android:layout_gravity">center|end</item>
+    </style>
+
 </resources>
