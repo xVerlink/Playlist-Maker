@@ -35,7 +35,7 @@ class SearchActivity : AppCompatActivity() {
         .build()
     val appleMusicService = retrofit.create(TracksApi::class.java)
 
-    val tracks: ArrayList<Track> = ArrayList()
+    val tracks: MutableList<Track> = mutableListOf()
     val trackAdapter = TrackAdapter(tracks)
 
     lateinit var returnBackButton: ImageView
@@ -108,11 +108,11 @@ class SearchActivity : AppCompatActivity() {
         if (inputEditText.text.isNotEmpty()) {
             appleMusicService.getSongs(inputEditText.text.toString()).enqueue(object : Callback<TracksResponse> {
                 override fun onResponse(call: Call<TracksResponse>, response: Response<TracksResponse>) {
-                    if (response.code() == 200) {
+                    if (response.isSuccessful) {
                         tracks.clear()
-                        Log.d("response", response.code().toString())
-                        if (response.body()?.results?.isNotEmpty() == true) {
-                            tracks.addAll(response.body()?.results!!)
+                        val results = response.body()?.results
+                        if (results?.isNotEmpty() == true) {
+                            tracks.addAll(results)
                             trackAdapter.notifyDataSetChanged()
                         }
                         if (tracks.isEmpty()) {
@@ -141,35 +141,15 @@ class SearchActivity : AppCompatActivity() {
             errorText.visibility = View.VISIBLE
             errorText.text = text
             if (additionalMessage.isNotEmpty()) {
-                setPlaceholder(connectionProblem = true)
+                placeholder.setImageResource(R.drawable.error_placeholder_connection_problem)
                 refreshButton.visibility = View.VISIBLE
             } else {
-                setPlaceholder(connectionProblem = false)
+                placeholder.setImageResource(R.drawable.error_placeholder_nothing_found)
             }
         } else {
             placeholder.visibility = View.GONE
             errorText.visibility = View.GONE
             refreshButton.visibility = View.GONE
-        }
-    }
-
-    private fun setPlaceholder(connectionProblem: Boolean) {
-        val currentNightMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
-        when (currentNightMode) {
-            Configuration.UI_MODE_NIGHT_NO -> { // Night mode is not active, we're using the light theme.
-                if (connectionProblem) {
-                    placeholder.setImageResource(R.drawable.error_placeholder_connection_problem_light)
-                } else {
-                    placeholder.setImageResource(R.drawable.error_placeholder_nothing_found_light)
-                }
-            }
-            Configuration.UI_MODE_NIGHT_YES -> { // Night mode is active, we're using dark theme.
-                if (connectionProblem) {
-                    placeholder.setImageResource(R.drawable.error_placeholder_connection_problem_dark)
-                } else {
-                    placeholder.setImageResource(R.drawable.error_placeholder_nothing_found_dark)
-                }
-            }
         }
     }
 
