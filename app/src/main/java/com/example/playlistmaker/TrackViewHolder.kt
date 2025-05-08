@@ -7,6 +7,8 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class TrackViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
     private val albumCover: ImageView = itemView.findViewById(R.id.search_screen_album_cover)
@@ -24,6 +26,8 @@ class TrackViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
             .into(albumCover)
         trackName.text = model.trackName
         artistName.text = model.artistName
-        trackTime.text = model.trackTime
+        if (!model.trackTime.isNullOrEmpty()) {
+            trackTime.text = SimpleDateFormat("mm:ss", Locale.getDefault()).format(model.trackTime.toLong())
+        }
     }
 }
