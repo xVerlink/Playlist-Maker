@@ -1,15 +1,25 @@
 package com.example.playlistmaker
 
 import android.content.Context
+import android.content.res.Configuration
 import android.os.Bundle
 import android.text.Editable
+import android.util.Log
 import android.view.View
+import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
+import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.RecyclerView
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 
 class SearchActivity : AppCompatActivity() {
@@ -18,27 +28,37 @@ class SearchActivity : AppCompatActivity() {
         private const val SAVED_STRING: String = "SAVED_STRING"
     }
     private var input: String? = ""
+    private val appleMusicBaseUrl = "https://itunes.apple.com"
+    private val retrofit = Retrofit.Builder()
+        .baseUrl(appleMusicBaseUrl)
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+    val appleMusicService = retrofit.create(TracksApi::class.java)
+
+    val tracks: MutableList<Track> = mutableListOf()
+    val trackAdapter = TrackAdapter(tracks)
+
+    lateinit var returnBackButton: ImageView
+    lateinit var inputEditText: EditText
+    lateinit var clearButton: ImageView
+    lateinit var placeholder: ImageView
+    lateinit var errorText: TextView
+    lateinit var refreshButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search)
 
-
-        val tracks: List<Track> = listOf(
-            Track("Smells Like Teen Spirit", "Nirvana", "5:01", "https://is5-ssl.mzstatic.com/image/thumb/Music115/v4/7b/58/c2/7b58c21a-2b51-2bb2-e59a-9bb9b96ad8c3/00602567924166.rgb.jpg/100x100bb.jpg"),
-            Track("Billie Jean", "Michael Jackson", "4:35", "https://is5-ssl.mzstatic.com/image/thumb/Music125/v4/3d/9d/38/3d9d3811-71f0-3a0e-1ada-3004e56ff852/827969428726.jpg/100x100bb.jpg"),
-            Track("Stayin' Alive", "Bee Gees", "4:10", "https://is4-ssl.mzstatic.com/image/thumb/Music115/v4/1f/80/1f/1f801fc1-8c0f-ea3e-d3e5-387c6619619e/16UMGIM86640.rgb.jpg/100x100bb.jpg"),
-            Track("Whole Lotta Love", "Led Zeppelin", "5:33", "https://is2-ssl.mzstatic.com/image/thumb/Music62/v4/7e/17/e3/7e17e33f-2efa-2a36-e916-7f808576cf6b/mzm.fyigqcbs.jpg/100x100bb.jpg"),
-            Track("Sweet Child O'Mine", "Guns N' Roses", "5:03", "https://is5-ssl.mzstatic.com/image/thumb/Music125/v4/a0/4d/c4/a04dc484-03cc-02aa-fa82-5334fcb4bc16/18UMGIM24878.rgb.jpg/100x100bb.jpg")
-        )
         val recycler = findViewById<RecyclerView>(R.id.search_screen_recycler_view)
-        val trackAdapter = TrackAdapter(tracks)
         recycler.adapter = trackAdapter
 
+        returnBackButton = findViewById(R.id.search_screen_return_button)
+        inputEditText = findViewById(R.id.edit_text_search)
+        clearButton = findViewById(R.id.clear_text_icon)
+        placeholder = findViewById(R.id.search_screen_error_placeholder)
+        errorText = findViewById(R.id.search_screen_error_text)
+        refreshButton = findViewById(R.id.search_screen_refresh_button)
 
-        val returnBackButton = findViewById<ImageView>(R.id.search_screen_return_button)
-        val inputEditText = findViewById<EditText>(R.id.edit_text_search)
-        val clearButton = findViewById<ImageView>(R.id.clear_text_icon)
         inputEditText.setText(input)
 
         returnBackButton.setOnClickListener {
@@ -53,6 +73,22 @@ class SearchActivity : AppCompatActivity() {
             inputEditText.setText("")
             val inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
             inputMethodManager?.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
+            tracks.clear()
+            trackAdapter.notifyDataSetChanged()
+            placeholder.visibility = View.GONE
+            errorText.visibility = View.GONE
+            refreshButton.visibility = View.GONE
+        }
+
+        refreshButton.setOnClickListener {
+            search()
+        }
+
+        inputEditText.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                search()
+            }
+            false
         }
 
         inputEditText.addTextChangedListener(
@@ -66,6 +102,55 @@ class SearchActivity : AppCompatActivity() {
             },
             {text: Editable? ->  input = text.toString()}
         )
+    }
+
+    private fun search() {
+        if (inputEditText.text.isNotEmpty()) {
+            appleMusicService.getSongs(inputEditText.text.toString()).enqueue(object : Callback<TracksResponse> {
+                override fun onResponse(call: Call<TracksResponse>, response: Response<TracksResponse>) {
+                    if (response.isSuccessful) {
+                        tracks.clear()
+                        val results = response.body()?.results
+                        if (results?.isNotEmpty() == true) {
+                            tracks.addAll(results)
+                            trackAdapter.notifyDataSetChanged()
+                        }
+                        if (tracks.isEmpty()) {
+                            showMessage(getString(R.string.nothing_found), "")
+                        } else {
+                            showMessage("", "")
+                        }
+                    } else {
+                        showMessage(resources.getString(R.string.server_error), response.code().toString())
+                    }
+                }
+
+                override fun onFailure(call: Call<TracksResponse>, t: Throwable) {
+                    showMessage(getString(R.string.connection_problem), t.message.toString())
+                }
+
+            })
+        }
+    }
+
+    private fun showMessage(text: String, additionalMessage: String) {
+        if (text.isNotEmpty()) {
+            tracks.clear()
+            trackAdapter.notifyDataSetChanged()
+            placeholder.visibility = View.VISIBLE
+            errorText.visibility = View.VISIBLE
+            errorText.text = text
+            if (additionalMessage.isNotEmpty()) {
+                placeholder.setImageResource(R.drawable.error_placeholder_connection_problem)
+                refreshButton.visibility = View.VISIBLE
+            } else {
+                placeholder.setImageResource(R.drawable.error_placeholder_nothing_found)
+            }
+        } else {
+            placeholder.visibility = View.GONE
+            errorText.visibility = View.GONE
+            refreshButton.visibility = View.GONE
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
