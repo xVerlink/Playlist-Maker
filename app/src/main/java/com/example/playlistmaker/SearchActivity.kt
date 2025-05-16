@@ -1,10 +1,8 @@
 package com.example.playlistmaker
 
 import android.content.Context
-import android.content.res.Configuration
 import android.os.Bundle
 import android.text.Editable
-import android.util.Log
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager

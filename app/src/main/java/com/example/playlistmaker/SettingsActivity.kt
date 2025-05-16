@@ -1,11 +1,13 @@
 package com.example.playlistmaker
 
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
+import com.google.android.material.switchmaterial.SwitchMaterial
 
 
 class SettingsActivity : AppCompatActivity() {
@@ -16,6 +18,16 @@ class SettingsActivity : AppCompatActivity() {
         val returnBackButton = findViewById<ImageView>(R.id.settings_screen_return_button)
         returnBackButton.setOnClickListener {
             finish()
+        }
+
+        val themeSwitcher = findViewById<SwitchMaterial>(R.id.themeSwitcher)
+        val currentNightMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+        when (currentNightMode) {
+            Configuration.UI_MODE_NIGHT_NO -> themeSwitcher.isChecked = false
+            Configuration.UI_MODE_NIGHT_YES -> themeSwitcher.isChecked = true
+        }
+        themeSwitcher.setOnCheckedChangeListener { switcher, checked ->
+            (applicationContext as App).switchTheme(checked)
         }
 
         val shareButton = findViewById<TextView>(R.id.shareAppButton)
