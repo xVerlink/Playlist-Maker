@@ -1,14 +1,17 @@
 package com.example.playlistmaker
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.text.Editable
+import android.util.Log
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
@@ -18,6 +21,7 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import androidx.core.content.edit
 
 
 class SearchActivity : AppCompatActivity() {
@@ -33,8 +37,12 @@ class SearchActivity : AppCompatActivity() {
         .build()
     val appleMusicService = retrofit.create(TracksApi::class.java)
 
-    val tracks: MutableList<Track> = mutableListOf()
-    val trackAdapter = TrackAdapter(tracks)
+    private lateinit var listener: SharedPreferences.OnSharedPreferenceChangeListener
+
+    lateinit var tracks: MutableList<Track>
+    lateinit var historyTracks: MutableList<Track>
+    lateinit var trackAdapter: TrackAdapter
+    lateinit var searchHistoryAdapter: TrackAdapter
 
     lateinit var returnBackButton: ImageView
     lateinit var inputEditText: EditText
@@ -42,13 +50,39 @@ class SearchActivity : AppCompatActivity() {
     lateinit var placeholder: ImageView
     lateinit var errorText: TextView
     lateinit var refreshButton: Button
+    lateinit var searchHistoryLayout: LinearLayout
+    lateinit var clearHistory: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search)
 
-        val recycler = findViewById<RecyclerView>(R.id.search_screen_recycler_view)
-        recycler.adapter = trackAdapter
+        val sharedPrefs = getSharedPreferences(App.PLAYLIST_MAKER_PREFERENCES, MODE_PRIVATE)
+        val searchHistory = SearchHistory(sharedPrefs)
+
+        tracks = mutableListOf()
+        historyTracks = searchHistory.read(sharedPrefs.getString(SearchHistory.SEARCH_HISTORY_KEY, ""))
+        Log.d("trackList", "tracklist updated")
+
+        listener = SharedPreferences.OnSharedPreferenceChangeListener {sharedPreferences, key ->
+            if (key == SearchHistory.SEARCH_HISTORY_KEY) {
+                historyTracks.clear()
+                historyTracks.addAll(searchHistory.read(sharedPrefs.getString(SearchHistory.SEARCH_HISTORY_KEY, "")))
+                searchHistoryAdapter.notifyDataSetChanged()
+                Log.d("SearchActivity", "отработал листенер на изменение состояния хистори листа")
+            }
+        }
+        sharedPrefs.registerOnSharedPreferenceChangeListener(listener)
+
+
+        trackAdapter = TrackAdapter(tracks, searchHistory)
+        searchHistoryAdapter = TrackAdapter(historyTracks, searchHistory)
+
+        val recyclerSearchResults = findViewById<RecyclerView>(R.id.search_screen_recycler_view)
+        recyclerSearchResults.adapter = trackAdapter
+
+        val recyclerHistoryResults = findViewById<RecyclerView>(R.id.search_screen_recycler_search_history)
+        recyclerHistoryResults.adapter = searchHistoryAdapter
 
         returnBackButton = findViewById(R.id.search_screen_return_button)
         inputEditText = findViewById(R.id.edit_text_search)
@@ -56,15 +90,28 @@ class SearchActivity : AppCompatActivity() {
         placeholder = findViewById(R.id.search_screen_error_placeholder)
         errorText = findViewById(R.id.search_screen_error_text)
         refreshButton = findViewById(R.id.search_screen_refresh_button)
+        searchHistoryLayout = findViewById(R.id.search_screen_history)
+        clearHistory = findViewById(R.id.search_screen_clear_history)
 
-        inputEditText.setText(input)
+        clearHistory.setOnClickListener {
+            sharedPrefs.edit() { remove(SearchHistory.SEARCH_HISTORY_KEY) }
+            historyTracks.clear()
+            searchHistoryLayout.visibility = View.GONE
+        }
 
         returnBackButton.setOnClickListener {
             finish()
         }
 
+        inputEditText.setText(input)
+
         inputEditText.setOnClickListener {
             inputEditText.requestFocus()
+        }
+        
+        inputEditText.setOnFocusChangeListener { view, hasFocus ->
+            //searchHistoryAdapter.notifyDataSetChanged()
+            searchHistoryLayout.visibility = if (hasFocus && inputEditText.text.isEmpty()) View.VISIBLE else View.GONE
         }
 
         clearButton.setOnClickListener {
@@ -97,6 +144,8 @@ class SearchActivity : AppCompatActivity() {
                 } else {
                     clearButton.visibility = View.VISIBLE
                 }
+                //searchHistoryAdapter.notifyDataSetChanged()
+                searchHistoryLayout.visibility = if (inputEditText.hasFocus() && text?.isEmpty() == true) View.VISIBLE else View.GONE
             },
             {text: Editable? ->  input = text.toString()}
         )
