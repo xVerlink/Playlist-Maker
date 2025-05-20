@@ -21,6 +21,7 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import androidx.core.content.edit
+import androidx.core.view.isVisible
 
 
 class SearchActivity : AppCompatActivity() {
@@ -42,6 +43,7 @@ class SearchActivity : AppCompatActivity() {
     lateinit var historyTracks: MutableList<Track>
     lateinit var trackAdapter: TrackAdapter
     lateinit var searchHistoryAdapter: TrackAdapter
+    lateinit var searchHistory: SearchHistory
 
     lateinit var returnBackButton: ImageView
     lateinit var inputEditText: EditText
@@ -50,6 +52,7 @@ class SearchActivity : AppCompatActivity() {
     lateinit var errorText: TextView
     lateinit var refreshButton: Button
     lateinit var searchHistoryLayout: LinearLayout
+    lateinit var historyHeader: TextView
     lateinit var clearHistory: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,12 +66,13 @@ class SearchActivity : AppCompatActivity() {
         errorText = findViewById(R.id.search_screen_error_text)
         refreshButton = findViewById(R.id.search_screen_refresh_button)
         searchHistoryLayout = findViewById(R.id.search_screen_history)
+        historyHeader = findViewById(R.id.search_history_header)
         clearHistory = findViewById(R.id.search_screen_clear_history)
         val recyclerSearchResults = findViewById<RecyclerView>(R.id.search_screen_recycler_view)
         val recyclerHistoryResults = findViewById<RecyclerView>(R.id.search_screen_recycler_search_history)
 
         val sharedPrefs = getSharedPreferences(App.PLAYLIST_MAKER_PREFERENCES, MODE_PRIVATE)
-        val searchHistory = SearchHistory(sharedPrefs)
+        searchHistory = SearchHistory(sharedPrefs)
 
         tracks = mutableListOf()
         historyTracks = searchHistory.read(sharedPrefs.getString(SearchHistory.SEARCH_HISTORY_KEY, ""))
@@ -82,8 +86,8 @@ class SearchActivity : AppCompatActivity() {
         }
         sharedPrefs.registerOnSharedPreferenceChangeListener(listener)
 
-        trackAdapter = TrackAdapter(tracks, searchHistory)
-        searchHistoryAdapter = TrackAdapter(historyTracks, searchHistory)
+        trackAdapter = TrackAdapter(tracks, onSearchElementClicked(Track("", "", "", "", "")))
+        searchHistoryAdapter = TrackAdapter(historyTracks, onSearchElementClicked)
         recyclerSearchResults.adapter = trackAdapter
         recyclerHistoryResults.adapter = searchHistoryAdapter
 
@@ -100,18 +104,30 @@ class SearchActivity : AppCompatActivity() {
         inputEditText.addTextChangedListener(
             {text: CharSequence?, start: Int, count: Int, after: Int ->  },
             {text: CharSequence?, start: Int, before: Int, count: Int ->
-                if (text.isNullOrEmpty()) {
-                    clearButton.visibility = View.GONE
+                clearButton.isVisible = !text.isNullOrEmpty()
+                if (inputEditText.hasFocus() && text?.isEmpty() == true && historyTracks.isNotEmpty()) {
+                    searchHistoryLayout.isVisible = true
+                    historyHeader.isVisible = true
+                    clearHistory.isVisible = true
                 } else {
-                    clearButton.visibility = View.VISIBLE
+                    searchHistoryLayout.isVisible = false
+                    historyHeader.isVisible = false
+                    clearHistory.isVisible = false
                 }
-                searchHistoryLayout.visibility = if (inputEditText.hasFocus() && text?.isEmpty() == true) View.VISIBLE else View.GONE
             },
             {text: Editable? ->  input = text.toString()}
         )
 
         inputEditText.setOnFocusChangeListener { view, hasFocus ->
-            searchHistoryLayout.visibility = if (hasFocus && inputEditText.text.isEmpty()) View.VISIBLE else View.GONE
+            if (inputEditText.hasFocus() && inputEditText.text.isEmpty() && historyTracks.isNotEmpty()) {
+                searchHistoryLayout.isVisible = true
+                historyHeader.isVisible = true
+                clearHistory.isVisible = true
+            } else {
+                searchHistoryLayout.isVisible = false
+                historyHeader.isVisible = false
+                clearHistory.isVisible = false
+            }
         }
 
         clearButton.setOnClickListener {
@@ -120,15 +136,15 @@ class SearchActivity : AppCompatActivity() {
             inputMethodManager?.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
             tracks.clear()
             trackAdapter.notifyDataSetChanged()
-            placeholder.visibility = View.GONE
-            errorText.visibility = View.GONE
-            refreshButton.visibility = View.GONE
+            placeholder.isVisible = false
+            errorText.isVisible = false
+            refreshButton.isVisible = false
         }
 
         clearHistory.setOnClickListener {
             sharedPrefs.edit() { remove(SearchHistory.SEARCH_HISTORY_KEY) }
             historyTracks.clear()
-            searchHistoryLayout.visibility = View.GONE
+            searchHistoryLayout.isVisible = false
         }
 
         refreshButton.setOnClickListener {
@@ -141,7 +157,10 @@ class SearchActivity : AppCompatActivity() {
             }
             false
         }
+    }
 
+    fun onSearchElementClicked(track: Track) {
+        searchHistory.add(track)
     }
 
     private fun search() {
@@ -177,19 +196,19 @@ class SearchActivity : AppCompatActivity() {
         if (text.isNotEmpty()) {
             tracks.clear()
             trackAdapter.notifyDataSetChanged()
-            placeholder.visibility = View.VISIBLE
-            errorText.visibility = View.VISIBLE
+            placeholder.isVisible = true
+            errorText.isVisible = true
             errorText.text = text
             if (additionalMessage.isNotEmpty()) {
                 placeholder.setImageResource(R.drawable.error_placeholder_connection_problem)
-                refreshButton.visibility = View.VISIBLE
+                refreshButton.isVisible = true
             } else {
                 placeholder.setImageResource(R.drawable.error_placeholder_nothing_found)
             }
         } else {
-            placeholder.visibility = View.GONE
-            errorText.visibility = View.GONE
-            refreshButton.visibility = View.GONE
+            placeholder.isVisible = false
+            errorText.isVisible = false
+            refreshButton.isVisible = false
         }
     }
 
