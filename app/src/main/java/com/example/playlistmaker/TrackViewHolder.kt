@@ -16,9 +16,9 @@ class TrackViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
     private val artistName: TextView = itemView.findViewById(R.id.search_screen_artist_name)
     private val trackTime: TextView = itemView.findViewById(R.id.search_screen_track_length)
 
-    fun bind(model: Track, searchHistory: SearchHistory) {
+    fun bind(model: Track, action: (Track) -> Unit) {
         itemView.setOnClickListener {
-            searchHistory.add(model)
+            action.invoke(model)
         }
 
         val roundRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2f, itemView.context.resources.displayMetrics).toInt()
