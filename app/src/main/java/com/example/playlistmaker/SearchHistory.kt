@@ -1,7 +1,6 @@
 package com.example.playlistmaker
 
 import android.content.SharedPreferences
-import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.lang.reflect.Type
@@ -26,13 +25,11 @@ class SearchHistory(val sharedPref: SharedPreferences) {
         if (indexNumber != -1) {
             historyList.removeAt(indexNumber)
         }
-        /*if (historyList.size > 10) {
+        if (historyList.size >= 10) {
             historyList.removeAt(0)
-        }*/
+        }
         historyList.add(track)
-        //historyList.reverse()
         write(historyList)
-        Log.d("SearchHistory", "отработал метод read, добавлен элемент: $historyList")
     }
 
     fun read(json: String?): MutableList<Track> {

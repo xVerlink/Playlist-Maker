@@ -89,10 +89,12 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/search_screen_recycler_search_history"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:layout_marginTop="20dp"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            android:orientation="vertical" />
+            android:orientation="vertical"
+            app:reverseLayout="true"/>
 
         <Button
             android:id="@+id/search_screen_clear_history"

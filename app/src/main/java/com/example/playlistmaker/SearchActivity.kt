@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.text.Editable
-import android.util.Log
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
@@ -57,33 +56,6 @@ class SearchActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search)
 
-        val sharedPrefs = getSharedPreferences(App.PLAYLIST_MAKER_PREFERENCES, MODE_PRIVATE)
-        val searchHistory = SearchHistory(sharedPrefs)
-
-        tracks = mutableListOf()
-        historyTracks = searchHistory.read(sharedPrefs.getString(SearchHistory.SEARCH_HISTORY_KEY, ""))
-        Log.d("trackList", "tracklist updated")
-
-        listener = SharedPreferences.OnSharedPreferenceChangeListener {sharedPreferences, key ->
-            if (key == SearchHistory.SEARCH_HISTORY_KEY) {
-                historyTracks.clear()
-                historyTracks.addAll(searchHistory.read(sharedPrefs.getString(SearchHistory.SEARCH_HISTORY_KEY, "")))
-                searchHistoryAdapter.notifyDataSetChanged()
-                Log.d("SearchActivity", "отработал листенер на изменение состояния хистори листа")
-            }
-        }
-        sharedPrefs.registerOnSharedPreferenceChangeListener(listener)
-
-
-        trackAdapter = TrackAdapter(tracks, searchHistory)
-        searchHistoryAdapter = TrackAdapter(historyTracks, searchHistory)
-
-        val recyclerSearchResults = findViewById<RecyclerView>(R.id.search_screen_recycler_view)
-        recyclerSearchResults.adapter = trackAdapter
-
-        val recyclerHistoryResults = findViewById<RecyclerView>(R.id.search_screen_recycler_search_history)
-        recyclerHistoryResults.adapter = searchHistoryAdapter
-
         returnBackButton = findViewById(R.id.search_screen_return_button)
         inputEditText = findViewById(R.id.edit_text_search)
         clearButton = findViewById(R.id.clear_text_icon)
@@ -92,12 +64,28 @@ class SearchActivity : AppCompatActivity() {
         refreshButton = findViewById(R.id.search_screen_refresh_button)
         searchHistoryLayout = findViewById(R.id.search_screen_history)
         clearHistory = findViewById(R.id.search_screen_clear_history)
+        val recyclerSearchResults = findViewById<RecyclerView>(R.id.search_screen_recycler_view)
+        val recyclerHistoryResults = findViewById<RecyclerView>(R.id.search_screen_recycler_search_history)
 
-        clearHistory.setOnClickListener {
-            sharedPrefs.edit() { remove(SearchHistory.SEARCH_HISTORY_KEY) }
-            historyTracks.clear()
-            searchHistoryLayout.visibility = View.GONE
+        val sharedPrefs = getSharedPreferences(App.PLAYLIST_MAKER_PREFERENCES, MODE_PRIVATE)
+        val searchHistory = SearchHistory(sharedPrefs)
+
+        tracks = mutableListOf()
+        historyTracks = searchHistory.read(sharedPrefs.getString(SearchHistory.SEARCH_HISTORY_KEY, ""))
+
+        listener = SharedPreferences.OnSharedPreferenceChangeListener {sharedPreferences, key ->
+            if (key == SearchHistory.SEARCH_HISTORY_KEY) {
+                historyTracks.clear()
+                historyTracks.addAll(searchHistory.read(sharedPrefs.getString(SearchHistory.SEARCH_HISTORY_KEY, "")))
+                searchHistoryAdapter.notifyDataSetChanged()
+            }
         }
+        sharedPrefs.registerOnSharedPreferenceChangeListener(listener)
+
+        trackAdapter = TrackAdapter(tracks, searchHistory)
+        searchHistoryAdapter = TrackAdapter(historyTracks, searchHistory)
+        recyclerSearchResults.adapter = trackAdapter
+        recyclerHistoryResults.adapter = searchHistoryAdapter
 
         returnBackButton.setOnClickListener {
             finish()
@@ -108,9 +96,21 @@ class SearchActivity : AppCompatActivity() {
         inputEditText.setOnClickListener {
             inputEditText.requestFocus()
         }
-        
+
+        inputEditText.addTextChangedListener(
+            {text: CharSequence?, start: Int, count: Int, after: Int ->  },
+            {text: CharSequence?, start: Int, before: Int, count: Int ->
+                if (text.isNullOrEmpty()) {
+                    clearButton.visibility = View.GONE
+                } else {
+                    clearButton.visibility = View.VISIBLE
+                }
+                searchHistoryLayout.visibility = if (inputEditText.hasFocus() && text?.isEmpty() == true) View.VISIBLE else View.GONE
+            },
+            {text: Editable? ->  input = text.toString()}
+        )
+
         inputEditText.setOnFocusChangeListener { view, hasFocus ->
-            //searchHistoryAdapter.notifyDataSetChanged()
             searchHistoryLayout.visibility = if (hasFocus && inputEditText.text.isEmpty()) View.VISIBLE else View.GONE
         }
 
@@ -125,6 +125,12 @@ class SearchActivity : AppCompatActivity() {
             refreshButton.visibility = View.GONE
         }
 
+        clearHistory.setOnClickListener {
+            sharedPrefs.edit() { remove(SearchHistory.SEARCH_HISTORY_KEY) }
+            historyTracks.clear()
+            searchHistoryLayout.visibility = View.GONE
+        }
+
         refreshButton.setOnClickListener {
             search()
         }
@@ -136,19 +142,6 @@ class SearchActivity : AppCompatActivity() {
             false
         }
 
-        inputEditText.addTextChangedListener(
-            {text: CharSequence?, start: Int, count: Int, after: Int ->  },
-            {text: CharSequence?, start: Int, before: Int, count: Int ->
-                if (text.isNullOrEmpty()) {
-                    clearButton.visibility = View.GONE
-                } else {
-                    clearButton.visibility = View.VISIBLE
-                }
-                //searchHistoryAdapter.notifyDataSetChanged()
-                searchHistoryLayout.visibility = if (inputEditText.hasFocus() && text?.isEmpty() == true) View.VISIBLE else View.GONE
-            },
-            {text: Editable? ->  input = text.toString()}
-        )
     }
 
     private fun search() {
