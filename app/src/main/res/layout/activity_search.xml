@@ -13,7 +13,7 @@
 
         <ImageView
             android:id="@+id/search_screen_return_button"
-            style="@style/ActivityTitleIconStyle"
+            style="@style/ActivityToolbarIconStyle"
             app:tint="?attr/colorPrimary"/>
 
         <TextView

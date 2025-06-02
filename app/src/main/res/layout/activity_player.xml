@@ -18,12 +18,11 @@
         android:orientation="vertical"
         app:layout_constraintGuide_end="24dp"/>
 
-    <ImageButton
+    <ImageView
         android:id="@+id/playerScreenReturnButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        style="@style/ActivityToolbarIconStyle"
+        app:tint="?attr/colorPrimary"
         android:layout_marginStart="16dp"
-        android:src="@drawable/ic_arrow_back"
         android:background="@null"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
@@ -98,6 +97,17 @@
         app:layout_constraintEnd_toEndOf="@id/rightBorder"/>
 
     <TextView
+        android:id="@+id/playerScreenTrackTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="5:35"
+        app:layout_constraintStart_toStartOf="@id/leftBorder"
+        app:layout_constraintEnd_toEndOf="@id/rightBorder"
+        app:layout_constraintTop_toBottomOf="@id/playerScreenPlayButton"/>
+
+
+    <TextView
         android:id="@+id/playerScreenDurationWord"
         android:tag="durationWord"
         android:layout_width="wrap_content"
@@ -109,7 +119,8 @@
         android:textColor="@color/PM_grey"
         android:text="@string/duration"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/playerScreenPlayButton"/>
+        app:layout_constraintTop_toBottomOf="@id/playerScreenPlayButton"
+        android:visibility="gone"/>
 
     <TextView
         android:id="@+id/playerScreenDuration"
@@ -122,13 +133,15 @@
         android:textColor="@color/PM_black"
         android:text="5:35"
         app:layout_constraintTop_toTopOf="@id/playerScreenDurationWord"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        android:visibility="gone"/>
 
     <androidx.constraintlayout.widget.Group
         android:id="@+id/durationGroup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:constraint_referenced_tags="durationWord, duration"/>
+        app:constraint_referenced_ids="playerScreenDurationWord, playerScreenDuration"
+        android:visibility="gone"/>
 
     <TextView
         android:id="@+id/playerScreenAlbumWord"
@@ -142,7 +155,8 @@
         android:textColor="@color/PM_grey"
         android:text="@string/album"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/playerScreenDurationWord"/>
+        app:layout_constraintTop_toBottomOf="@id/playerScreenDurationWord"
+        android:visibility="gone"/>
 
     <TextView
         android:id="@+id/playerScreenAlbum"
@@ -155,13 +169,15 @@
         android:textColor="@color/PM_black"
         android:text="Yesterday (Remastered 2009)"
         app:layout_constraintTop_toTopOf="@id/playerScreenAlbumWord"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        android:visibility="gone"/>
 
     <androidx.constraintlayout.widget.Group
         android:id="@+id/albumGroup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:constraint_referenced_tags="albumWord, album"/>
+        app:constraint_referenced_ids="playerScreenAlbumWord, playerScreenAlbum"
+        android:visibility="gone"/>
 
     <TextView
         android:id="@+id/playerScreenYearWord"
@@ -175,7 +191,8 @@
         android:textColor="@color/PM_grey"
         android:text="@string/year"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/playerScreenAlbumWord"/>
+        app:layout_constraintTop_toBottomOf="@id/playerScreenAlbumWord"
+        android:visibility="gone"/>
 
     <TextView
         android:id="@+id/playerScreenYear"
@@ -188,13 +205,15 @@
         android:textColor="@color/PM_black"
         android:text="1965"
         app:layout_constraintTop_toTopOf="@id/playerScreenYearWord"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        android:visibility="gone"/>
 
     <androidx.constraintlayout.widget.Group
         android:id="@+id/yearGroup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:constraint_referenced_tags="yearWord, year"/>
+        app:constraint_referenced_ids="playerScreenYearWord, playerScreenYear"
+        android:visibility="gone"/>
 
     <TextView
         android:id="@+id/playerScreenGenreWord"
@@ -208,7 +227,8 @@
         android:textColor="@color/PM_grey"
         android:text="@string/genre"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/playerScreenYearWord"/>
+        app:layout_constraintTop_toBottomOf="@id/playerScreenYearWord"
+        android:visibility="gone"/>
 
     <TextView
         android:id="@+id/playerScreenGenre"
@@ -221,13 +241,15 @@
         android:textColor="@color/PM_black"
         android:text="Рок"
         app:layout_constraintTop_toTopOf="@id/playerScreenGenreWord"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        android:visibility="gone"/>
 
     <androidx.constraintlayout.widget.Group
         android:id="@+id/genreGroup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:constraint_referenced_tags="genreWord, genre"/>
+        app:constraint_referenced_ids="playerScreenGenreWord, playerScreenGenre"
+        android:visibility="gone"/>
 
     <TextView
         android:id="@+id/playerScreenCountryWord"
@@ -241,7 +263,8 @@
         android:textColor="@color/PM_grey"
         android:text="@string/country"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/playerScreenGenreWord"/>
+        app:layout_constraintTop_toBottomOf="@id/playerScreenGenreWord"
+        android:visibility="gone"/>
 
     <TextView
         android:id="@+id/playerScreenCountry"
@@ -254,12 +277,14 @@
         android:textColor="@color/PM_black"
         android:text="Великобритания"
         app:layout_constraintTop_toTopOf="@id/playerScreenCountryWord"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        android:visibility="gone"/>
 
     <androidx.constraintlayout.widget.Group
         android:id="@+id/countryGroup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:constraint_referenced_tags="countryWord, country"/>
+        app:constraint_referenced_ids="playerScreenCountryWord, playerScreenCountry"
+        android:visibility="gone"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

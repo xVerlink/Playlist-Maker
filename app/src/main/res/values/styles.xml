@@ -28,7 +28,7 @@
         <item name="android:tint">@color/PM_grey</item>
     </style>
 
-    <style name="ActivityTitleIconStyle">
+    <style name="ActivityToolbarIconStyle">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">match_parent</item>
         <item name="android:src">@drawable/ic_arrow_back</item>

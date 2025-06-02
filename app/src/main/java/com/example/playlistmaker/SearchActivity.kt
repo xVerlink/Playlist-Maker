@@ -1,9 +1,11 @@
 package com.example.playlistmaker
 
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.text.Editable
+import android.util.Log
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
@@ -22,6 +24,8 @@ import retrofit2.converter.gson.GsonConverterFactory
 import androidx.core.content.edit
 import androidx.core.view.isVisible
 
+
+const val TRACK_KEY = "TRACK"
 
 class SearchActivity : AppCompatActivity() {
 
@@ -85,8 +89,19 @@ class SearchActivity : AppCompatActivity() {
         }
         sharedPrefs.registerOnSharedPreferenceChangeListener(listener)
 
-        trackAdapter = TrackAdapter(tracks) { track: Track -> searchHistory.add(track) }
-        searchHistoryAdapter = TrackAdapter(historyTracks) { track: Track -> searchHistory.add(track) }
+        trackAdapter = TrackAdapter(tracks) { track: Track ->
+            searchHistory.add(track)
+            val intent = Intent(this, PlayerActivity::class.java)
+            intent.putExtra(TRACK_KEY, track)
+            startActivity(intent)
+        }
+
+        searchHistoryAdapter = TrackAdapter(historyTracks) { track: Track ->
+            searchHistory.add(track)
+            val intent = Intent(this, PlayerActivity::class.java)
+            intent.putExtra(TRACK_KEY, track)
+            startActivity(intent)
+        }
         recyclerSearchResults.adapter = trackAdapter
         recyclerHistoryResults.adapter = searchHistoryAdapter
 
@@ -156,6 +171,13 @@ class SearchActivity : AppCompatActivity() {
             }
             false
         }
+    }
+
+    private fun onItemClick(track: Track) {
+        searchHistory.add(track)
+        val intent = Intent(this, PlayerActivity::class.java)
+        intent.putExtra(TRACK_KEY, track)
+        startActivity(intent)
     }
 
     private fun search() {
