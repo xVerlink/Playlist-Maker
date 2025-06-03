@@ -17,7 +17,7 @@ import java.util.Locale
 
 
 class PlayerActivity : AppCompatActivity() {
-     private lateinit var returnButton: ImageButton
+     private lateinit var returnButton: ImageView
      private lateinit var cover: ImageView
      private lateinit var trackName: TextView
      private lateinit var artist: TextView
