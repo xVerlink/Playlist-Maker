@@ -3,24 +3,17 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="?attr/backgroundColor">
 
-    <LinearLayout
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/searchScreenToolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginStart="@dimen/padding">
-
-        <ImageView
-            android:id="@+id/search_screen_return_button"
-            style="@style/ActivityToolbarIconStyle"
-            app:tint="?attr/colorPrimary"/>
-
-        <TextView
-            style="@style/ActivityTitleTextStyle"
-            android:text="@string/search"/>
-
-    </LinearLayout>
+        app:navigationIcon="@drawable/ic_arrow_back"
+        app:navigationIconTint="?attr/colorPrimary"
+        app:title="@string/search"
+        app:titleTextAppearance="@style/ToolbarTextStyle"/>
 
     <FrameLayout
         android:layout_width="match_parent"

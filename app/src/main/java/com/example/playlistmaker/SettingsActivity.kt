@@ -3,10 +3,10 @@ package com.example.playlistmaker
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
+import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.switchmaterial.SwitchMaterial
 
 
@@ -15,8 +15,8 @@ class SettingsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
 
-        val returnBackButton = findViewById<ImageView>(R.id.settings_screen_return_button)
-        returnBackButton.setOnClickListener {
+        val toolbar = findViewById<MaterialToolbar>(R.id.settingsScreenToolbar)
+        toolbar.setNavigationOnClickListener {
             finish()
         }
 

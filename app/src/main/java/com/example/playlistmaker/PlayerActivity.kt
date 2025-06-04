@@ -11,13 +11,13 @@ import androidx.constraintlayout.widget.Group
 import androidx.core.view.isVisible
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import com.google.android.material.appbar.MaterialToolbar
 import java.text.SimpleDateFormat
-import java.util.Date
 import java.util.Locale
 
 
 class PlayerActivity : AppCompatActivity() {
-     private lateinit var returnButton: ImageView
+     private lateinit var toolbar: MaterialToolbar
      private lateinit var cover: ImageView
      private lateinit var trackName: TextView
      private lateinit var artist: TextView
@@ -38,11 +38,10 @@ class PlayerActivity : AppCompatActivity() {
      private lateinit var track: Track
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.d("qweasd", "here")
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_player)
 
-        returnButton = findViewById(R.id.playerScreenReturnButton)
+        toolbar = findViewById(R.id.playerScreenToolbar)
         cover = findViewById(R.id.playerScreenCover)
         trackName = findViewById(R.id.playerScreenTrackName)
         artist = findViewById(R.id.playerScreenArtistName)
@@ -63,7 +62,7 @@ class PlayerActivity : AppCompatActivity() {
         track = intent.getSerializableExtra(TRACK_KEY) as Track
 
 
-        returnButton.setOnClickListener {
+        toolbar.setNavigationOnClickListener {
             finish()
         }
 

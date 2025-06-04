@@ -7,5 +7,7 @@
         <item name="colorPrimary">@color/PM_white</item>
         <!-- Secondary brand color. -->
         <item name="colorSecondary">@color/PM_blue</item>
+        <!--Background color for themes-->
+        <item name="backgroundColor">@color/PM_black</item>
     </style>
 </resources>
