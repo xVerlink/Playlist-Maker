@@ -80,7 +80,7 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     private fun setCover() {
-        val roundRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2f, resources.displayMetrics).toInt()
+        val roundRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8f, resources.displayMetrics).toInt()
         Glide.with(this)
             .load(track.getCover512())
             .placeholder(R.drawable.ic_placeholder)
