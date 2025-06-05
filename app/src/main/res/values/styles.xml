@@ -28,15 +28,13 @@
         <item name="android:tint">@color/PM_grey</item>
     </style>
 
-    <style name="ActivityTitleIconStyle">
+    <style name="ActivityToolbarIconStyle">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">match_parent</item>
         <item name="android:src">@drawable/ic_arrow_back</item>
     </style>
 
-    <style name="ActivityTitleTextStyle">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
+    <style name="ToolbarTextStyle">
         <item name="android:textSize">22sp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textColor">?attr/colorPrimary</item>
@@ -45,7 +43,7 @@
     </style>
     
     <style name="SearchFieldColorStyle">
-        <item name="android:background">@drawable/rounded</item>
+        <item name="android:background">@drawable/rounded_8dp</item>
         <item name="android:drawableTint">@color/PM_text_grey</item>
         <item name="android:textColorHint">@color/PM_text_grey</item>
     </style>
@@ -65,6 +63,18 @@
     <style name="RightSideIconsStyle">
         <item name="android:tint">@color/PM_grey</item>
         <item name="android:layout_gravity">center|end</item>
+    </style>
+    
+    <style name="TrackParameters">
+        <item name="android:textSize">13sp</item>
+        <item name="android:fontFamily">@font/ys_display_regular</item>
+        <item name="android:textColor">@color/PM_text_grey</item>
+    </style>
+
+    <style name="TrackParametersValues">
+        <item name="android:textSize">13sp</item>
+        <item name="android:fontFamily">@font/ys_display_regular</item>
+        <item name="android:textColor">@color/PM_black</item>
     </style>
 
 </resources>

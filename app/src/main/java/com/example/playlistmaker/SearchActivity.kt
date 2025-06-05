@@ -1,6 +1,7 @@
 package com.example.playlistmaker
 
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.text.Editable
@@ -21,7 +22,10 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import androidx.core.content.edit
 import androidx.core.view.isVisible
+import com.google.android.material.appbar.MaterialToolbar
 
+
+const val TRACK_KEY = "TRACK"
 
 class SearchActivity : AppCompatActivity() {
 
@@ -44,7 +48,7 @@ class SearchActivity : AppCompatActivity() {
     lateinit var searchHistoryAdapter: TrackAdapter
     lateinit var searchHistory: SearchHistory
 
-    lateinit var returnBackButton: ImageView
+    lateinit var toolbar: MaterialToolbar
     lateinit var inputEditText: EditText
     lateinit var clearButton: ImageView
     lateinit var placeholder: ImageView
@@ -58,7 +62,7 @@ class SearchActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search)
 
-        returnBackButton = findViewById(R.id.search_screen_return_button)
+        toolbar = findViewById(R.id.searchScreenToolbar)
         inputEditText = findViewById(R.id.edit_text_search)
         clearButton = findViewById(R.id.clear_text_icon)
         placeholder = findViewById(R.id.search_screen_error_placeholder)
@@ -85,12 +89,23 @@ class SearchActivity : AppCompatActivity() {
         }
         sharedPrefs.registerOnSharedPreferenceChangeListener(listener)
 
-        trackAdapter = TrackAdapter(tracks) { track: Track -> searchHistory.add(track) }
-        searchHistoryAdapter = TrackAdapter(historyTracks) { track: Track -> searchHistory.add(track) }
+        trackAdapter = TrackAdapter(tracks) { track: Track ->
+            searchHistory.add(track)
+            val intent = Intent(this, PlayerActivity::class.java)
+            intent.putExtra(TRACK_KEY, track)
+            startActivity(intent)
+        }
+
+        searchHistoryAdapter = TrackAdapter(historyTracks) { track: Track ->
+            searchHistory.add(track)
+            val intent = Intent(this, PlayerActivity::class.java)
+            intent.putExtra(TRACK_KEY, track)
+            startActivity(intent)
+        }
         recyclerSearchResults.adapter = trackAdapter
         recyclerHistoryResults.adapter = searchHistoryAdapter
 
-        returnBackButton.setOnClickListener {
+        toolbar.setNavigationOnClickListener {
             finish()
         }
 
@@ -108,6 +123,8 @@ class SearchActivity : AppCompatActivity() {
                     searchHistoryLayout.isVisible = true
                     historyHeader.isVisible = true
                     clearHistory.isVisible = true
+                    tracks.clear()
+                    trackAdapter.notifyDataSetChanged()
                 } else {
                     searchHistoryLayout.isVisible = false
                     historyHeader.isVisible = false
@@ -122,6 +139,8 @@ class SearchActivity : AppCompatActivity() {
                 searchHistoryLayout.isVisible = true
                 historyHeader.isVisible = true
                 clearHistory.isVisible = true
+                tracks.clear()
+                trackAdapter.notifyDataSetChanged()
             } else {
                 searchHistoryLayout.isVisible = false
                 historyHeader.isVisible = false
@@ -156,6 +175,13 @@ class SearchActivity : AppCompatActivity() {
             }
             false
         }
+    }
+
+    private fun onItemClick(track: Track) {
+        searchHistory.add(track)
+        val intent = Intent(this, PlayerActivity::class.java)
+        intent.putExtra(TRACK_KEY, track)
+        startActivity(intent)
     }
 
     private fun search() {
