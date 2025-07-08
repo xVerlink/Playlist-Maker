@@ -9,9 +9,6 @@ import androidx.core.content.edit
 
 
 class SearchHistory(val sharedPref: SharedPreferences) {
-    companion object {
-        const val SEARCH_HISTORY_KEY = "search_history_key"
-    }
 
     fun add(track: Track) {
         val json = sharedPref.getString(SEARCH_HISTORY_KEY, "")
@@ -44,5 +41,9 @@ class SearchHistory(val sharedPref: SharedPreferences) {
         sharedPref.edit() {
             putString(SEARCH_HISTORY_KEY, Gson().toJson(tracks))
         }
+    }
+
+    companion object {
+        const val SEARCH_HISTORY_KEY = "search_history_key"
     }
 }

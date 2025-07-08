@@ -20,13 +20,7 @@ import java.util.Locale
 
 
 class PlayerActivity : AppCompatActivity() {
-    companion object {
-        private const val STATE_DEFAULT = 0
-        private const val STATE_PREPARED = 1
-        private const val STATE_PLAYING = 2
-        private const val STATE_PAUSED = 3
-        private const val TRACK_CURRENT_TIME_DELAY = 333L
-    }
+
     private var playerState = STATE_DEFAULT
 
     private lateinit var playTimeRunnable : Runnable
@@ -116,7 +110,7 @@ class PlayerActivity : AppCompatActivity() {
             mediaPlayer.setOnCompletionListener {
                 playerState = STATE_PREPARED
                 handler.removeCallbacks(playTimeRunnable)
-                currentTrackTime.text = "00:00"
+                currentTrackTime.text = resources.getString(R.string.media_player_default_time)
                 playButton.setImageResource(R.drawable.play_button)
             }
         } else {
@@ -169,7 +163,7 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     private fun setCurrentDuration() {
-        currentTrackTime.text = "00:00"
+        currentTrackTime.text = resources.getString(R.string.media_player_default_time)
     }
 
     private fun setDuration() {
@@ -214,5 +208,13 @@ class PlayerActivity : AppCompatActivity() {
         super.onDestroy()
         handler.removeCallbacks(playTimeRunnable)
         mediaPlayer.release()
+    }
+
+    companion object {
+        private const val STATE_DEFAULT = 0
+        private const val STATE_PREPARED = 1
+        private const val STATE_PLAYING = 2
+        private const val STATE_PAUSED = 3
+        private const val TRACK_CURRENT_TIME_DELAY = 333L
     }
 }

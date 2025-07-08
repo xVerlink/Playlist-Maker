@@ -13,9 +13,6 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 class TrackViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
-    companion object {
-        private const val CLICK_DEBOUNCE_DELAY = 1000L
-    }
 
     private val albumCover: ImageView = itemView.findViewById(R.id.search_screen_album_cover)
     private val trackName: TextView = itemView.findViewById(R.id.search_screen_track_name)
@@ -52,5 +49,9 @@ class TrackViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
             handler.postDelayed({isClickAllowed = true}, CLICK_DEBOUNCE_DELAY)
         }
         return current
+    }
+
+    companion object {
+        private const val CLICK_DEBOUNCE_DELAY = 1000L
     }
 }

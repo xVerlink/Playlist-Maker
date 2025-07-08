@@ -32,10 +32,6 @@ const val TRACK_KEY = "TRACK"
 
 class SearchActivity : AppCompatActivity() {
 
-    companion object {
-        private const val SAVED_STRING: String = "SAVED_STRING"
-        private const val SEARCH_DEBOUNCE_DELAY = 2000L
-    }
     private var input: String? = ""
     private val appleMusicBaseUrl = "https://itunes.apple.com"
     private val retrofit = Retrofit.Builder()
@@ -203,7 +199,7 @@ class SearchActivity : AppCompatActivity() {
     private fun search() {
         progressBar.isVisible = !inputEditText.text.isNullOrEmpty()
         if (inputEditText.text.isNotEmpty()) {
-            appleMusicService.getSongs(inputEditText.text.toString()).enqueue(object : Callback<TracksResponse> {
+            appleMusicService.getSongs(inputEditText.text.toString(), "song").enqueue(object : Callback<TracksResponse> {
                 override fun onResponse(call: Call<TracksResponse>, response: Response<TracksResponse>) {
                     progressBar.isVisible = false
                     recyclerSearchResults.isVisible = true
@@ -252,6 +248,11 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        handler.removeCallbacks(searchRunnable)
+    }
+
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putString(SAVED_STRING, input)
@@ -260,6 +261,10 @@ class SearchActivity : AppCompatActivity() {
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
         input = savedInstanceState.getString(SAVED_STRING)
+    }
 
+    companion object {
+        private const val SAVED_STRING: String = "SAVED_STRING"
+        private const val SEARCH_DEBOUNCE_DELAY = 2000L
     }
 }
