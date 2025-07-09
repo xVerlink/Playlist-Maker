@@ -43,7 +43,7 @@
             android:ellipsize="end"
             android:maxEms="15"
             android:maxLines="1"
-            style="@style/DefaultTextSmall"/>
+            style="@style/TextGreyWhite11sp"/>
 
         <ImageView
             android:id="@+id/divider_dot"
@@ -64,7 +64,7 @@
             app:layout_constraintTop_toBottomOf="@+id/search_screen_track_name"
             app:layout_constraintBottom_toBottomOf="@id/search_screen_artist_name"
             android:layout_marginStart="5dp"
-            style="@style/DefaultTextSmall"/>
+            style="@style/TextGreyWhite11sp"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <ImageView
@@ -73,5 +73,5 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:src="@drawable/ic_arrow_right"
-        style="@style/RightSideIconsStyle"/>
+        android:layout_gravity="center|end"/>
 </LinearLayout>

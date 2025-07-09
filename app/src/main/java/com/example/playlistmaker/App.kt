@@ -8,10 +8,6 @@ import androidx.core.content.edit
 
 class App: Application() {
 
-    companion object {
-        const val PLAYLIST_MAKER_PREFERENCES = "playlist_maker_shared_preferences"
-        const val IS_THEME_DARK = "is_theme_dark"
-    }
     var darkTheme = false
 
     override fun onCreate() {
@@ -33,5 +29,10 @@ class App: Application() {
                 AppCompatDelegate.MODE_NIGHT_NO
             }
         )
+    }
+
+    companion object {
+        const val PLAYLIST_MAKER_PREFERENCES = "playlist_maker_shared_preferences"
+        const val IS_THEME_DARK = "is_theme_dark"
     }
 }

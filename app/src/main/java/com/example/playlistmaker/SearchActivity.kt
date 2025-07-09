@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.Editable
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
@@ -11,6 +13,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
@@ -29,9 +32,6 @@ const val TRACK_KEY = "TRACK"
 
 class SearchActivity : AppCompatActivity() {
 
-    companion object {
-        private const val SAVED_STRING: String = "SAVED_STRING"
-    }
     private var input: String? = ""
     private val appleMusicBaseUrl = "https://itunes.apple.com"
     private val retrofit = Retrofit.Builder()
@@ -42,21 +42,27 @@ class SearchActivity : AppCompatActivity() {
 
     private lateinit var listener: SharedPreferences.OnSharedPreferenceChangeListener
 
-    lateinit var tracks: MutableList<Track>
-    lateinit var historyTracks: MutableList<Track>
-    lateinit var trackAdapter: TrackAdapter
-    lateinit var searchHistoryAdapter: TrackAdapter
-    lateinit var searchHistory: SearchHistory
+    private lateinit var handler: Handler
+    private lateinit var searchRunnable: Runnable
 
-    lateinit var toolbar: MaterialToolbar
-    lateinit var inputEditText: EditText
-    lateinit var clearButton: ImageView
-    lateinit var placeholder: ImageView
-    lateinit var errorText: TextView
-    lateinit var refreshButton: Button
-    lateinit var searchHistoryLayout: LinearLayout
-    lateinit var historyHeader: TextView
-    lateinit var clearHistory: Button
+    private lateinit var tracks: MutableList<Track>
+    private lateinit var historyTracks: MutableList<Track>
+    private lateinit var trackAdapter: TrackAdapter
+    private lateinit var searchHistoryAdapter: TrackAdapter
+    private lateinit var searchHistory: SearchHistory
+    private lateinit var recyclerSearchResults: RecyclerView
+    private lateinit var recyclerHistoryResults: RecyclerView
+
+    private lateinit var toolbar: MaterialToolbar
+    private lateinit var inputEditText: EditText
+    private lateinit var clearButton: ImageView
+    private lateinit var placeholder: ImageView
+    private lateinit var errorText: TextView
+    private lateinit var refreshButton: Button
+    private lateinit var searchHistoryLayout: LinearLayout
+    private lateinit var historyHeader: TextView
+    private lateinit var clearHistory: Button
+    private lateinit var progressBar: ProgressBar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,8 +77,12 @@ class SearchActivity : AppCompatActivity() {
         searchHistoryLayout = findViewById(R.id.search_screen_history)
         historyHeader = findViewById(R.id.search_history_header)
         clearHistory = findViewById(R.id.search_screen_clear_history)
-        val recyclerSearchResults = findViewById<RecyclerView>(R.id.search_screen_recycler_view)
-        val recyclerHistoryResults = findViewById<RecyclerView>(R.id.search_screen_recycler_search_history)
+        progressBar = findViewById(R.id.progressBar)
+        handler = Handler(Looper.getMainLooper())
+        searchRunnable = Runnable { search() }
+
+        recyclerSearchResults = findViewById(R.id.search_screen_recycler_view)
+        recyclerHistoryResults = findViewById(R.id.search_screen_recycler_search_history)
 
         val sharedPrefs = getSharedPreferences(App.PLAYLIST_MAKER_PREFERENCES, MODE_PRIVATE)
         searchHistory = SearchHistory(sharedPrefs)
@@ -119,6 +129,9 @@ class SearchActivity : AppCompatActivity() {
             {text: CharSequence?, start: Int, count: Int, after: Int ->  },
             {text: CharSequence?, start: Int, before: Int, count: Int ->
                 clearButton.isVisible = !text.isNullOrEmpty()
+                recyclerSearchResults.isVisible = false
+                placeholder.isVisible = false
+                errorText.isVisible = false
                 if (inputEditText.hasFocus() && text?.isEmpty() == true && historyTracks.isNotEmpty()) {
                     searchHistoryLayout.isVisible = true
                     historyHeader.isVisible = true
@@ -130,6 +143,7 @@ class SearchActivity : AppCompatActivity() {
                     historyHeader.isVisible = false
                     clearHistory.isVisible = false
                 }
+                searchDebounce()
             },
             {text: Editable? ->  input = text.toString()}
         )
@@ -177,17 +191,18 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
-    private fun onItemClick(track: Track) {
-        searchHistory.add(track)
-        val intent = Intent(this, PlayerActivity::class.java)
-        intent.putExtra(TRACK_KEY, track)
-        startActivity(intent)
+    private fun searchDebounce() {
+        handler.removeCallbacks(searchRunnable)
+        handler.postDelayed(searchRunnable, SEARCH_DEBOUNCE_DELAY)
     }
 
     private fun search() {
+        progressBar.isVisible = !inputEditText.text.isNullOrEmpty()
         if (inputEditText.text.isNotEmpty()) {
             appleMusicService.getSongs(inputEditText.text.toString()).enqueue(object : Callback<TracksResponse> {
                 override fun onResponse(call: Call<TracksResponse>, response: Response<TracksResponse>) {
+                    progressBar.isVisible = false
+                    recyclerSearchResults.isVisible = true
                     if (response.isSuccessful) {
                         tracks.clear()
                         val results = response.body()?.results
@@ -206,9 +221,9 @@ class SearchActivity : AppCompatActivity() {
                 }
 
                 override fun onFailure(call: Call<TracksResponse>, t: Throwable) {
+                    progressBar.isVisible = false
                     showMessage(getString(R.string.connection_problem), t.message.toString())
                 }
-
             })
         }
     }
@@ -233,6 +248,11 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        handler.removeCallbacks(searchRunnable)
+    }
+
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putString(SAVED_STRING, input)
@@ -241,6 +261,10 @@ class SearchActivity : AppCompatActivity() {
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
         input = savedInstanceState.getString(SAVED_STRING)
+    }
 
+    companion object {
+        private const val SAVED_STRING: String = "SAVED_STRING"
+        private const val SEARCH_DEBOUNCE_DELAY = 2000L
     }
 }
