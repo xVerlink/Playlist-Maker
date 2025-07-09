@@ -199,7 +199,7 @@ class SearchActivity : AppCompatActivity() {
     private fun search() {
         progressBar.isVisible = !inputEditText.text.isNullOrEmpty()
         if (inputEditText.text.isNotEmpty()) {
-            appleMusicService.getSongs(inputEditText.text.toString(), "song").enqueue(object : Callback<TracksResponse> {
+            appleMusicService.getSongs(inputEditText.text.toString()).enqueue(object : Callback<TracksResponse> {
                 override fun onResponse(call: Call<TracksResponse>, response: Response<TracksResponse>) {
                     progressBar.isVisible = false
                     recyclerSearchResults.isVisible = true
