@@ -1,12 +1,11 @@
-package com.example.playlistmaker
+package com.example.playlistmaker.data.repository
 
 import android.content.SharedPreferences
+import androidx.core.content.edit
+import com.example.playlistmaker.domain.models.Track
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.lang.reflect.Type
-import androidx.core.content.edit
-
-
 
 class SearchHistory(val sharedPref: SharedPreferences) {
 
