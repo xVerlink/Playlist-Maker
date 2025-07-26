@@ -1,7 +1,5 @@
 package com.example.playlistmaker.data.repository
 
-import android.util.Log
-import androidx.core.util.LogWriter
 import com.example.playlistmaker.data.dto.TracksSearchRequest
 import com.example.playlistmaker.data.dto.TracksSearchResponse
 import com.example.playlistmaker.data.network.RetrofitNetworkClient
@@ -34,28 +32,5 @@ class TracksRepositoryImpl(val retrofit: RetrofitNetworkClient) : TracksReposito
         } else {
             ServerResponse.Error(response.resultCode)
         }
-
-
-
-
-        /*if (response.resultCode == 200) {
-            return (response as TracksSearchResponse).results.map {
-                val formattedTime = if (!it.trackTime.isNullOrEmpty()) SimpleDateFormat("mm:ss", Locale.getDefault()).format(it.trackTime.toLong()) else it.trackTime
-                Track(
-                    it.trackId,
-                    it.trackName,
-                    it.artistName,
-                    it.collectionName,
-                    it.releaseDate,
-                    it.primaryGenreName,
-                    it.country,
-                    it.previewUrl,
-                    formattedTime,
-                    it.artworkUrl100
-                )
-            }
-        } else {
-            return emptyList()
-        }*/
     }
 }

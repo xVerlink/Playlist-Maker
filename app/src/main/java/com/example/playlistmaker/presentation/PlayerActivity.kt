@@ -168,8 +168,7 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     private fun setDuration() {
-        trackDuration.text = SimpleDateFormat("mm:ss", Locale.getDefault())
-            .format(track.trackTime.toLong())
+        trackDuration.text = track.trackTime
         durationGroup.isVisible = !trackDuration.text.isNullOrEmpty()
     }
 
