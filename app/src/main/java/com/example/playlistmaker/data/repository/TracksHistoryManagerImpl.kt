@@ -32,10 +32,10 @@ class TracksHistoryManagerImpl(val sharedPref: SharedPreferences) : TracksHistor
     }
 
     override fun getTracksHistory(historyKey: String): MutableList<Track> {
-        if (historyKey.isNullOrEmpty()) {
+        val json = sharedPref.getString(historyKey, "")
+        if (json.isNullOrEmpty()) {
             return mutableListOf()
         }
-        val json = sharedPref.getString(historyKey, "")
         val listType: Type = object : TypeToken<ArrayList<Track>>() {}.type
         return Gson().fromJson(json, listType)
     }
