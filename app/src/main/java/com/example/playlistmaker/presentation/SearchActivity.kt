@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.text.Editable
-import android.util.Log
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
@@ -18,19 +17,12 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.RecyclerView
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import androidx.core.content.edit
 import androidx.core.view.isVisible
 import com.example.playlistmaker.App
 import com.example.playlistmaker.R
-import com.example.playlistmaker.data.repository.SearchHistory
-import com.example.playlistmaker.data.network.TracksApi
-import com.example.playlistmaker.data.dto.TracksSearchResponse
 import com.example.playlistmaker.Creator
+import com.example.playlistmaker.domain.api.TracksHistoryManager
 import com.example.playlistmaker.domain.api.TracksInteractor
 import com.example.playlistmaker.domain.models.Track
 import com.example.playlistmaker.domain.models.TracksProvider
@@ -44,7 +36,7 @@ class SearchActivity : AppCompatActivity() {
     private var input: String? = ""
 
     private val interactor = Creator.getTracksInteractor()
-    private lateinit var listener: SharedPreferences.OnSharedPreferenceChangeListener
+    //private lateinit var listener: SharedPreferences.OnSharedPreferenceChangeListener
 
     private lateinit var handler: Handler
     private lateinit var searchRunnable: Runnable
@@ -53,7 +45,7 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var historyTracks: MutableList<Track>
     private lateinit var trackAdapter: TrackAdapter
     private lateinit var searchHistoryAdapter: TrackAdapter
-    private lateinit var searchHistory: SearchHistory
+    private lateinit var historyManager: TracksHistoryManager
     private lateinit var recyclerSearchResults: RecyclerView
     private lateinit var recyclerHistoryResults: RecyclerView
 
@@ -88,30 +80,26 @@ class SearchActivity : AppCompatActivity() {
         recyclerSearchResults = findViewById(R.id.search_screen_recycler_view)
         recyclerHistoryResults = findViewById(R.id.search_screen_recycler_search_history)
 
-        val sharedPrefs = getSharedPreferences(App.Companion.PLAYLIST_MAKER_PREFERENCES, MODE_PRIVATE)
-        searchHistory = SearchHistory(sharedPrefs)
+        historyManager = Creator.getTrackHistoryManager()
 
         tracks = mutableListOf()
-        historyTracks = searchHistory.read(sharedPrefs.getString(SearchHistory.SEARCH_HISTORY_KEY, ""))
+        historyTracks = historyManager.getTracksHistory(App.SEARCH_HISTORY_KEY)
 
-        listener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
-            if (key == SearchHistory.SEARCH_HISTORY_KEY) {
-                historyTracks.clear()
-                historyTracks.addAll(searchHistory.read(sharedPrefs.getString(SearchHistory.SEARCH_HISTORY_KEY, "")))
-                searchHistoryAdapter.notifyDataSetChanged()
-            }
+        historyManager.registerHistoryChangeListener { data ->
+            historyTracks.clear()
+            historyTracks.addAll(data)
+            searchHistoryAdapter.notifyDataSetChanged()
         }
-        sharedPrefs.registerOnSharedPreferenceChangeListener(listener)
 
         trackAdapter = TrackAdapter(tracks) { track: Track ->
-            searchHistory.add(track)
+            historyManager.add(track)
             val intent = Intent(this, PlayerActivity::class.java)
             intent.putExtra(TRACK_KEY, track)
             startActivity(intent)
         }
 
         searchHistoryAdapter = TrackAdapter(historyTracks) { track: Track ->
-            searchHistory.add(track)
+            historyManager.add(track)
             val intent = Intent(this, PlayerActivity::class.java)
             intent.putExtra(TRACK_KEY, track)
             startActivity(intent)
@@ -178,7 +166,7 @@ class SearchActivity : AppCompatActivity() {
         }
 
         clearHistory.setOnClickListener {
-            sharedPrefs.edit { remove(SearchHistory.SEARCH_HISTORY_KEY) }
+            historyManager.clearHistory()
             historyTracks.clear()
             searchHistoryLayout.isVisible = false
         }
