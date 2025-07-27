@@ -6,12 +6,14 @@ import android.os.Bundle
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
-import com.example.playlistmaker.App
+import com.example.playlistmaker.Creator
 import com.example.playlistmaker.R
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.switchmaterial.SwitchMaterial
 
 class SettingsActivity : AppCompatActivity() {
+    private val themeSwitcherInteractor = Creator.getThemeSwitcherInteractor()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
@@ -28,7 +30,7 @@ class SettingsActivity : AppCompatActivity() {
             Configuration.UI_MODE_NIGHT_YES -> themeSwitcher.isChecked = true
         }
         themeSwitcher.setOnCheckedChangeListener { switcher, checked ->
-            (applicationContext as App).switchTheme(checked)
+            themeSwitcherInteractor.switchTheme(checked)
         }
 
         val shareButton = findViewById<TextView>(R.id.shareAppButton)

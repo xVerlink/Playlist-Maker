@@ -20,7 +20,8 @@ import androidx.core.view.isVisible
 import com.example.playlistmaker.App
 import com.example.playlistmaker.R
 import com.example.playlistmaker.Creator
-import com.example.playlistmaker.domain.api.TracksHistoryManager
+import com.example.playlistmaker.domain.api.HistoryManagerInteractor
+import com.example.playlistmaker.domain.api.HistoryManagerRepository
 import com.example.playlistmaker.domain.api.TracksInteractor
 import com.example.playlistmaker.domain.models.Track
 import com.example.playlistmaker.domain.models.TracksProvider
@@ -42,7 +43,7 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var historyTracks: MutableList<Track>
     private lateinit var trackAdapter: TrackAdapter
     private lateinit var searchHistoryAdapter: TrackAdapter
-    private lateinit var historyManager: TracksHistoryManager
+    private lateinit var historyManager: HistoryManagerInteractor
     private lateinit var recyclerSearchResults: RecyclerView
     private lateinit var recyclerHistoryResults: RecyclerView
 
@@ -77,7 +78,7 @@ class SearchActivity : AppCompatActivity() {
         recyclerSearchResults = findViewById(R.id.search_screen_recycler_view)
         recyclerHistoryResults = findViewById(R.id.search_screen_recycler_search_history)
 
-        historyManager = Creator.getTrackHistoryManager()
+        historyManager = Creator.getHistoryManagerInteractor()
 
         tracks = mutableListOf()
         historyTracks = historyManager.getTracksHistory(App.SEARCH_HISTORY_KEY)
@@ -188,9 +189,7 @@ class SearchActivity : AppCompatActivity() {
     private fun search() {
         progressBar.isVisible = !inputEditText.text.isNullOrEmpty()
         if (inputEditText.text.isNotEmpty()) {
-            interactor.searchTracks(
-                inputEditText.text.toString(),
-                object : TracksInteractor.TracksConsumer {
+            interactor.searchTracks(inputEditText.text.toString(), object : TracksInteractor.TracksConsumer {
 
                     override fun consume(data: TracksProvider<List<Track>>) {
                         handler.post {
