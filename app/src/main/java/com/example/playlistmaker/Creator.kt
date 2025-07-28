@@ -2,17 +2,22 @@ package com.example.playlistmaker
 
 import android.app.Application
 import android.content.Context
+import android.media.MediaPlayer
 import com.example.playlistmaker.data.network.RetrofitNetworkClient
 import com.example.playlistmaker.data.repository.HistoryManagerRepositoryImpl
+import com.example.playlistmaker.data.repository.MediaPlayerRepositoryImpl
 import com.example.playlistmaker.data.repository.ThemeSwitcherRepositoryImpl
 import com.example.playlistmaker.data.repository.TracksRepositoryImpl
 import com.example.playlistmaker.domain.api.HistoryManagerInteractor
 import com.example.playlistmaker.domain.api.HistoryManagerRepository
+import com.example.playlistmaker.domain.api.MediaPlayerInteractor
+import com.example.playlistmaker.domain.api.MediaPlayerRepository
 import com.example.playlistmaker.domain.api.ThemeSwitcherInteractor
 import com.example.playlistmaker.domain.api.ThemeSwitcherRepository
 import com.example.playlistmaker.domain.api.TracksInteractor
 import com.example.playlistmaker.domain.api.TracksRepository
 import com.example.playlistmaker.domain.impl.HistoryManagerInteractorImpl
+import com.example.playlistmaker.domain.impl.MediaPlayerInteractorImpl
 import com.example.playlistmaker.domain.impl.ThemeSwitcherInteractorImpl
 import com.example.playlistmaker.domain.impl.TracksInteractorImpl
 
@@ -46,5 +51,13 @@ object Creator {
 
     fun getThemeSwitcherInteractor(): ThemeSwitcherInteractor {
         return ThemeSwitcherInteractorImpl(getThemeSwitcherRepository())
+    }
+
+    private fun getMediaPlayerRepository(): MediaPlayerRepository {
+        return MediaPlayerRepositoryImpl()
+    }
+
+    fun getMediaPlayerInteractor(): MediaPlayerInteractor {
+        return MediaPlayerInteractorImpl(MediaPlayer(), getMediaPlayerRepository())
     }
 }
