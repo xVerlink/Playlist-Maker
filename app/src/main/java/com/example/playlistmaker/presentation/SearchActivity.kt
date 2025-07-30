@@ -1,8 +1,6 @@
-package com.example.playlistmaker
+package com.example.playlistmaker.presentation
 
-import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -18,13 +16,15 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.RecyclerView
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import androidx.core.content.edit
 import androidx.core.view.isVisible
+import com.example.playlistmaker.App
+import com.example.playlistmaker.R
+import com.example.playlistmaker.Creator
+import com.example.playlistmaker.domain.api.HistoryManagerInteractor
+import com.example.playlistmaker.domain.api.HistoryManagerRepository
+import com.example.playlistmaker.domain.api.TracksInteractor
+import com.example.playlistmaker.domain.models.Track
+import com.example.playlistmaker.domain.models.TracksProvider
 import com.google.android.material.appbar.MaterialToolbar
 
 
@@ -33,14 +33,8 @@ const val TRACK_KEY = "TRACK"
 class SearchActivity : AppCompatActivity() {
 
     private var input: String? = ""
-    private val appleMusicBaseUrl = "https://itunes.apple.com"
-    private val retrofit = Retrofit.Builder()
-        .baseUrl(appleMusicBaseUrl)
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
-    val appleMusicService = retrofit.create(TracksApi::class.java)
 
-    private lateinit var listener: SharedPreferences.OnSharedPreferenceChangeListener
+    private val interactor = Creator.getTracksInteractor()
 
     private lateinit var handler: Handler
     private lateinit var searchRunnable: Runnable
@@ -49,7 +43,7 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var historyTracks: MutableList<Track>
     private lateinit var trackAdapter: TrackAdapter
     private lateinit var searchHistoryAdapter: TrackAdapter
-    private lateinit var searchHistory: SearchHistory
+    private lateinit var historyManager: HistoryManagerInteractor
     private lateinit var recyclerSearchResults: RecyclerView
     private lateinit var recyclerHistoryResults: RecyclerView
 
@@ -84,30 +78,26 @@ class SearchActivity : AppCompatActivity() {
         recyclerSearchResults = findViewById(R.id.search_screen_recycler_view)
         recyclerHistoryResults = findViewById(R.id.search_screen_recycler_search_history)
 
-        val sharedPrefs = getSharedPreferences(App.PLAYLIST_MAKER_PREFERENCES, MODE_PRIVATE)
-        searchHistory = SearchHistory(sharedPrefs)
+        historyManager = Creator.getHistoryManagerInteractor()
 
         tracks = mutableListOf()
-        historyTracks = searchHistory.read(sharedPrefs.getString(SearchHistory.SEARCH_HISTORY_KEY, ""))
+        historyTracks = historyManager.getTracksHistory(App.SEARCH_HISTORY_KEY)
 
-        listener = SharedPreferences.OnSharedPreferenceChangeListener {sharedPreferences, key ->
-            if (key == SearchHistory.SEARCH_HISTORY_KEY) {
-                historyTracks.clear()
-                historyTracks.addAll(searchHistory.read(sharedPrefs.getString(SearchHistory.SEARCH_HISTORY_KEY, "")))
-                searchHistoryAdapter.notifyDataSetChanged()
-            }
+        historyManager.registerHistoryChangeListener { data ->
+            historyTracks.clear()
+            historyTracks.addAll(data)
+            searchHistoryAdapter.notifyDataSetChanged()
         }
-        sharedPrefs.registerOnSharedPreferenceChangeListener(listener)
 
         trackAdapter = TrackAdapter(tracks) { track: Track ->
-            searchHistory.add(track)
+            historyManager.add(track)
             val intent = Intent(this, PlayerActivity::class.java)
             intent.putExtra(TRACK_KEY, track)
             startActivity(intent)
         }
 
         searchHistoryAdapter = TrackAdapter(historyTracks) { track: Track ->
-            searchHistory.add(track)
+            historyManager.add(track)
             val intent = Intent(this, PlayerActivity::class.java)
             intent.putExtra(TRACK_KEY, track)
             startActivity(intent)
@@ -126,8 +116,8 @@ class SearchActivity : AppCompatActivity() {
         }
 
         inputEditText.addTextChangedListener(
-            {text: CharSequence?, start: Int, count: Int, after: Int ->  },
-            {text: CharSequence?, start: Int, before: Int, count: Int ->
+            { text: CharSequence?, start: Int, count: Int, after: Int -> },
+            { text: CharSequence?, start: Int, before: Int, count: Int ->
                 clearButton.isVisible = !text.isNullOrEmpty()
                 recyclerSearchResults.isVisible = false
                 placeholder.isVisible = false
@@ -145,7 +135,7 @@ class SearchActivity : AppCompatActivity() {
                 }
                 searchDebounce()
             },
-            {text: Editable? ->  input = text.toString()}
+            { text: Editable? -> input = text.toString() }
         )
 
         inputEditText.setOnFocusChangeListener { view, hasFocus ->
@@ -164,7 +154,7 @@ class SearchActivity : AppCompatActivity() {
 
         clearButton.setOnClickListener {
             inputEditText.setText("")
-            val inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+            val inputMethodManager = getSystemService(INPUT_METHOD_SERVICE) as? InputMethodManager
             inputMethodManager?.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
             tracks.clear()
             trackAdapter.notifyDataSetChanged()
@@ -174,7 +164,7 @@ class SearchActivity : AppCompatActivity() {
         }
 
         clearHistory.setOnClickListener {
-            sharedPrefs.edit() { remove(SearchHistory.SEARCH_HISTORY_KEY) }
+            historyManager.clearHistory()
             historyTracks.clear()
             searchHistoryLayout.isVisible = false
         }
@@ -199,32 +189,43 @@ class SearchActivity : AppCompatActivity() {
     private fun search() {
         progressBar.isVisible = !inputEditText.text.isNullOrEmpty()
         if (inputEditText.text.isNotEmpty()) {
-            appleMusicService.getSongs(inputEditText.text.toString()).enqueue(object : Callback<TracksResponse> {
-                override fun onResponse(call: Call<TracksResponse>, response: Response<TracksResponse>) {
-                    progressBar.isVisible = false
-                    recyclerSearchResults.isVisible = true
-                    if (response.isSuccessful) {
-                        tracks.clear()
-                        val results = response.body()?.results
-                        if (results?.isNotEmpty() == true) {
-                            tracks.addAll(results)
-                            trackAdapter.notifyDataSetChanged()
-                        }
-                        if (tracks.isEmpty()) {
-                            showMessage(getString(R.string.nothing_found), "")
-                        } else {
-                            showMessage("", "")
-                        }
-                    } else {
-                        showMessage(resources.getString(R.string.server_error), response.code().toString())
-                    }
-                }
+            interactor.searchTracks(inputEditText.text.toString(), object : TracksInteractor.TracksConsumer {
 
-                override fun onFailure(call: Call<TracksResponse>, t: Throwable) {
-                    progressBar.isVisible = false
-                    showMessage(getString(R.string.connection_problem), t.message.toString())
-                }
-            })
+                    override fun consume(data: TracksProvider<List<Track>>) {
+                        handler.post {
+                            progressBar.isVisible = false
+                            recyclerSearchResults.isVisible = true
+                            tracks.clear()
+
+                            when (data) {
+                                is TracksProvider.Data -> {
+                                    tracks.addAll(data.tracksList)
+                                    trackAdapter.notifyDataSetChanged()
+                                    if (tracks.isEmpty()) {
+                                        showMessage(getString(R.string.nothing_found), "")
+                                    } else {
+                                        showMessage("", "")
+                                    }
+                                }
+
+                                is TracksProvider.Error -> {
+                                    if (data.code == 400) {
+                                        showMessage(
+                                            getString(R.string.server_error),
+                                            data.code.toString()
+                                        )
+                                    } else {
+                                        showMessage(
+                                            getString(R.string.connection_problem),
+                                            data.code.toString()
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                    }
+                })
         }
     }
 

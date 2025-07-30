@@ -1,6 +1,5 @@
-package com.example.playlistmaker
+package com.example.playlistmaker.presentation
 
-import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -14,14 +13,16 @@ import androidx.constraintlayout.widget.Group
 import androidx.core.view.isVisible
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import com.example.playlistmaker.Creator
+import com.example.playlistmaker.R
+import com.example.playlistmaker.domain.api.MediaPlayerInteractor
+import com.example.playlistmaker.domain.models.PlayerState
+import com.example.playlistmaker.domain.models.Track
 import com.google.android.material.appbar.MaterialToolbar
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-
 class PlayerActivity : AppCompatActivity() {
-
-    private var playerState = STATE_DEFAULT
 
     private lateinit var playTimeRunnable : Runnable
     private lateinit var handler: Handler
@@ -45,7 +46,7 @@ class PlayerActivity : AppCompatActivity() {
     private lateinit var country: TextView
     private lateinit var countryGroup: Group
     private lateinit var track: Track
-    private lateinit var mediaPlayer: MediaPlayer
+    private lateinit var mediaPlayer: MediaPlayerInteractor
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,11 +71,11 @@ class PlayerActivity : AppCompatActivity() {
         country = findViewById(R.id.playerScreenCountry)
         countryGroup = findViewById(R.id.countryGroup)
         track = intent.getSerializableExtra(TRACK_KEY) as Track
-        mediaPlayer = MediaPlayer()
+        mediaPlayer = Creator.getMediaPlayerInteractor()
         handler = Handler(Looper.getMainLooper())
         playTimeRunnable = Runnable {
             val currentTime = SimpleDateFormat("mm:ss", Locale.getDefault())
-                .format(mediaPlayer.currentPosition)
+                .format(mediaPlayer.getCurrentPosition())
             currentTrackTime.text = currentTime
             handler.postDelayed(playTimeRunnable, TRACK_CURRENT_TIME_DELAY)
         }
@@ -84,7 +85,11 @@ class PlayerActivity : AppCompatActivity() {
         }
 
         playButton.setOnClickListener {
-            playbackControl()
+            if (track.previewUrl.isNotEmpty()) {
+                playbackControl()
+            } else {
+                Toast.makeText(this, "There is no track preview", Toast.LENGTH_SHORT).show()
+            }
         }
 
         setCover()
@@ -97,47 +102,31 @@ class PlayerActivity : AppCompatActivity() {
         setGenre()
         setCountry()
 
-        preparePlayer()
-    }
-
-    private fun preparePlayer() {
-        if (!track.previewUrl.isNullOrEmpty()) {
-            mediaPlayer.setDataSource(track.previewUrl)
-            mediaPlayer.prepareAsync()
-            mediaPlayer.setOnPreparedListener {
-                playerState = STATE_PREPARED
-            }
-            mediaPlayer.setOnCompletionListener {
-                playerState = STATE_PREPARED
-                handler.removeCallbacks(playTimeRunnable)
-                currentTrackTime.text = resources.getString(R.string.media_player_default_time)
-                playButton.setImageResource(R.drawable.play_button)
-            }
-        } else {
-            playButton.setOnClickListener{
-                Toast.makeText(this, "There is no track preview", Toast.LENGTH_SHORT).show()
-            }
+        mediaPlayer.preparePlayer(track.previewUrl) {
+            handler.removeCallbacks(playTimeRunnable)
+            currentTrackTime.text = resources.getString(R.string.media_player_default_time)
+            playButton.setImageResource(R.drawable.play_button)
         }
     }
 
     private fun playbackControl() {
+        val playerState = mediaPlayer.getPlayerState()
         when (playerState) {
-            STATE_PLAYING -> pausePlayer()
-            STATE_PREPARED, STATE_PAUSED -> startPlayer()
+            is PlayerState.Playing -> pausePlayer()
+            is PlayerState.Prepared, is PlayerState.Paused  -> startPlayer()
+            else -> Toast.makeText(this, "Exception while preparing player or wait a fes seconds", Toast.LENGTH_SHORT).show()
         }
     }
 
     private fun startPlayer() {
-        mediaPlayer.start()
-        playerState = STATE_PLAYING
+        mediaPlayer.startPlaying()
         playButton.setImageResource(R.drawable.pause_button)
         handler.postDelayed(playTimeRunnable, TRACK_CURRENT_TIME_DELAY)
 
     }
 
     private fun pausePlayer() {
-        mediaPlayer.pause()
-        playerState = STATE_PAUSED
+        mediaPlayer.pausePlayer()
         playButton.setImageResource(R.drawable.play_button)
         handler.removeCallbacks(playTimeRunnable)
     }
@@ -167,8 +156,7 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     private fun setDuration() {
-        trackDuration.text = SimpleDateFormat("mm:ss", Locale.getDefault())
-            .format(track.trackTime.toLong())
+        trackDuration.text = track.trackTime
         durationGroup.isVisible = !trackDuration.text.isNullOrEmpty()
     }
 
@@ -211,10 +199,6 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     companion object {
-        private const val STATE_DEFAULT = 0
-        private const val STATE_PREPARED = 1
-        private const val STATE_PLAYING = 2
-        private const val STATE_PAUSED = 3
         private const val TRACK_CURRENT_TIME_DELAY = 333L
     }
 }
