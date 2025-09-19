@@ -5,24 +5,29 @@ import android.os.Looper
 import android.os.SystemClock
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.playlistmaker.creator.Creator
 import com.example.playlistmaker.search.domain.api.TracksInteractor
+import com.example.playlistmaker.search.domain.models.Track
 import com.example.playlistmaker.search.domain.models.TracksProvider
 
 
 class SearchActivityViewModel() : ViewModel() {
     private val handler = Handler(Looper.getMainLooper())
     private val interactor = Creator.getTracksInteractor()
+    private val historyManager = Creator.getHistoryManagerInteractor()
     private var latestSearchText: String? = null
-    private var currentState: TracksProvider = TracksProvider.Loading
 
+    private var currentState: TracksProvider = TracksProvider.Loading
     private val stateLiveData = MutableLiveData<TracksProvider>()
     fun observeState(): LiveData<TracksProvider> = stateLiveData
+
+    private var historyList: MutableList<Track> = mutableListOf()
+    private val historyStateLiveData = MutableLiveData<MutableList<Track>>()
+    fun observeHistory(): LiveData<MutableList<Track>> = historyStateLiveData
 
     fun searchDebounce(changedText: String) {
         if (latestSearchText == changedText) {
@@ -62,6 +67,23 @@ class SearchActivityViewModel() : ViewModel() {
 
     private fun renderState (state: TracksProvider) {
         stateLiveData.postValue(state)
+    }
+
+    fun updateHistory(historyKey: String) {
+        historyList = historyManager.getTracksHistory(historyKey)
+        historyStateLiveData.postValue(historyList)
+    }
+
+    fun addTrackToHistory(track: Track) {
+        historyManager.add(track)
+    }
+
+    fun registerHistoryChangeListener(action: (List<Track>?) -> Unit) {
+        historyManager.registerHistoryChangeListener(action)
+    }
+
+    fun clearHistory() {
+        historyManager.clearHistory()
     }
 
     override fun onCleared() {
