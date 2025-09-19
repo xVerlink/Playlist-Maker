@@ -5,12 +5,11 @@ import com.example.playlistmaker.search.domain.api.HistoryManagerInteractor
 import com.example.playlistmaker.search.domain.api.HistoryManagerRepository
 import com.example.playlistmaker.search.domain.models.Track
 
-class HistoryManagerInteractorImpl(private val repository: HistoryManagerRepository) :
-    HistoryManagerInteractor {
+class HistoryManagerInteractorImpl(private val repository: HistoryManagerRepository) : HistoryManagerInteractor {
 
     override fun getTracksHistory(historyKey: String): MutableList<Track> {
         return repository.getTracksHistory(historyKey)
-    }
+     }
 
     override fun add(track: Track) {
         val historyList: MutableList<Track> = getTracksHistory(App.SEARCH_HISTORY_KEY)
@@ -34,7 +33,7 @@ class HistoryManagerInteractorImpl(private val repository: HistoryManagerReposit
         repository.clearHistory()
     }
 
-    override fun registerHistoryChangeListener(action: (MutableList<Track>) -> Unit) {
+    override fun registerHistoryChangeListener(action: (List<Track>?) -> Unit) {
         repository.registerHistoryChangeListener(action)
     }
 }

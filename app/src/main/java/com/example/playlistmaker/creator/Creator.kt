@@ -19,8 +19,11 @@ import com.example.playlistmaker.search.domain.api.TracksInteractor
 import com.example.playlistmaker.search.domain.api.TracksRepository
 import com.example.playlistmaker.search.domain.impl.HistoryManagerInteractorImpl
 import com.example.playlistmaker.player.domain.impl.MediaPlayerInteractorImpl
+import com.example.playlistmaker.search.data.storage.PrefsStorageClient
 import com.example.playlistmaker.settings.domain.impl.ThemeSwitcherInteractorImpl
 import com.example.playlistmaker.search.domain.impl.TracksInteractorImpl
+import com.example.playlistmaker.search.domain.models.Track
+import com.google.gson.reflect.TypeToken
 
 object Creator {
 
@@ -39,7 +42,9 @@ object Creator {
     }
 
     private fun getHistoryRepository(): HistoryManagerRepository {
-        return HistoryManagerRepositoryImpl(appContext.getSharedPreferences(App.PLAYLIST_MAKER_PREFERENCES, Context.MODE_PRIVATE))
+        return HistoryManagerRepositoryImpl(//appContext.getSharedPreferences(App.PLAYLIST_MAKER_PREFERENCES, Context.MODE_PRIVATE)
+            PrefsStorageClient<ArrayList<Track>>(appContext.getSharedPreferences(App.PLAYLIST_MAKER_PREFERENCES, Context.MODE_PRIVATE),
+                App.SEARCH_HISTORY_KEY, object: TypeToken<ArrayList<Track>>() {}.type))
     }
 
     fun getHistoryManagerInteractor(): HistoryManagerInteractor {

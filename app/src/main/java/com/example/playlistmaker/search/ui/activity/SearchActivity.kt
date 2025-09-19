@@ -17,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.RecyclerView
 import androidx.core.view.isVisible
+import androidx.lifecycle.ViewModelProvider
 import com.example.playlistmaker.App
 import com.example.playlistmaker.R
 import com.example.playlistmaker.creator.Creator
@@ -26,6 +27,7 @@ import com.example.playlistmaker.search.domain.api.HistoryManagerInteractor
 import com.example.playlistmaker.search.domain.api.TracksInteractor
 import com.example.playlistmaker.search.domain.models.Track
 import com.example.playlistmaker.search.domain.models.TracksProvider
+import com.example.playlistmaker.search.ui.view_model.SearchActivityViewModel
 import com.google.android.material.appbar.MaterialToolbar
 
 
@@ -35,10 +37,7 @@ class SearchActivity : AppCompatActivity() {
 
     private var input: String? = ""
 
-    private val interactor = Creator.getTracksInteractor()
-
-    private lateinit var handler: Handler
-    private lateinit var searchRunnable: Runnable
+    private var viewModel: SearchActivityViewModel? = null
 
     private lateinit var tracks: MutableList<Track>
     private lateinit var historyTracks: MutableList<Track>
@@ -59,6 +58,91 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var clearHistory: Button
     private lateinit var progressBar: ProgressBar
 
+    fun showLoading() {
+        recyclerSearchResults.isVisible = false
+        recyclerHistoryResults.isVisible = false
+        placeholder.isVisible = false
+        errorText.isVisible = false
+        refreshButton.isVisible = false
+        searchHistoryLayout.isVisible = false
+        historyHeader.isVisible = false
+        clearHistory.isVisible = false
+        progressBar.isVisible = true
+    }
+
+    fun showHistory() {
+        recyclerSearchResults.isVisible = false
+        recyclerHistoryResults.isVisible = true
+        placeholder.isVisible = false
+        errorText.isVisible = false
+        refreshButton.isVisible = false
+        searchHistoryLayout.isVisible = true
+        historyHeader.isVisible = true
+        clearHistory.isVisible = true
+        progressBar.isVisible = false
+    }
+
+    fun showContent(tracksList: List<Track>) {
+        tracks.clear()
+        tracks.addAll(tracksList)
+        trackAdapter.notifyDataSetChanged()
+        if (tracksList.isEmpty()) {
+            showEmpty()
+        } else {
+            placeholder.isVisible = false
+            errorText.isVisible = false
+            recyclerSearchResults.isVisible = true
+            recyclerHistoryResults.isVisible = false
+            refreshButton.isVisible = false
+            searchHistoryLayout.isVisible = false
+            historyHeader.isVisible = false
+            clearHistory.isVisible = false
+            progressBar.isVisible = false
+        }
+    }
+
+    fun showError(errorCode: Int) {
+        if (errorCode == 400) {
+            placeholder.setImageResource(R.drawable.error_placeholder_nothing_found)
+            errorText.text = getString(R.string.server_error)
+        } else {
+            placeholder.setImageResource(R.drawable.error_placeholder_connection_problem)
+            errorText.text = getString(R.string.connection_problem)
+            refreshButton.isVisible = true
+        }
+
+        recyclerSearchResults.isVisible = false
+        recyclerHistoryResults.isVisible = false
+        placeholder.isVisible = true
+        errorText.isVisible = true
+        searchHistoryLayout.isVisible = false
+        historyHeader.isVisible = false
+        clearHistory.isVisible = false
+        progressBar.isVisible = false
+    }
+
+    fun showEmpty() {
+        placeholder.setImageResource(R.drawable.error_placeholder_nothing_found)
+        errorText.text = getString(R.string.nothing_found)
+        recyclerSearchResults.isVisible = false
+        recyclerHistoryResults.isVisible = false
+        placeholder.isVisible = true
+        errorText.isVisible = true
+        refreshButton.isVisible = false
+        searchHistoryLayout.isVisible = false
+        historyHeader.isVisible = false
+        clearHistory.isVisible = false
+        progressBar.isVisible = false
+    }
+
+    fun render(data: TracksProvider) {
+        when (data) {
+            is TracksProvider.Data -> showContent(data.tracksList)
+            is TracksProvider.Error -> showError(data.code)
+            else -> showLoading()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search)
@@ -73,20 +157,26 @@ class SearchActivity : AppCompatActivity() {
         historyHeader = findViewById(R.id.search_history_header)
         clearHistory = findViewById(R.id.search_screen_clear_history)
         progressBar = findViewById(R.id.progressBar)
-        handler = Handler(Looper.getMainLooper())
-        searchRunnable = Runnable { search() }
+        viewModel = ViewModelProvider(this, SearchActivityViewModel.getFactory()).get(SearchActivityViewModel::class.java)
+        viewModel?.observeState()?.observe(this) {
+            render(it)
+        }
 
         recyclerSearchResults = findViewById(R.id.search_screen_recycler_view)
         recyclerHistoryResults = findViewById(R.id.search_screen_recycler_search_history)
 
-        historyManager = Creator.getHistoryManagerInteractor()
+        historyManager = Creator.getHistoryManagerInteractor() //Подумать
 
         tracks = mutableListOf()
         historyTracks = historyManager.getTracksHistory(App.SEARCH_HISTORY_KEY)
 
         historyManager.registerHistoryChangeListener { data ->
             historyTracks.clear()
-            historyTracks.addAll(data)
+            if (data.isNullOrEmpty()) {
+                historyTracks.addAll(mutableListOf())
+            } else {
+                historyTracks.addAll(data)
+            }
             searchHistoryAdapter.notifyDataSetChanged()
         }
 
@@ -120,36 +210,38 @@ class SearchActivity : AppCompatActivity() {
             { text: CharSequence?, start: Int, count: Int, after: Int -> },
             { text: CharSequence?, start: Int, before: Int, count: Int ->
                 clearButton.isVisible = !text.isNullOrEmpty()
-                recyclerSearchResults.isVisible = false
+                /*recyclerSearchResults.isVisible = false
                 placeholder.isVisible = false
-                errorText.isVisible = false
+                errorText.isVisible = false*/
                 if (inputEditText.hasFocus() && text?.isEmpty() == true && historyTracks.isNotEmpty()) {
-                    searchHistoryLayout.isVisible = true
+                    /*searchHistoryLayout.isVisible = true
                     historyHeader.isVisible = true
                     clearHistory.isVisible = true
                     tracks.clear()
-                    trackAdapter.notifyDataSetChanged()
-                } else {
+                    trackAdapter.notifyDataSetChanged()*/
+                    showHistory()
+                } /*else {
                     searchHistoryLayout.isVisible = false
                     historyHeader.isVisible = false
                     clearHistory.isVisible = false
-                }
-                searchDebounce()
+                }*/
+                viewModel?.searchDebounce(text.toString())
             },
             { text: Editable? -> input = text.toString() }
         )
 
         inputEditText.setOnFocusChangeListener { view, hasFocus ->
             if (inputEditText.hasFocus() && inputEditText.text.isEmpty() && historyTracks.isNotEmpty()) {
-                searchHistoryLayout.isVisible = true
+                /*searchHistoryLayout.isVisible = true
                 historyHeader.isVisible = true
-                clearHistory.isVisible = true
-                tracks.clear()
-                trackAdapter.notifyDataSetChanged()
+                clearHistory.isVisible = true*/
+                showHistory()
+                /*tracks.clear()
+                trackAdapter.notifyDataSetChanged()*/
             } else {
-                searchHistoryLayout.isVisible = false
+                /*searchHistoryLayout.isVisible = false
                 historyHeader.isVisible = false
-                clearHistory.isVisible = false
+                clearHistory.isVisible = false*/
             }
         }
 
@@ -157,11 +249,11 @@ class SearchActivity : AppCompatActivity() {
             inputEditText.setText("")
             val inputMethodManager = getSystemService(INPUT_METHOD_SERVICE) as? InputMethodManager
             inputMethodManager?.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
-            tracks.clear()
-            trackAdapter.notifyDataSetChanged()
-            placeholder.isVisible = false
+            /*tracks.clear()
+            trackAdapter.notifyDataSetChanged()*/
+            /*placeholder.isVisible = false
             errorText.isVisible = false
-            refreshButton.isVisible = false
+            refreshButton.isVisible = false*/
         }
 
         clearHistory.setOnClickListener {
@@ -171,23 +263,25 @@ class SearchActivity : AppCompatActivity() {
         }
 
         refreshButton.setOnClickListener {
-            search()
+            //search()
+            viewModel?.searchDebounce(input!!)//Обязательно посмотреть
         }
 
         inputEditText.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
-                search()
+                //search()
+                viewModel?.searchDebounce(input!!)
             }
             false
         }
     }
 
-    private fun searchDebounce() {
+    /*private fun searchDebounce() {
         handler.removeCallbacks(searchRunnable)
-        handler.postDelayed(searchRunnable, SEARCH_DEBOUNCE_DELAY)
-    }
+        handler.postDelayed(searchRunnable, 2000)
+    }*/
 
-    private fun search() {
+    /*private fun search() {
         progressBar.isVisible = !inputEditText.text.isNullOrEmpty()
         if (inputEditText.text.isNotEmpty()) {
             interactor.searchTracks(inputEditText.text.toString(), object : TracksInteractor.TracksConsumer {
@@ -248,11 +342,11 @@ class SearchActivity : AppCompatActivity() {
             errorText.isVisible = false
             refreshButton.isVisible = false
         }
-    }
+    }*/
 
     override fun onDestroy() {
         super.onDestroy()
-        handler.removeCallbacks(searchRunnable)
+        //handler.removeCallbacks(searchRunnable)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -267,6 +361,6 @@ class SearchActivity : AppCompatActivity() {
 
     companion object {
         private const val SAVED_STRING: String = "SAVED_STRING"
-        private const val SEARCH_DEBOUNCE_DELAY = 2000L
+        //private const val SEARCH_DEBOUNCE_DELAY = 2000L
     }
 }

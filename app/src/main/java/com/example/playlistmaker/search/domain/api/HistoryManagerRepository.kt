@@ -6,7 +6,7 @@ interface HistoryManagerRepository {
 
     fun getTracksHistory(json: String): MutableList<Track>
 
-    fun registerHistoryChangeListener (action: (MutableList<Track>) -> Unit)
+    fun registerHistoryChangeListener (action: (List<Track>?) -> Unit)
 
     fun clearHistory()
 

@@ -10,5 +10,5 @@ interface HistoryManagerInteractor {
 
     fun clearHistory()
 
-    fun registerHistoryChangeListener(action: (MutableList<Track>) -> Unit)
+    fun registerHistoryChangeListener(action: (List<Track>?) -> Unit)
 }

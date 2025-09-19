@@ -15,7 +15,7 @@ class TracksRepositoryImpl(val retrofit: RetrofitNetworkClient) : TracksReposito
         return if (response.resultCode == 200) {
             val trackList = (response as TracksSearchResponse).results
             ServerResponse.Success(trackList.map {
-                val formattedTime = if (!it.trackTime.isNullOrEmpty()) SimpleDateFormat("mm:ss", Locale.getDefault()).format(it.trackTime.toLong()) else it.trackTime
+                val formattedTime = if (!it.trackTime.isNullOrEmpty()) SimpleDateFormat("mm:ss", Locale.getDefault()).format(it.trackTime.toLong()) else ""
                 Track(
                     it.trackId,
                     it.trackName,

@@ -1,6 +1,7 @@
 package com.example.playlistmaker.search.domain.models
 
-sealed interface TracksProvider<T> {
-    data class Data<T>(val tracksList: T) : TracksProvider<T>
-    data class Error<T>(val code: Int) : TracksProvider<T>
+sealed interface TracksProvider {
+    object Loading : TracksProvider
+    data class Data(val tracksList: List<Track>) : TracksProvider
+    data class Error(val code: Int) : TracksProvider
 }
