@@ -1,20 +1,21 @@
 package com.example.playlistmaker.player.domain.api
 
-import com.example.playlistmaker.search.domain.models.PlayerState
+import android.media.MediaPlayer
+import com.example.playlistmaker.player.domain.models.PlayerState
 
 interface MediaPlayerInteractor {
 
-    fun preparePlayer(dataSource: String, action: () -> Unit)
+    fun preparePlayer(mediaPlayer: MediaPlayer, dataSource: String)
 
-    fun startPlaying()
+    //fun startPlaying()
 
-    fun pausePlayer()
+    //fun pausePlayer()
 
-    fun setOnCompletionListener()
+    //fun setOnCompletionListener()
 
-    fun getCurrentPosition(): Int
+    //fun getCurrentPosition(): Int
 
-    fun getPlayerState(): PlayerState
+    //fun getPlayerState(): PlayerState
 
-    fun release()
+    //fun release()
 }

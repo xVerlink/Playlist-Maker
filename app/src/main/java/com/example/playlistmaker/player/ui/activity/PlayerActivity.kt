@@ -1,8 +1,6 @@
 package com.example.playlistmaker.player.ui.activity
 
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.util.TypedValue
 import android.widget.ImageButton
 import android.widget.ImageView
@@ -11,12 +9,12 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.Group
 import androidx.core.view.isVisible
+import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
-import com.example.playlistmaker.creator.Creator
 import com.example.playlistmaker.R
-import com.example.playlistmaker.player.domain.api.MediaPlayerInteractor
-import com.example.playlistmaker.search.domain.models.PlayerState
+import com.example.playlistmaker.player.domain.models.PlayerState
+import com.example.playlistmaker.player.ui.view_model.PlayerActiityViewModel
 import com.example.playlistmaker.search.domain.models.Track
 import com.example.playlistmaker.search.ui.activity.TRACK_KEY
 import com.google.android.material.appbar.MaterialToolbar
@@ -24,9 +22,6 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 class PlayerActivity : AppCompatActivity() {
-
-    private lateinit var playTimeRunnable : Runnable
-    private lateinit var handler: Handler
 
     private lateinit var toolbar: MaterialToolbar
     private lateinit var cover: ImageView
@@ -47,7 +42,7 @@ class PlayerActivity : AppCompatActivity() {
     private lateinit var country: TextView
     private lateinit var countryGroup: Group
     private lateinit var track: Track
-    private lateinit var mediaPlayer: MediaPlayerInteractor
+    private var viewModel: PlayerActiityViewModel? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,13 +67,19 @@ class PlayerActivity : AppCompatActivity() {
         country = findViewById(R.id.playerScreenCountry)
         countryGroup = findViewById(R.id.countryGroup)
         track = intent.getSerializableExtra(TRACK_KEY) as Track
-        mediaPlayer = Creator.getMediaPlayerInteractor()
-        handler = Handler(Looper.getMainLooper())
-        playTimeRunnable = Runnable {
-            val currentTime = SimpleDateFormat("mm:ss", Locale.getDefault())
-                .format(mediaPlayer.getCurrentPosition())
-            currentTrackTime.text = currentTime
-            handler.postDelayed(playTimeRunnable, TRACK_CURRENT_TIME_DELAY)
+
+        viewModel = ViewModelProvider(this, PlayerActiityViewModel.getFactory(track.previewUrl))
+            .get(PlayerActiityViewModel::class.java)
+        viewModel?.preparePlayer()
+        viewModel?.observePlayerState()?.observe(this) {
+            when(it) {
+                is PlayerState.Playing -> playButton.setImageResource(R.drawable.pause_button)
+                is PlayerState.Paused, PlayerState.Prepared -> playButton.setImageResource(R.drawable.play_button)
+                else -> Toast.makeText(this, "Exception while preparing player or wait a few seconds", Toast.LENGTH_SHORT).show()
+            }
+        }
+        viewModel?.observeTimer()?.observe(this) {
+            currentTrackTime.text = it
         }
 
         toolbar.setNavigationOnClickListener {
@@ -87,7 +88,7 @@ class PlayerActivity : AppCompatActivity() {
 
         playButton.setOnClickListener {
             if (track.previewUrl.isNotEmpty()) {
-                playbackControl()
+                viewModel?.playbackControl()
             } else {
                 Toast.makeText(this, "There is no track preview", Toast.LENGTH_SHORT).show()
             }
@@ -102,34 +103,6 @@ class PlayerActivity : AppCompatActivity() {
         setYear()
         setGenre()
         setCountry()
-
-        mediaPlayer.preparePlayer(track.previewUrl) {
-            handler.removeCallbacks(playTimeRunnable)
-            currentTrackTime.text = resources.getString(R.string.media_player_default_time)
-            playButton.setImageResource(R.drawable.play_button)
-        }
-    }
-
-    private fun playbackControl() {
-        val playerState = mediaPlayer.getPlayerState()
-        when (playerState) {
-            is PlayerState.Playing -> pausePlayer()
-            is PlayerState.Prepared, is PlayerState.Paused  -> startPlayer()
-            else -> Toast.makeText(this, "Exception while preparing player or wait a fes seconds", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private fun startPlayer() {
-        mediaPlayer.startPlaying()
-        playButton.setImageResource(R.drawable.pause_button)
-        handler.postDelayed(playTimeRunnable, TRACK_CURRENT_TIME_DELAY)
-
-    }
-
-    private fun pausePlayer() {
-        mediaPlayer.pausePlayer()
-        playButton.setImageResource(R.drawable.play_button)
-        handler.removeCallbacks(playTimeRunnable)
     }
 
     private fun setCover() {
@@ -190,16 +163,6 @@ class PlayerActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-        pausePlayer()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        handler.removeCallbacks(playTimeRunnable)
-        mediaPlayer.release()
-    }
-
-    companion object {
-        private const val TRACK_CURRENT_TIME_DELAY = 333L
+        viewModel?.onPause()
     }
 }

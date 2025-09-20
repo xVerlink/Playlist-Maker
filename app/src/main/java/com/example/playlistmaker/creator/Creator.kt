@@ -42,8 +42,7 @@ object Creator {
     }
 
     private fun getHistoryRepository(): HistoryManagerRepository {
-        return HistoryManagerRepositoryImpl(//appContext.getSharedPreferences(App.PLAYLIST_MAKER_PREFERENCES, Context.MODE_PRIVATE)
-            PrefsStorageClient<ArrayList<Track>>(appContext.getSharedPreferences(App.PLAYLIST_MAKER_PREFERENCES, Context.MODE_PRIVATE),
+        return HistoryManagerRepositoryImpl(PrefsStorageClient<ArrayList<Track>>(appContext.getSharedPreferences(App.PLAYLIST_MAKER_PREFERENCES, Context.MODE_PRIVATE),
                 App.SEARCH_HISTORY_KEY, object: TypeToken<ArrayList<Track>>() {}.type))
     }
 
@@ -64,6 +63,6 @@ object Creator {
     }
 
     fun getMediaPlayerInteractor(): MediaPlayerInteractor {
-        return MediaPlayerInteractorImpl(MediaPlayer(), getMediaPlayerRepository())
+        return MediaPlayerInteractorImpl(getMediaPlayerRepository())
     }
 }
