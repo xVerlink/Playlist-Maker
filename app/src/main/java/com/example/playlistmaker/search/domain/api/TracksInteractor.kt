@@ -7,6 +7,6 @@ interface TracksInteractor {
 
 
     interface TracksConsumer {
-        fun consume(tracks: TracksProvider)
+        fun consume(data: TracksProvider)
     }
 }

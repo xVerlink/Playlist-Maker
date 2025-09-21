@@ -12,9 +12,9 @@ class ThemeSwitcherRepositoryImpl(private val sharedPrefs: SharedPreferences) :
         return sharedPrefs.getBoolean(App.IS_THEME_DARK, false)
     }
 
-    override fun writeFlag(darkThemeEnabled: Boolean) {
+    override fun writeFlag(isDarkThemeEnabled: Boolean) {
         sharedPrefs.edit {
-            putBoolean(App.IS_THEME_DARK, darkThemeEnabled)
+            putBoolean(App.IS_THEME_DARK, isDarkThemeEnabled)
         }
     }
 }

@@ -2,7 +2,6 @@ package com.example.playlistmaker.creator
 
 import android.app.Application
 import android.content.Context
-import android.media.MediaPlayer
 import com.example.playlistmaker.App
 import com.example.playlistmaker.search.data.network.RetrofitNetworkClient
 import com.example.playlistmaker.search.data.repository.HistoryManagerRepositoryImpl
@@ -23,6 +22,10 @@ import com.example.playlistmaker.search.data.storage.PrefsStorageClient
 import com.example.playlistmaker.settings.domain.impl.ThemeSwitcherInteractorImpl
 import com.example.playlistmaker.search.domain.impl.TracksInteractorImpl
 import com.example.playlistmaker.search.domain.models.Track
+import com.example.playlistmaker.sharing.data.repository.ExternalNavigatorImpl
+import com.example.playlistmaker.sharing.domain.api.ExternalNavigator
+import com.example.playlistmaker.sharing.domain.api.SharingInteractor
+import com.example.playlistmaker.sharing.domain.impl.SharingInteractorImpl
 import com.google.gson.reflect.TypeToken
 
 object Creator {
@@ -64,5 +67,13 @@ object Creator {
 
     fun getMediaPlayerInteractor(): MediaPlayerInteractor {
         return MediaPlayerInteractorImpl(getMediaPlayerRepository())
+    }
+
+    private fun getExternalNavigator(): ExternalNavigator {
+        return ExternalNavigatorImpl(appContext)
+    }
+
+    fun getSharingInteractor(): SharingInteractor {
+        return SharingInteractorImpl(getExternalNavigator())
     }
 }
