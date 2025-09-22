@@ -2,70 +2,32 @@ package com.example.playlistmaker.player.ui.activity
 
 import android.os.Bundle
 import android.util.TypedValue
-import android.widget.ImageButton
-import android.widget.ImageView
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.Group
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.example.playlistmaker.R
+import com.example.playlistmaker.databinding.ActivityPlayerBinding
 import com.example.playlistmaker.player.domain.models.PlayerState
 import com.example.playlistmaker.player.ui.view_model.PlayerActiityViewModel
 import com.example.playlistmaker.search.domain.models.Track
 import com.example.playlistmaker.search.ui.activity.TRACK_KEY
-import com.google.android.material.appbar.MaterialToolbar
 import java.text.SimpleDateFormat
 import java.util.Locale
 
 class PlayerActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityPlayerBinding
 
-    private lateinit var toolbar: MaterialToolbar
-    private lateinit var cover: ImageView
-    private lateinit var trackName: TextView
-    private lateinit var artist: TextView
-    private lateinit var addToPlaylistButton: ImageButton
-    private lateinit var playButton: ImageButton
-    private lateinit var addToFavoritesButton: ImageButton
-    private lateinit var currentTrackTime: TextView
-    private lateinit var trackDuration: TextView
-    private lateinit var durationGroup: Group
-    private lateinit var album: TextView
-    private lateinit var albumGroup: Group
-    private lateinit var year: TextView
-    private lateinit var yearGroup: Group
-    private lateinit var genre: TextView
-    private lateinit var genreGroup: Group
-    private lateinit var country: TextView
-    private lateinit var countryGroup: Group
     private lateinit var track: Track
     private var viewModel: PlayerActiityViewModel? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_player)
+        binding = ActivityPlayerBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        toolbar = findViewById(R.id.playerScreenToolbar)
-        cover = findViewById(R.id.playerScreenCover)
-        trackName = findViewById(R.id.playerScreenTrackName)
-        artist = findViewById(R.id.playerScreenArtistName)
-        addToPlaylistButton = findViewById(R.id.addToPlaylistButton)
-        playButton = findViewById(R.id.playerScreenPlayButton)
-        addToFavoritesButton = findViewById(R.id.addToFavoritesButton)
-        currentTrackTime = findViewById(R.id.playerScreenTrackTime)
-        trackDuration = findViewById(R.id.playerScreenDuration)
-        durationGroup = findViewById(R.id.durationGroup)
-        album = findViewById(R.id.playerScreenAlbum)
-        albumGroup = findViewById(R.id.albumGroup)
-        year = findViewById(R.id.playerScreenYear)
-        yearGroup = findViewById(R.id.yearGroup)
-        genre = findViewById(R.id.playerScreenGenre)
-        genreGroup = findViewById(R.id.genreGroup)
-        country = findViewById(R.id.playerScreenCountry)
-        countryGroup = findViewById(R.id.countryGroup)
         track = intent.getSerializableExtra(TRACK_KEY) as Track
 
         viewModel = ViewModelProvider(this, PlayerActiityViewModel.getFactory(track.previewUrl))
@@ -73,20 +35,20 @@ class PlayerActivity : AppCompatActivity() {
         viewModel?.preparePlayer()
         viewModel?.observePlayerState()?.observe(this) {
             when(it) {
-                is PlayerState.Playing -> playButton.setImageResource(R.drawable.pause_button)
-                is PlayerState.Paused, PlayerState.Prepared -> playButton.setImageResource(R.drawable.play_button)
+                is PlayerState.Playing -> binding.playButton.setImageResource(R.drawable.pause_button)
+                is PlayerState.Paused, PlayerState.Prepared -> binding.playButton.setImageResource(R.drawable.play_button)
                 else -> Toast.makeText(this, "Exception while preparing player or wait a few seconds", Toast.LENGTH_SHORT).show()
             }
         }
         viewModel?.observeTimer()?.observe(this) {
-            currentTrackTime.text = it
+            binding.trackTimeProgress.text = it
         }
 
-        toolbar.setNavigationOnClickListener {
+        binding.toolbar.setNavigationOnClickListener {
             finish()
         }
 
-        playButton.setOnClickListener {
+        binding.playButton.setOnClickListener {
             if (track.previewUrl.isNotEmpty()) {
                 viewModel?.playbackControl()
             } else {
@@ -114,29 +76,29 @@ class PlayerActivity : AppCompatActivity() {
             .placeholder(R.drawable.ic_placeholder)
             .centerCrop()
             .transform(RoundedCorners(roundRadius))
-            .into(cover)
+            .into(binding.cover)
     }
 
     private fun setTrackName() {
-        trackName.text = track.trackName
+        binding.trackName.text = track.trackName
     }
 
     private fun setArtist() {
-        artist.text = track.artistName
+        binding.artistName.text = track.artistName
     }
 
     private fun setCurrentDuration() {
-        currentTrackTime.text = resources.getString(R.string.media_player_default_time)
+        binding.trackTimeProgress.text = resources.getString(R.string.media_player_default_time)
     }
 
     private fun setDuration() {
-        trackDuration.text = track.trackTime
-        durationGroup.isVisible = !trackDuration.text.isNullOrEmpty()
+        binding.durationTime.text = track.trackTime
+        binding.durationGroup.isVisible = !binding.durationTime.text.isNullOrEmpty()
     }
 
     private fun setAlbum() {
-        album.text = track.collectionName
-        albumGroup.isVisible = !album.text.isNullOrEmpty()
+        binding.album.text = track.collectionName
+        binding.albumGroup.isVisible = !binding.album.text.isNullOrEmpty()
     }
 
     private fun setYear() {
@@ -144,21 +106,21 @@ class PlayerActivity : AppCompatActivity() {
             val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault())
             val date = inputFormat.parse(track.releaseDate)
             val yearFormat = SimpleDateFormat("yyyy", Locale.getDefault())
-            year.text = yearFormat.format(date!!)
-            yearGroup.isVisible = true
+            binding.year.text = yearFormat.format(date!!)
+            binding.yearGroup.isVisible = true
         } else {
-            yearGroup.isVisible = false
+            binding.yearGroup.isVisible = false
         }
     }
 
     private fun setGenre() {
-        genre.text = track.primaryGenreName
-        genreGroup.isVisible = !genre.text.isNullOrEmpty()
+        binding.genre.text = track.primaryGenreName
+        binding.genreGroup.isVisible = !binding.genre.text.isNullOrEmpty()
     }
 
     private fun setCountry() {
-        country.text = track.country
-        countryGroup.isVisible = !country.text.isNullOrEmpty()
+        binding.country.text = track.country
+        binding.countryGroup.isVisible = !binding.country.text.isNullOrEmpty()
     }
 
     override fun onPause() {

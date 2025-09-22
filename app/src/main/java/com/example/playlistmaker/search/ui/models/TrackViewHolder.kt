@@ -3,21 +3,15 @@ package com.example.playlistmaker.search.ui.models
 import android.os.Handler
 import android.os.Looper
 import android.util.TypedValue
-import android.view.View
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.example.playlistmaker.R
+import com.example.playlistmaker.databinding.ActivityTrackItemSearchBinding
 import com.example.playlistmaker.search.domain.models.Track
 
-class TrackViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
+class TrackViewHolder(private val binding: ActivityTrackItemSearchBinding): RecyclerView.ViewHolder(binding.root) {
 
-    private val albumCover: ImageView = itemView.findViewById(R.id.search_screen_album_cover)
-    private val trackName: TextView = itemView.findViewById(R.id.search_screen_track_name)
-    private val artistName: TextView = itemView.findViewById(R.id.search_screen_artist_name)
-    private val trackTime: TextView = itemView.findViewById(R.id.search_screen_track_length)
     private var isClickAllowed = true
     private val handler = Handler(Looper.getMainLooper())
 
@@ -34,10 +28,10 @@ class TrackViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
             .placeholder(R.drawable.ic_placeholder)
             .centerCrop()
             .transform(RoundedCorners(roundRadius))
-            .into(albumCover)
-        trackName.text = model.trackName
-        artistName.text = model.artistName
-        trackTime.text = model.trackTime
+            .into(binding.albumCover)
+        binding.viewHolderTrackName.text = model.trackName
+        binding.viewHolderArtistName.text = model.artistName
+        binding.trackLength.text = model.trackTime
     }
 
     private fun clickDebounce(): Boolean {

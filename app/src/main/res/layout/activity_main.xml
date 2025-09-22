@@ -24,7 +24,7 @@
         android:layout_marginEnd="@dimen/padding">
 
         <Button
-            android:id="@+id/main_screen_search_button"
+            android:id="@+id/search_button"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
@@ -35,7 +35,7 @@
             app:iconTint="@color/PM_black"/>
 
         <Button
-            android:id="@+id/main_screen_media_library_button"
+            android:id="@+id/media_library_button"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
@@ -46,7 +46,7 @@
             app:iconTint="@color/PM_black"/>
 
         <Button
-            android:id="@+id/main_screen_settings_button"
+            android:id="@+id/settings_button"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"

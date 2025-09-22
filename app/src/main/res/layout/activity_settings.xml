@@ -7,7 +7,7 @@
 
 
     <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/settingsScreenToolbar"
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:navigationIcon="@drawable/ic_arrow_back"
@@ -24,7 +24,7 @@
         android:orientation="vertical">
 
         <com.google.android.material.switchmaterial.SwitchMaterial
-            android:id="@+id/themeSwitcher"
+            android:id="@+id/theme_switcher"
             android:layout_width="match_parent"
             android:layout_height="61dp"
             android:text="@string/dark_theme"
@@ -34,7 +34,7 @@
         </com.google.android.material.switchmaterial.SwitchMaterial>
 
         <TextView
-            android:id="@+id/shareAppButton"
+            android:id="@+id/share_app_button"
             android:layout_width="match_parent"
             android:layout_height="61dp"
             style="@style/SettingsScreenTextStyle"
@@ -43,7 +43,7 @@
         </TextView>
 
         <TextView
-            android:id="@+id/textSupportButton"
+            android:id="@+id/text_support_button"
             android:layout_width="match_parent"
             android:layout_height="61dp"
             style="@style/SettingsScreenTextStyle"
@@ -52,7 +52,7 @@
         </TextView>
 
         <TextView
-            android:id="@+id/licenseAgreementButton"
+            android:id="@+id/license_agreement_button"
             android:layout_width="match_parent"
             android:layout_height="61dp"
             style="@style/SettingsScreenTextStyle"

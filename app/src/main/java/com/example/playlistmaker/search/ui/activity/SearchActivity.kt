@@ -5,67 +5,35 @@ import android.os.Bundle
 import android.text.Editable
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.ProgressBar
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
-import androidx.recyclerview.widget.RecyclerView
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import com.example.playlistmaker.App
 import com.example.playlistmaker.R
+import com.example.playlistmaker.databinding.ActivitySearchBinding
 import com.example.playlistmaker.player.ui.activity.PlayerActivity
 import com.example.playlistmaker.search.ui.models.TrackAdapter
 import com.example.playlistmaker.search.domain.models.Track
 import com.example.playlistmaker.search.domain.models.TracksProvider
 import com.example.playlistmaker.search.ui.view_model.SearchActivityViewModel
-import com.google.android.material.appbar.MaterialToolbar
 
 
 const val TRACK_KEY = "TRACK"
 
 class SearchActivity : AppCompatActivity() {
+    private lateinit var binding: ActivitySearchBinding
 
     private var input: String? = ""
 
     private var viewModel: SearchActivityViewModel? = null
     private lateinit var trackAdapter: TrackAdapter
     private lateinit var searchHistoryAdapter: TrackAdapter
-    private lateinit var recyclerSearchResults: RecyclerView
-    private lateinit var recyclerHistoryResults: RecyclerView
-
-    private lateinit var toolbar: MaterialToolbar
-    private lateinit var inputEditText: EditText
-    private lateinit var clearButton: ImageView
-    private lateinit var placeholder: ImageView
-    private lateinit var errorText: TextView
-    private lateinit var refreshButton: Button
-    private lateinit var searchHistoryLayout: LinearLayout
-    private lateinit var historyHeader: TextView
-    private lateinit var clearHistory: Button
-    private lateinit var progressBar: ProgressBar
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_search)
-
-        toolbar = findViewById(R.id.searchScreenToolbar)
-        inputEditText = findViewById(R.id.edit_text_search)
-        clearButton = findViewById(R.id.clear_text_icon)
-        placeholder = findViewById(R.id.search_screen_error_placeholder)
-        errorText = findViewById(R.id.search_screen_error_text)
-        refreshButton = findViewById(R.id.search_screen_refresh_button)
-        searchHistoryLayout = findViewById(R.id.search_screen_history)
-        historyHeader = findViewById(R.id.search_history_header)
-        clearHistory = findViewById(R.id.search_screen_clear_history)
-        progressBar = findViewById(R.id.progressBar)
-        recyclerSearchResults = findViewById(R.id.search_screen_recycler_view)
-        recyclerHistoryResults = findViewById(R.id.search_screen_recycler_search_history)
+        binding = ActivitySearchBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         viewModel = ViewModelProvider(this, SearchActivityViewModel.getFactory()).get(SearchActivityViewModel::class.java)
         viewModel?.observeState()?.observe(this) {
@@ -99,24 +67,24 @@ class SearchActivity : AppCompatActivity() {
             startActivity(intent)
         }
         viewModel?.updateHistory(App.SEARCH_HISTORY_KEY)
-        recyclerSearchResults.adapter = trackAdapter
-        recyclerHistoryResults.adapter = searchHistoryAdapter
+        binding.searchRecyclerView.adapter = trackAdapter
+        binding.historyRecyclerView.adapter = searchHistoryAdapter
 
-        toolbar.setNavigationOnClickListener {
+        binding.toolbar.setNavigationOnClickListener {
             finish()
         }
 
-        inputEditText.setText(input)
+        binding.editText.setText(input)
 
-        inputEditText.setOnClickListener {
-            inputEditText.requestFocus()
+        binding.editText.setOnClickListener {
+            binding.editText.requestFocus()
         }
 
-        inputEditText.addTextChangedListener(
+        binding.editText.addTextChangedListener(
             { text: CharSequence?, start: Int, count: Int, after: Int -> },
             { text: CharSequence?, start: Int, before: Int, count: Int ->
-                clearButton.isVisible = !text.isNullOrEmpty()
-                if (inputEditText.hasFocus() && text?.isEmpty() == true && searchHistoryAdapter.tracksIsNotEmpty()) {
+                binding.clearTextButton.isVisible = !text.isNullOrEmpty()
+                if (binding.editText.hasFocus() && text?.isEmpty() == true && searchHistoryAdapter.tracksIsNotEmpty()) {
                     showHistory()
                 }
                 viewModel?.searchDebounce(text.toString())
@@ -124,30 +92,30 @@ class SearchActivity : AppCompatActivity() {
             { text: Editable? -> input = text.toString() }
         )
 
-        inputEditText.setOnFocusChangeListener { view, hasFocus ->
-            if (inputEditText.hasFocus() && inputEditText.text.isEmpty() && searchHistoryAdapter.tracksIsNotEmpty()) {
+        binding.editText.setOnFocusChangeListener { view, hasFocus ->
+            if (binding.editText.hasFocus() && binding.editText.text.isEmpty() && searchHistoryAdapter.tracksIsNotEmpty()) {
                 showHistory()
             }
         }
 
-        clearButton.setOnClickListener {
-            inputEditText.setText("")
+        binding.clearTextButton.setOnClickListener {
+            binding.editText.setText("")
             val inputMethodManager = getSystemService(INPUT_METHOD_SERVICE) as? InputMethodManager
             inputMethodManager?.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
         }
 
-        clearHistory.setOnClickListener {
+        binding.clearHistoryButton.setOnClickListener {
             viewModel?.clearHistory()
             searchHistoryAdapter.clearTracks()
             searchHistoryAdapter.notifyDataSetChanged()
-            searchHistoryLayout.isVisible = false
+            binding.history.isVisible = false
         }
 
-        refreshButton.setOnClickListener {
+        binding.refreshButton.setOnClickListener {
             viewModel?.searchDebounce(input!!) //Не забыть посмотреть
         }
 
-        inputEditText.setOnEditorActionListener { _, actionId, _ ->
+        binding.editText.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 viewModel?.searchDebounce(input!!)
             }
@@ -156,27 +124,31 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun showLoading() {
-        recyclerSearchResults.isVisible = false
-        recyclerHistoryResults.isVisible = false
-        placeholder.isVisible = false
-        errorText.isVisible = false
-        refreshButton.isVisible = false
-        searchHistoryLayout.isVisible = false
-        historyHeader.isVisible = false
-        clearHistory.isVisible = false
-        progressBar.isVisible = true
+        binding.apply {
+            searchRecyclerView.isVisible = false
+            historyRecyclerView.isVisible = false
+            placeholder.isVisible = false
+            errorText.isVisible = false
+            refreshButton.isVisible = false
+            history.isVisible = false
+            historyHeader.isVisible = false
+            clearHistoryButton.isVisible = false
+            progressBar.isVisible = true
+        }
     }
 
     private fun showHistory() {
-        recyclerSearchResults.isVisible = false
-        recyclerHistoryResults.isVisible = true
-        placeholder.isVisible = false
-        errorText.isVisible = false
-        refreshButton.isVisible = false
-        searchHistoryLayout.isVisible = true
-        historyHeader.isVisible = true
-        clearHistory.isVisible = true
-        progressBar.isVisible = false
+        binding.apply {
+            searchRecyclerView.isVisible = false
+            historyRecyclerView.isVisible = true
+            placeholder.isVisible = false
+            errorText.isVisible = false
+            refreshButton.isVisible = false
+            history.isVisible = true
+            historyHeader.isVisible = true
+            clearHistoryButton.isVisible = true
+            progressBar.isVisible = false
+        }
     }
 
     private fun showContent(tracksList: List<Track>) {
@@ -186,50 +158,55 @@ class SearchActivity : AppCompatActivity() {
         if (tracksList.isEmpty()) {
             showEmpty()
         } else {
-            placeholder.isVisible = false
-            errorText.isVisible = false
-            recyclerSearchResults.isVisible = true
-            recyclerHistoryResults.isVisible = false
-            refreshButton.isVisible = false
-            searchHistoryLayout.isVisible = false
-            historyHeader.isVisible = false
-            clearHistory.isVisible = false
-            progressBar.isVisible = false
+            binding.apply {
+                placeholder.isVisible = false
+                errorText.isVisible = false
+                searchRecyclerView.isVisible = true
+                historyRecyclerView.isVisible = false
+                refreshButton.isVisible = false
+                history.isVisible = false
+                historyHeader.isVisible = false
+                clearHistoryButton.isVisible = false
+                progressBar.isVisible = false
+            }
         }
     }
 
     private fun showError(errorCode: Int) {
-        if (errorCode == 400) {
-            placeholder.setImageResource(R.drawable.error_placeholder_nothing_found)
-            errorText.text = getString(R.string.server_error)
+        if (errorCode in 400..499) {
+            binding.placeholder.setImageResource(R.drawable.error_placeholder_nothing_found)
+            binding.errorText.text = getString(R.string.server_error)
         } else {
-            placeholder.setImageResource(R.drawable.error_placeholder_connection_problem)
-            errorText.text = getString(R.string.connection_problem)
-            refreshButton.isVisible = true
+            binding.placeholder.setImageResource(R.drawable.error_placeholder_connection_problem)
+            binding.errorText.text = getString(R.string.connection_problem)
+            binding.refreshButton.isVisible = true
         }
-
-        recyclerSearchResults.isVisible = false
-        recyclerHistoryResults.isVisible = false
-        placeholder.isVisible = true
-        errorText.isVisible = true
-        searchHistoryLayout.isVisible = false
-        historyHeader.isVisible = false
-        clearHistory.isVisible = false
-        progressBar.isVisible = false
+        binding.apply {
+            searchRecyclerView.isVisible = false
+            historyRecyclerView.isVisible = false
+            placeholder.isVisible = true
+            errorText.isVisible = true
+            history.isVisible = false
+            historyHeader.isVisible = false
+            clearHistoryButton.isVisible = false
+            progressBar.isVisible = false
+        }
     }
 
     private fun showEmpty() {
-        placeholder.setImageResource(R.drawable.error_placeholder_nothing_found)
-        errorText.text = getString(R.string.nothing_found)
-        recyclerSearchResults.isVisible = false
-        recyclerHistoryResults.isVisible = false
-        placeholder.isVisible = true
-        errorText.isVisible = true
-        refreshButton.isVisible = false
-        searchHistoryLayout.isVisible = false
-        historyHeader.isVisible = false
-        clearHistory.isVisible = false
-        progressBar.isVisible = false
+        binding.apply {
+            placeholder.setImageResource(R.drawable.error_placeholder_nothing_found)
+            errorText.text = getString(R.string.nothing_found)
+            searchRecyclerView.isVisible = false
+            historyRecyclerView.isVisible = false
+            placeholder.isVisible = true
+            errorText.isVisible = true
+            refreshButton.isVisible = false
+            history.isVisible = false
+            historyHeader.isVisible = false
+            clearHistoryButton.isVisible = false
+            progressBar.isVisible = false
+        }
     }
 
     private fun render(data: TracksProvider) {
