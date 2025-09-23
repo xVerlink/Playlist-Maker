@@ -18,7 +18,7 @@ class HistoryManagerRepositoryImpl(private val storageClient: StorageClient<Arra
     }
 
     override fun registerHistoryChangeListener (action: (List<Track>?) -> Unit) {
-        storageClient.registerHistoryChangeListener(action)
+        storageClient.registerOnSharedPreferenceChangeListener(action)
     }
 
     override fun unregisterOnSharedPreferenceChangeListener() {

@@ -31,7 +31,7 @@ class PrefsStorageClient<T>(
         }
     }
 
-    override fun registerHistoryChangeListener(action: (T?) -> Unit) {
+    override fun registerOnSharedPreferenceChangeListener(action: (T?) -> Unit) {
         listener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
             action.invoke(getData())
         }
@@ -39,7 +39,7 @@ class PrefsStorageClient<T>(
     }
 
     override fun clearHistory() {
-        prefs.edit { remove(App.SEARCH_HISTORY_KEY) }
+        prefs.edit { remove(dataKey) }
     }
 
     override fun unregisterOnSharedPreferenceChangeListener() {

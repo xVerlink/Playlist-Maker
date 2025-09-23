@@ -1,20 +1,17 @@
 package com.example.playlistmaker.settings.data.repository
 
-import android.content.SharedPreferences
-import androidx.core.content.edit
-import com.example.playlistmaker.App
+
+import com.example.playlistmaker.search.data.storage.StorageClient
 import com.example.playlistmaker.settings.domain.api.ThemeSwitcherRepository
 
-class ThemeSwitcherRepositoryImpl(private val sharedPrefs: SharedPreferences) :
+class ThemeSwitcherRepositoryImpl(private val prefs: StorageClient<Boolean>) :
     ThemeSwitcherRepository {
 
     override fun readFlag(): Boolean {
-        return sharedPrefs.getBoolean(App.IS_THEME_DARK, false)
+        return prefs.getData() ?: false
     }
 
     override fun writeFlag(isDarkThemeEnabled: Boolean) {
-        sharedPrefs.edit {
-            putBoolean(App.IS_THEME_DARK, isDarkThemeEnabled)
-        }
+        prefs.storeData(isDarkThemeEnabled)
     }
 }

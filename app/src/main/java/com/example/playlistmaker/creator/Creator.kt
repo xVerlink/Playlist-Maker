@@ -54,7 +54,8 @@ object Creator {
     }
 
     private fun getThemeSwitcherRepository(): ThemeSwitcherRepository {
-        return ThemeSwitcherRepositoryImpl(appContext.getSharedPreferences(App.PLAYLIST_MAKER_PREFERENCES, Context.MODE_PRIVATE))
+        return ThemeSwitcherRepositoryImpl(PrefsStorageClient<Boolean>(appContext.getSharedPreferences(App.PLAYLIST_MAKER_PREFERENCES,
+            Context.MODE_PRIVATE), App.IS_THEME_DARK, object: TypeToken<Boolean>() {}.type))
     }
 
     fun getThemeSwitcherInteractor(): ThemeSwitcherInteractor {
