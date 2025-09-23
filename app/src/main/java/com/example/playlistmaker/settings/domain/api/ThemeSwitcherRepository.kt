@@ -4,4 +4,5 @@ interface ThemeSwitcherRepository {
 
     fun readFlag(): Boolean
     fun writeFlag(isDarkThemeEnabled: Boolean)
+    fun switchTheme(isDarkThemeEnabled: Boolean)
 }
