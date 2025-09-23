@@ -1,9 +1,12 @@
 package com.example.playlistmaker.player.domain.api
 
-import android.media.MediaPlayer
-
 interface MediaPlayerInteractor {
 
-    fun preparePlayer(mediaPlayer: MediaPlayer, dataSource: String)
-
+    fun preparePlayer(dataSource: String)
+    fun setOnPreparedListener(listener: () -> Unit)
+    fun setOnCompletionListener(listener: () -> Unit)
+    fun playerStart()
+    fun playerPause()
+    fun getCurrentPosition(): Int
+    fun release()
 }

@@ -13,13 +13,12 @@ import com.example.playlistmaker.App
 import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.ActivitySearchBinding
 import com.example.playlistmaker.player.ui.activity.PlayerActivity
+import com.example.playlistmaker.player.ui.activity.TRACK_KEY
 import com.example.playlistmaker.search.ui.models.TrackAdapter
 import com.example.playlistmaker.search.domain.models.Track
 import com.example.playlistmaker.search.domain.models.TracksProvider
 import com.example.playlistmaker.search.ui.view_model.SearchActivityViewModel
 
-
-const val TRACK_KEY = "TRACK"
 
 class SearchActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySearchBinding

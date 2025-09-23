@@ -41,4 +41,8 @@ class PrefsStorageClient<T>(
     override fun clearHistory() {
         prefs.edit { remove(App.SEARCH_HISTORY_KEY) }
     }
+
+    override fun unregisterOnSharedPreferenceChangeListener() {
+        prefs.unregisterOnSharedPreferenceChangeListener(listener)
+    }
 }

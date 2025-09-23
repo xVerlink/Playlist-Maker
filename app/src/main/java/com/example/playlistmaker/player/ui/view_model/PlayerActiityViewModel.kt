@@ -1,30 +1,31 @@
 package com.example.playlistmaker.player.ui.view_model
 
-import android.media.MediaPlayer
+import android.app.Application
 import android.os.Handler
 import android.os.Looper
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.example.playlistmaker.R
 import com.example.playlistmaker.creator.Creator
 import com.example.playlistmaker.player.domain.models.PlayerState
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class PlayerActiityViewModel(private var url: String) : ViewModel() {
+class PlayerActiityViewModel(private val application: Application, private val url: String) : ViewModel() {
 
     private val playerInteractor = Creator.getMediaPlayerInteractor()
-    private val mediaPlayer = MediaPlayer()
     private val handler = Handler(Looper.getMainLooper())
 
     private var playerState: PlayerState = PlayerState.Default
     private val playerStateLiveData = MutableLiveData<PlayerState>()
     fun observePlayerState(): LiveData<PlayerState> = playerStateLiveData
 
-    private var timer = "00:00"
+    private var timer: String = application.applicationContext.getString(R.string.media_player_default_time)
     private val timerLiveData = MutableLiveData<String>()
     fun observeTimer(): LiveData<String> = timerLiveData
 
@@ -35,27 +36,24 @@ class PlayerActiityViewModel(private var url: String) : ViewModel() {
     }
 
     fun preparePlayer() {
-        playerInteractor.preparePlayer(mediaPlayer, url)
-        mediaPlayer.setOnPreparedListener {
-            playerState = PlayerState.Prepared
-            playerStateLiveData.postValue(playerState)
+        playerInteractor.preparePlayer(url)
+        playerInteractor.setOnPreparedListener {
+            onPlayerPrepared()
         }
-        mediaPlayer.setOnCompletionListener {
-            playerState = PlayerState.Prepared
-            playerStateLiveData.postValue(playerState)
-            resetTimer()
+        playerInteractor.setOnCompletionListener {
+            onTrackCompleted()
         }
     }
 
     private fun startPlayer() {
-        mediaPlayer.start()
+        playerInteractor.playerStart()
         playerState = PlayerState.Playing
         playerStateLiveData.postValue(playerState)
         startTimerUpdate()
     }
 
     private fun pausePlayer() {
-        mediaPlayer.pause()
+        playerInteractor.playerPause()
         playerState = PlayerState.Paused
         playerStateLiveData.postValue(playerState)
         pauseTimer()
@@ -69,7 +67,7 @@ class PlayerActiityViewModel(private var url: String) : ViewModel() {
     }
 
     private fun startTimerUpdate() {
-        timer = SimpleDateFormat("mm:ss", Locale.getDefault()).format(mediaPlayer.getCurrentPosition())
+        timer = SimpleDateFormat("mm:ss", Locale.getDefault()).format(playerInteractor.getCurrentPosition())
         timerLiveData.postValue(timer)
         handler.postDelayed(timerRunnable, TRACK_CURRENT_TIME_DELAY)
     }
@@ -80,8 +78,19 @@ class PlayerActiityViewModel(private var url: String) : ViewModel() {
 
     private fun resetTimer() {
         handler.removeCallbacks(timerRunnable)
-        timer = "00:00"
+        timer = application.applicationContext.getString(R.string.media_player_default_time)
         timerLiveData.postValue(timer)
+    }
+
+    fun onPlayerPrepared() {
+        playerState = PlayerState.Prepared
+        playerStateLiveData.postValue(playerState)
+    }
+
+    fun onTrackCompleted() {
+        playerState = PlayerState.Prepared
+        playerStateLiveData.postValue(playerState)
+        resetTimer()
     }
 
     fun onPause() {
@@ -90,7 +99,7 @@ class PlayerActiityViewModel(private var url: String) : ViewModel() {
 
     override fun onCleared() {
         super.onCleared()
-        mediaPlayer.release()
+        playerInteractor.release()
         resetTimer()
     }
 
@@ -99,7 +108,8 @@ class PlayerActiityViewModel(private var url: String) : ViewModel() {
 
         fun getFactory(trackUrl: String): ViewModelProvider.Factory = viewModelFactory {
             initializer {
-                PlayerActiityViewModel(trackUrl)
+                val application = this[APPLICATION_KEY] as Application
+                PlayerActiityViewModel(application, trackUrl)
             }
         }
     }

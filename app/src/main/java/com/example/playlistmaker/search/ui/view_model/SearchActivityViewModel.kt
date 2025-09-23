@@ -25,9 +25,9 @@ class SearchActivityViewModel() : ViewModel() {
     private val stateLiveData = MutableLiveData<TracksProvider>()
     fun observeState(): LiveData<TracksProvider> = stateLiveData
 
-    private var historyList: MutableList<Track> = mutableListOf()
-    private val historyStateLiveData = MutableLiveData<MutableList<Track>>()
-    fun observeHistory(): LiveData<MutableList<Track>> = historyStateLiveData
+    private var historyList: List<Track> = listOf()
+    private val historyStateLiveData = MutableLiveData<List<Track>>()
+    fun observeHistory(): LiveData<List<Track>> = historyStateLiveData
 
     fun searchDebounce(changedText: String) {
         if (latestSearchText == changedText) {

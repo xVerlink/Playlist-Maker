@@ -165,6 +165,9 @@
                 app:layout_constraintTop_toTopOf="@id/album_word"
                 app:layout_constraintEnd_toEndOf="parent"
                 style="@style/TextBlackWhite13sp"
+                android:ellipsize="end"
+                android:maxEms="15"
+                android:maxLines="1"
                 android:visibility="gone"/>
 
             <androidx.constraintlayout.widget.Group

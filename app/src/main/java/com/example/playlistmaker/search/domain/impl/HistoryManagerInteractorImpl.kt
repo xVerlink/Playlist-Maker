@@ -7,12 +7,12 @@ import com.example.playlistmaker.search.domain.models.Track
 
 class HistoryManagerInteractorImpl(private val repository: HistoryManagerRepository) : HistoryManagerInteractor {
 
-    override fun getTracksHistory(historyKey: String): MutableList<Track> {
+    override fun getTracksHistory(historyKey: String): List<Track> {
         return repository.getTracksHistory(historyKey)
      }
 
     override fun add(track: Track) {
-        val historyList: MutableList<Track> = getTracksHistory(App.SEARCH_HISTORY_KEY)
+        val historyList: MutableList<Track> =  getTracksHistory(App.SEARCH_HISTORY_KEY).toMutableList()
         var indexNumber = -1
         historyList.forEachIndexed { index, item ->
             if (item.trackId.toInt() == track.trackId.toInt()) {
@@ -35,5 +35,9 @@ class HistoryManagerInteractorImpl(private val repository: HistoryManagerReposit
 
     override fun registerHistoryChangeListener(action: (List<Track>?) -> Unit) {
         repository.registerHistoryChangeListener(action)
+    }
+
+    override fun unregisterOnSharedPreferenceChangeListener() {
+        repository.unregisterOnSharedPreferenceChangeListener()
     }
 }

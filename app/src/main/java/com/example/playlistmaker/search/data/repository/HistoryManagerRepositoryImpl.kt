@@ -8,7 +8,7 @@ import com.example.playlistmaker.search.domain.models.Track
 
 class HistoryManagerRepositoryImpl(private val storageClient: StorageClient<ArrayList<Track>>) : HistoryManagerRepository {
 
-    override fun getTracksHistory(historyKey: String): MutableList<Track> {
+    override fun getTracksHistory(historyKey: String): List<Track> {
         val tracks = storageClient.getData()
         return tracks ?: mutableListOf()
     }
@@ -19,6 +19,10 @@ class HistoryManagerRepositoryImpl(private val storageClient: StorageClient<Arra
 
     override fun registerHistoryChangeListener (action: (List<Track>?) -> Unit) {
         storageClient.registerHistoryChangeListener(action)
+    }
+
+    override fun unregisterOnSharedPreferenceChangeListener() {
+        storageClient.unregisterOnSharedPreferenceChangeListener()
     }
 
     override fun clearHistory() {

@@ -5,7 +5,6 @@ import com.example.playlistmaker.search.domain.models.TracksProvider
 interface TracksInteractor {
     fun searchTracks(expression: String, consumer: TracksConsumer)
 
-
     interface TracksConsumer {
         fun consume(data: TracksProvider)
     }

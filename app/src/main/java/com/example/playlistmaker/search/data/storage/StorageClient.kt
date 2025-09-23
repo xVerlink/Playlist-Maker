@@ -6,4 +6,5 @@ interface StorageClient<T> {
     fun getData(): T?
     fun registerHistoryChangeListener (action: (T?) -> Unit)
     fun clearHistory()
+    fun unregisterOnSharedPreferenceChangeListener()
 }

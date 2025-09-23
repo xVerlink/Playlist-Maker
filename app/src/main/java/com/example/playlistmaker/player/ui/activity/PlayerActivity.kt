@@ -13,9 +13,11 @@ import com.example.playlistmaker.databinding.ActivityPlayerBinding
 import com.example.playlistmaker.player.domain.models.PlayerState
 import com.example.playlistmaker.player.ui.view_model.PlayerActiityViewModel
 import com.example.playlistmaker.search.domain.models.Track
-import com.example.playlistmaker.search.ui.activity.TRACK_KEY
 import java.text.SimpleDateFormat
 import java.util.Locale
+
+
+const val TRACK_KEY = "TRACK"
 
 class PlayerActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPlayerBinding
