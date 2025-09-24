@@ -7,7 +7,7 @@
     android:background="?attr/backgroundColor">
 
     <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/searchScreenToolbar"
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:navigationIcon="@drawable/ic_arrow_back"
@@ -23,7 +23,7 @@
         android:layout_marginEnd="@dimen/padding">
 
         <EditText
-            android:id="@+id/edit_text_search"
+            android:id="@+id/edit_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="@style/SearchFieldColorStyle"
@@ -41,7 +41,7 @@
         </EditText>
 
         <ImageView
-            android:id="@+id/clear_text_icon"
+            android:id="@+id/clear_text_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end|center"
@@ -62,7 +62,7 @@
         android:visibility="gone"/>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/search_screen_recycler_view"
+        android:id="@+id/search_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
@@ -70,14 +70,14 @@
         android:orientation="vertical"/>
 
     <LinearLayout
-        android:id="@+id/search_screen_history"
+        android:id="@+id/history"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:visibility="gone">
 
         <TextView
-            android:id="@+id/search_history_header"
+            android:id="@+id/history_header"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="42dp"
@@ -90,7 +90,7 @@
             android:visibility="gone"/>
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/search_screen_recycler_search_history"
+            android:id="@+id/history_recycler_view"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
@@ -100,7 +100,7 @@
             app:reverseLayout="true"/>
 
         <Button
-            android:id="@+id/search_screen_clear_history"
+            android:id="@+id/clear_history_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
@@ -117,7 +117,7 @@
 
 
     <ImageView
-        android:id="@+id/search_screen_error_placeholder"
+        android:id="@+id/placeholder"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="110dp"
@@ -125,7 +125,7 @@
         android:visibility="gone"/>
 
     <TextView
-        android:id="@+id/search_screen_error_text"
+        android:id="@+id/error_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
@@ -139,7 +139,7 @@
         android:visibility="gone"/>
 
     <Button
-        android:id="@+id/search_screen_refresh_button"
+        android:id="@+id/refresh_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"

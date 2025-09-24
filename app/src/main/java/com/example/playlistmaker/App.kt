@@ -1,7 +1,7 @@
 package com.example.playlistmaker
 
 import android.app.Application
-
+import com.example.playlistmaker.creator.Creator
 
 
 class App: Application() {
@@ -10,8 +10,8 @@ class App: Application() {
         super.onCreate()
         Creator.initAppContext(this)
         val themeSwitcherInteractor = Creator.getThemeSwitcherInteractor()
-        val darkThemeEnabled = themeSwitcherInteractor.isDarkModeEnabled()
-        themeSwitcherInteractor.switchTheme(darkThemeEnabled)
+        val isDarkThemeEnabled = themeSwitcherInteractor.isDarkModeEnabled()
+        themeSwitcherInteractor.switchTheme(isDarkThemeEnabled)
     }
 
     companion object {
