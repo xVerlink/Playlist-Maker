@@ -4,8 +4,7 @@ import android.media.MediaPlayer
 import com.example.playlistmaker.player.domain.api.MediaPlayerRepository
 
 
-class MediaPlayerRepositoryImpl : MediaPlayerRepository {
-    private val mediaPlayer = MediaPlayer()
+class MediaPlayerRepositoryImpl(private val mediaPlayer: MediaPlayer) : MediaPlayerRepository {
     override fun preparePlayer(dataSource: String) {
         try {
             mediaPlayer.setDataSource(dataSource)
@@ -40,6 +39,10 @@ class MediaPlayerRepositoryImpl : MediaPlayerRepository {
     }
 
     override fun release() {
-        mediaPlayer.release()
+        mediaPlayer.reset()
+    }
+
+    override fun reset() {
+        mediaPlayer.reset()
     }
 }

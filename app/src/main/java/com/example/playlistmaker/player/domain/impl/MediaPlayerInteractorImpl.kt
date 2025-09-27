@@ -32,4 +32,8 @@ class MediaPlayerInteractorImpl(private val repository: MediaPlayerRepository) :
     override fun release() {
         repository.release()
     }
+
+    override fun reset() {
+        repository.reset()
+    }
 }

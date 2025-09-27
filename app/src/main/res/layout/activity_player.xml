@@ -165,6 +165,7 @@
                 app:layout_constraintTop_toTopOf="@id/album_word"
                 app:layout_constraintStart_toStartOf="@+id/play_button"
                 app:layout_constraintEnd_toEndOf="parent"
+                android:gravity="end"
                 style="@style/TextBlackWhite13sp"
                 android:ellipsize="end"
                 android:maxLines="1"

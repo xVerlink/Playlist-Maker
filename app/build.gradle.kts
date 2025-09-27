@@ -53,7 +53,8 @@ dependencies {
     implementation (libs.gson)
     implementation (libs.retrofit)
     implementation(libs.converter.gson)
-    implementation ("androidx.lifecycle:lifecycle-livedata-ktx:2.5.1")
-    implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1")
-    implementation ("androidx.activity:activity-ktx:1.6.1")
+    implementation (libs.androidx.lifecycle.livedata.ktx)
+    implementation (libs.androidx.lifecycle.viewmodel.ktx)
+    implementation (libs.androidx.activity.ktx)
+    implementation(libs.koin.android)
 }

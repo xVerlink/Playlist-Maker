@@ -8,7 +8,6 @@ import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
 import androidx.core.view.isVisible
-import androidx.lifecycle.ViewModelProvider
 import com.example.playlistmaker.App
 import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.ActivitySearchBinding
@@ -18,6 +17,7 @@ import com.example.playlistmaker.search.ui.models.TrackAdapter
 import com.example.playlistmaker.search.domain.models.Track
 import com.example.playlistmaker.search.domain.models.TracksProvider
 import com.example.playlistmaker.search.ui.view_model.SearchActivityViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
 class SearchActivity : AppCompatActivity() {
@@ -25,7 +25,7 @@ class SearchActivity : AppCompatActivity() {
 
     private var input: String? = ""
 
-    private var viewModel: SearchActivityViewModel? = null
+    private val viewModel by viewModel<SearchActivityViewModel>()
     private lateinit var trackAdapter: TrackAdapter
     private lateinit var searchHistoryAdapter: TrackAdapter
 
@@ -34,15 +34,14 @@ class SearchActivity : AppCompatActivity() {
         binding = ActivitySearchBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        viewModel = ViewModelProvider(this, SearchActivityViewModel.getFactory()).get(SearchActivityViewModel::class.java)
-        viewModel?.observeState()?.observe(this) {
+        viewModel.observeState().observe(this) {
             render(it)
         }
-        viewModel?.observeHistory()?.observe(this) {
+        viewModel.observeHistory().observe(this) {
             searchHistoryAdapter.updateTracks(it)
         }
 
-        viewModel?.registerHistoryChangeListener { data ->
+        viewModel.registerHistoryChangeListener { data ->
             searchHistoryAdapter.clearTracks()
             if (data.isNullOrEmpty()) {
                 searchHistoryAdapter.updateTracks(mutableListOf())
@@ -53,19 +52,19 @@ class SearchActivity : AppCompatActivity() {
         }
 
         trackAdapter = TrackAdapter() { track: Track ->
-            viewModel?.addTrackToHistory(track)
+            viewModel.addTrackToHistory(track)
             val intent = Intent(this, PlayerActivity::class.java)
             intent.putExtra(TRACK_KEY, track)
             startActivity(intent)
         }
 
         searchHistoryAdapter = TrackAdapter() { track: Track ->
-            viewModel?.addTrackToHistory(track)
+            viewModel.addTrackToHistory(track)
             val intent = Intent(this, PlayerActivity::class.java)
             intent.putExtra(TRACK_KEY, track)
             startActivity(intent)
         }
-        viewModel?.updateHistory(App.SEARCH_HISTORY_KEY)
+        viewModel.updateHistory(App.SEARCH_HISTORY_KEY)
         binding.searchRecyclerView.adapter = trackAdapter
         binding.historyRecyclerView.adapter = searchHistoryAdapter
 
@@ -86,7 +85,7 @@ class SearchActivity : AppCompatActivity() {
                 if (binding.editText.hasFocus() && text?.isEmpty() == true && searchHistoryAdapter.tracksIsNotEmpty()) {
                     showHistory()
                 }
-                viewModel?.searchDebounce(text.toString())
+                viewModel.searchDebounce(text.toString())
             },
             { text: Editable? -> input = text.toString() }
         )
@@ -104,19 +103,19 @@ class SearchActivity : AppCompatActivity() {
         }
 
         binding.clearHistoryButton.setOnClickListener {
-            viewModel?.clearHistory()
+            viewModel.clearHistory()
             searchHistoryAdapter.clearTracks()
             searchHistoryAdapter.notifyDataSetChanged()
             binding.history.isVisible = false
         }
 
         binding.refreshButton.setOnClickListener {
-            viewModel?.searchDebounce(input!!) //Не забыть посмотреть
+            viewModel.searchDebounce(input!!) //Не забыть посмотреть
         }
 
         binding.editText.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
-                viewModel?.searchDebounce(input!!)
+                viewModel.searchDebounce(input!!)
             }
             false
         }
