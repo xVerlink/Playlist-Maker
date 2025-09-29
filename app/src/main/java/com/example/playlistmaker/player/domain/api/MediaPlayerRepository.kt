@@ -9,4 +9,5 @@ interface MediaPlayerRepository {
     fun playerPause()
     fun getCurrentPosition(): Int
     fun release()
+    fun reset()
 }

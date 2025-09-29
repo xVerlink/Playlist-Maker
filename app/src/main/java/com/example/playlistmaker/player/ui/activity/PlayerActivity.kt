@@ -5,7 +5,6 @@ import android.util.TypedValue
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
-import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.example.playlistmaker.R
@@ -13,6 +12,8 @@ import com.example.playlistmaker.databinding.ActivityPlayerBinding
 import com.example.playlistmaker.player.domain.models.PlayerState
 import com.example.playlistmaker.player.ui.view_model.PlayerActiityViewModel
 import com.example.playlistmaker.search.domain.models.Track
+import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.core.parameter.parametersOf
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -23,7 +24,9 @@ class PlayerActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPlayerBinding
 
     private lateinit var track: Track
-    private var viewModel: PlayerActiityViewModel? = null
+    private val viewModel: PlayerActiityViewModel by viewModel<PlayerActiityViewModel> {
+        parametersOf(track.previewUrl)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,17 +35,15 @@ class PlayerActivity : AppCompatActivity() {
 
         track = intent.getSerializableExtra(TRACK_KEY) as Track
 
-        viewModel = ViewModelProvider(this, PlayerActiityViewModel.getFactory(track.previewUrl))
-            .get(PlayerActiityViewModel::class.java)
-        viewModel?.preparePlayer()
-        viewModel?.observePlayerState()?.observe(this) {
+        viewModel.preparePlayer()
+        viewModel.observePlayerState().observe(this) {
             when(it) {
                 is PlayerState.Playing -> binding.playButton.setImageResource(R.drawable.pause_button)
                 is PlayerState.Paused, PlayerState.Prepared -> binding.playButton.setImageResource(R.drawable.play_button)
                 else -> Toast.makeText(this, "Exception while preparing player or wait a few seconds", Toast.LENGTH_SHORT).show()
             }
         }
-        viewModel?.observeTimer()?.observe(this) {
+        viewModel.observeTimer().observe(this) {
             binding.trackTimeProgress.text = it
         }
 
@@ -52,7 +53,7 @@ class PlayerActivity : AppCompatActivity() {
 
         binding.playButton.setOnClickListener {
             if (track.previewUrl.isNotEmpty()) {
-                viewModel?.playbackControl()
+                viewModel.playbackControl()
             } else {
                 Toast.makeText(this, "There is no track preview", Toast.LENGTH_SHORT).show()
             }
@@ -127,6 +128,6 @@ class PlayerActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-        viewModel?.onPause()
+        viewModel.onPause()
     }
 }
