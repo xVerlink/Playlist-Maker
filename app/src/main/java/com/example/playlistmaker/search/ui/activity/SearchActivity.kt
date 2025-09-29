@@ -110,7 +110,8 @@ class SearchActivity : AppCompatActivity() {
         }
 
         binding.refreshButton.setOnClickListener {
-            viewModel.searchDebounce(input!!) //Не забыть посмотреть
+            val input = input ?: return@setOnClickListener
+            viewModel.searchDebounce(input)
         }
 
         binding.editText.setOnEditorActionListener { _, actionId, _ ->
