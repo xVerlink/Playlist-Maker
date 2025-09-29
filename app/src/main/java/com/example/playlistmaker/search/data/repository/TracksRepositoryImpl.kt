@@ -24,7 +24,7 @@ class TracksRepositoryImpl(private val networkClient: NetworkClient) : TracksRep
                     it.releaseDate,
                     it.primaryGenreName,
                     it.country,
-                    it.previewUrl,
+                    it.previewUrl ?: "", //если убрать ?:, то запрос с beatles вызывает краш
                     formattedTime,
                     it.artworkUrl100
                 )
