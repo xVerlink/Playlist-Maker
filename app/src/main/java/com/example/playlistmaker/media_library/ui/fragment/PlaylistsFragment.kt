@@ -28,4 +28,8 @@ class PlaylistsFragment: Fragment() {
             //пока без реализации, потом - взламываем пентагон
         }
     }
+
+    companion object {
+        fun newInstance(): Fragment = PlaylistsFragment()
+    }
 }
