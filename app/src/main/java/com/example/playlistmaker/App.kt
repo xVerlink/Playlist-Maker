@@ -1,6 +1,7 @@
 package com.example.playlistmaker
 
 import android.app.Application
+import com.example.playlistmaker.di.mediaLibraryModel
 import com.example.playlistmaker.settings.domain.api.ThemeSwitcherInteractor
 import org.koin.android.ext.android.getKoin
 import org.koin.android.ext.koin.androidContext
@@ -17,7 +18,7 @@ class App: Application() {
         super.onCreate()
         startKoin {
             androidContext(this@App)
-            modules(playerModule, searchModule, settingsModule, sharingModule)
+            modules(playerModule, searchModule, settingsModule, sharingModule, mediaLibraryModel)
         }
 
         val themeSwitcher: ThemeSwitcherInteractor = getKoin().get()

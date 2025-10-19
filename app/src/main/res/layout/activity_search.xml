@@ -106,10 +106,7 @@
             android:layout_marginTop="24dp"
             android:layout_gravity="center"
             android:text="@string/clear_search_history"
-            android:textSize="14sp"
-            android:fontFamily="@font/ys_display_medium"
-            android:textAllCaps="false"
-            android:background="@drawable/rounded_button_54dp"
+            style="@style/RoundedButton54dp"
             android:visibility="gone"/>
 
     </LinearLayout>
