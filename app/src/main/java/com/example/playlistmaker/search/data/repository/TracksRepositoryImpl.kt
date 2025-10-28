@@ -17,20 +17,23 @@ class TracksRepositoryImpl(private val networkClient: NetworkClient) : TracksRep
             ServerResponse.Success(trackList.map {
                 val formattedTime = if (!it.trackTime.isNullOrEmpty()) SimpleDateFormat("mm:ss", Locale.getDefault()).format(it.trackTime.toLong()) else ""
                 Track(
-                    it.trackId,
-                    it.trackName,
-                    it.artistName,
-                    it.collectionName,
-                    it.releaseDate,
-                    it.primaryGenreName,
-                    it.country,
-                    it.previewUrl ?: "", //если убрать ?:, то запрос с beatles вызывает краш
-                    formattedTime,
-                    it.artworkUrl100
+                    checkNull(it.trackId),
+                    checkNull(it.trackName),
+                    checkNull(it.artistName),
+                    checkNull(it.collectionName),
+                    checkNull(it.releaseDate),
+                    checkNull(it.primaryGenreName),
+                    checkNull(it.country),
+                    checkNull(it.previewUrl), //убрать и проверить с beatles
+                    checkNull(formattedTime),
+                    checkNull(it.artworkUrl100)
                 )
             })
         } else {
             ServerResponse.Error(response.resultCode)
         }
     }
+
+    private fun checkNull(field: String?): String =
+        field ?: ""
 }

@@ -1,43 +1,55 @@
-package com.example.playlistmaker.search.ui.activity
+package com.example.playlistmaker.search.ui.fragment
 
-import android.content.Intent
+import android.content.Context
 import android.os.Bundle
 import android.text.Editable
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.widget.addTextChangedListener
 import androidx.core.view.isVisible
+import androidx.core.widget.addTextChangedListener
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.example.playlistmaker.App
 import com.example.playlistmaker.R
-import com.example.playlistmaker.databinding.ActivitySearchBinding
-import com.example.playlistmaker.player.ui.activity.PlayerActivity
-import com.example.playlistmaker.player.ui.activity.TRACK_KEY
-import com.example.playlistmaker.search.ui.models.TrackAdapter
+import com.example.playlistmaker.databinding.FragmentSearchBinding
+import com.example.playlistmaker.player.ui.fragment.PlayerFragment
 import com.example.playlistmaker.search.domain.models.Track
 import com.example.playlistmaker.search.domain.models.TracksProvider
+import com.example.playlistmaker.search.ui.models.TrackAdapter
 import com.example.playlistmaker.search.ui.view_model.SearchActivityViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-
-class SearchActivity : AppCompatActivity() {
-    private lateinit var binding: ActivitySearchBinding
-
+class SearchFragment : Fragment() {
+    private lateinit var binding: FragmentSearchBinding
     private var input: String? = ""
 
     private val viewModel by viewModel<SearchActivityViewModel>()
     private lateinit var trackAdapter: TrackAdapter
     private lateinit var searchHistoryAdapter: TrackAdapter
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivitySearchBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        binding = FragmentSearchBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-        viewModel.observeState().observe(this) {
-            render(it)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        //В прошлых спринтах показывали пустой экран, но как будто бы в этом нет смысла,
+        //особенно при использовании боттом нав бара
+        //binding.editText.requestFocus()
+        viewModel.observeState().observe(viewLifecycleOwner) {
+            if (binding.editText.text.isNotEmpty()) {
+                render(it)
+            }
         }
-        viewModel.observeHistory().observe(this) {
+        viewModel.observeHistory().observe(viewLifecycleOwner) {
             searchHistoryAdapter.updateTracks(it)
         }
 
@@ -53,23 +65,19 @@ class SearchActivity : AppCompatActivity() {
 
         trackAdapter = TrackAdapter() { track: Track ->
             viewModel.addTrackToHistory(track)
-            val intent = Intent(this, PlayerActivity::class.java)
-            intent.putExtra(TRACK_KEY, track)
-            startActivity(intent)
+            findNavController().navigate(R.id.action_searchFragment_to_playerFragment,
+                PlayerFragment.createArgs(track))
         }
 
         searchHistoryAdapter = TrackAdapter() { track: Track ->
             viewModel.addTrackToHistory(track)
-            val intent = Intent(this, PlayerActivity::class.java)
-            intent.putExtra(TRACK_KEY, track)
-            startActivity(intent)
+            findNavController().navigate(R.id.action_searchFragment_to_playerFragment,
+                PlayerFragment.createArgs(track))
         }
-        viewModel.updateHistory(App.SEARCH_HISTORY_KEY)
-        binding.searchRecyclerView.adapter = trackAdapter
-        binding.historyRecyclerView.adapter = searchHistoryAdapter
-
-        binding.toolbar.setNavigationOnClickListener {
-            finish()
+        viewModel.updateHistory(App.Companion.SEARCH_HISTORY_KEY)
+        binding.apply {
+            searchRecyclerView.adapter = trackAdapter
+            historyRecyclerView.adapter = searchHistoryAdapter
         }
 
         binding.editText.setText(input)
@@ -98,8 +106,11 @@ class SearchActivity : AppCompatActivity() {
 
         binding.clearTextButton.setOnClickListener {
             binding.editText.setText("")
-            val inputMethodManager = getSystemService(INPUT_METHOD_SERVICE) as? InputMethodManager
-            inputMethodManager?.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
+            binding.editText.requestFocus()
+            trackAdapter.clearTracks()
+            trackAdapter.notifyDataSetChanged()
+            val inputMethodManager = activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+            inputMethodManager?.hideSoftInputFromWindow(activity?.currentFocus?.windowToken, 0)
         }
 
         binding.clearHistoryButton.setOnClickListener {
@@ -214,19 +225,5 @@ class SearchActivity : AppCompatActivity() {
             is TracksProvider.Error -> showError(data.code)
             else -> showLoading()
         }
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putString(SAVED_STRING, input)
-    }
-
-    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        super.onRestoreInstanceState(savedInstanceState)
-        input = savedInstanceState.getString(SAVED_STRING)
-    }
-
-    companion object {
-        private const val SAVED_STRING: String = "SAVED_STRING"
     }
 }
