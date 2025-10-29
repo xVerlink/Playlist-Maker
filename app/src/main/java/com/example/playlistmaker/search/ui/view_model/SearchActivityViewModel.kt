@@ -5,11 +5,11 @@ import android.os.SystemClock
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.playlistmaker.App
 import com.example.playlistmaker.search.domain.api.HistoryManagerInteractor
 import com.example.playlistmaker.search.domain.api.TracksInteractor
 import com.example.playlistmaker.search.domain.models.Track
 import com.example.playlistmaker.search.domain.models.TracksProvider
-
 
 class SearchActivityViewModel(
     private val interactor: TracksInteractor,
@@ -25,6 +25,10 @@ class SearchActivityViewModel(
     private var historyList: List<Track> = listOf()
     private val historyStateLiveData = MutableLiveData<List<Track>>()
     fun observeHistory(): LiveData<List<Track>> = historyStateLiveData
+
+    init {
+        updateHistory(App.SEARCH_HISTORY_KEY)
+    }
 
     fun searchDebounce(changedText: String) {
         if (latestSearchText == changedText) {
@@ -73,14 +77,12 @@ class SearchActivityViewModel(
 
     fun addTrackToHistory(track: Track) {
         historyManager.add(track)
-    }
-
-    fun registerHistoryChangeListener(action: (List<Track>?) -> Unit) {
-        historyManager.registerHistoryChangeListener(action)
+        updateHistory(App.SEARCH_HISTORY_KEY)
     }
 
     fun clearHistory() {
         historyManager.clearHistory()
+        updateHistory(App.SEARCH_HISTORY_KEY)
     }
 
     override fun onCleared() {

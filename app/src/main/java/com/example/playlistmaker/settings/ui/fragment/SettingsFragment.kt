@@ -13,7 +13,8 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 import kotlin.getValue
 
 class SettingsFragment : Fragment() {
-    private lateinit var binding: FragmentSettingsBinding
+    private var _binding: FragmentSettingsBinding? = null
+    private val binding get() = _binding!!
     private val viewModel: SettingsActivityViewModel by viewModel<SettingsActivityViewModel>()
 
     override fun onCreateView(
@@ -21,7 +22,7 @@ class SettingsFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentSettingsBinding.inflate(inflater, container, false)
+        _binding = FragmentSettingsBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -55,5 +56,10 @@ class SettingsFragment : Fragment() {
             val data = resources.getString(R.string.practicum_offer)
             viewModel.openLicenseAgreement(data)
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

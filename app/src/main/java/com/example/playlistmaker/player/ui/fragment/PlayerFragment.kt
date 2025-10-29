@@ -24,7 +24,8 @@ import java.util.Locale
 import kotlin.getValue
 
 class PlayerFragment : Fragment() {
-    private lateinit var binding: FragmentPlayerBinding
+    private var _binding: FragmentPlayerBinding? = null
+    private val binding get() = _binding!!
     private lateinit var track: Track
     private val viewModel: PlayerActiityViewModel by viewModel<PlayerActiityViewModel> {
         parametersOf(track.previewUrl)
@@ -35,7 +36,7 @@ class PlayerFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentPlayerBinding.inflate(inflater, container, false)
+        _binding = FragmentPlayerBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -76,6 +77,11 @@ class PlayerFragment : Fragment() {
         setYear()
         setGenre()
         setCountry()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     private fun setCover() {

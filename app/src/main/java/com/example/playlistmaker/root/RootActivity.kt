@@ -8,7 +8,6 @@ import androidx.navigation.ui.setupWithNavController
 import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.ActivityRootBinding
 
-
 class RootActivity : AppCompatActivity() {
     private lateinit var binding: ActivityRootBinding
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,6 +27,5 @@ class RootActivity : AppCompatActivity() {
                 else -> bottomNavView.isVisible = false
             }
         }
-
     }
 }

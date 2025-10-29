@@ -12,7 +12,6 @@ import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import com.example.playlistmaker.App
 import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.FragmentSearchBinding
 import com.example.playlistmaker.player.ui.fragment.PlayerFragment
@@ -23,7 +22,8 @@ import com.example.playlistmaker.search.ui.view_model.SearchActivityViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SearchFragment : Fragment() {
-    private lateinit var binding: FragmentSearchBinding
+    private var _binding: FragmentSearchBinding? = null
+    private val binding get() = _binding!!
     private var input: String? = ""
 
     private val viewModel by viewModel<SearchActivityViewModel>()
@@ -35,34 +35,12 @@ class SearchFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentSearchBinding.inflate(inflater, container, false)
+        _binding = FragmentSearchBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        //В прошлых спринтах показывали пустой экран, но как будто бы в этом нет смысла,
-        //особенно при использовании боттом нав бара
-        //binding.editText.requestFocus()
-        viewModel.observeState().observe(viewLifecycleOwner) {
-            if (binding.editText.text.isNotEmpty()) {
-                render(it)
-            }
-        }
-        viewModel.observeHistory().observe(viewLifecycleOwner) {
-            searchHistoryAdapter.updateTracks(it)
-        }
-
-        viewModel.registerHistoryChangeListener { data ->
-            searchHistoryAdapter.clearTracks()
-            if (data.isNullOrEmpty()) {
-                searchHistoryAdapter.updateTracks(mutableListOf())
-            } else {
-                searchHistoryAdapter.updateTracks(data)
-            }
-            searchHistoryAdapter.notifyDataSetChanged()
-        }
-
         trackAdapter = TrackAdapter() { track: Track ->
             viewModel.addTrackToHistory(track)
             findNavController().navigate(R.id.action_searchFragment_to_playerFragment,
@@ -74,7 +52,17 @@ class SearchFragment : Fragment() {
             findNavController().navigate(R.id.action_searchFragment_to_playerFragment,
                 PlayerFragment.createArgs(track))
         }
-        viewModel.updateHistory(App.Companion.SEARCH_HISTORY_KEY)
+
+        viewModel.observeState().observe(viewLifecycleOwner) {
+            if (binding.editText.text.isNotEmpty()) {
+                render(it)
+            }
+        }
+        viewModel.observeHistory().observe(viewLifecycleOwner) {
+            searchHistoryAdapter.updateTracks(it)
+            searchHistoryAdapter.notifyDataSetChanged()
+        }
+
         binding.apply {
             searchRecyclerView.adapter = trackAdapter
             historyRecyclerView.adapter = searchHistoryAdapter
@@ -115,8 +103,6 @@ class SearchFragment : Fragment() {
 
         binding.clearHistoryButton.setOnClickListener {
             viewModel.clearHistory()
-            searchHistoryAdapter.clearTracks()
-            searchHistoryAdapter.notifyDataSetChanged()
             binding.history.isVisible = false
         }
 
@@ -131,6 +117,11 @@ class SearchFragment : Fragment() {
             }
             false
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     private fun showLoading() {
