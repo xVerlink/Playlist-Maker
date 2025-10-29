@@ -5,15 +5,12 @@ import com.google.gson.Gson
 import java.lang.reflect.Type
 import androidx.core.content.edit
 
-
-
 class PrefsStorageClient<T>(
     private val prefs: SharedPreferences,
     private val dataKey: String,
     private val type: Type,
     private val gson: Gson
 ) : StorageClient<T> {
-
     private lateinit var listener: SharedPreferences.OnSharedPreferenceChangeListener
 
     override fun storeData(data: T) {

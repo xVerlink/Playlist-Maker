@@ -11,7 +11,6 @@ import searchModule
 import settingsModule
 import sharingModule
 
-
 class App: Application() {
 
     override fun onCreate() {

@@ -1,14 +1,19 @@
-package com.example.playlistmaker.player.ui.activity
+package com.example.playlistmaker.player.ui.fragment
 
 import android.os.Bundle
 import android.util.TypedValue
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
+import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.example.playlistmaker.R
-import com.example.playlistmaker.databinding.ActivityPlayerBinding
+import com.example.playlistmaker.databinding.FragmentPlayerBinding
 import com.example.playlistmaker.player.domain.models.PlayerState
 import com.example.playlistmaker.player.ui.view_model.PlayerActiityViewModel
 import com.example.playlistmaker.search.domain.models.Track
@@ -16,46 +21,50 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 import java.text.SimpleDateFormat
 import java.util.Locale
+import kotlin.getValue
 
-
-const val TRACK_KEY = "TRACK"
-
-class PlayerActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityPlayerBinding
-
+class PlayerFragment : Fragment() {
+    private var _binding: FragmentPlayerBinding? = null
+    private val binding get() = _binding!!
     private lateinit var track: Track
     private val viewModel: PlayerActiityViewModel by viewModel<PlayerActiityViewModel> {
         parametersOf(track.previewUrl)
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityPlayerBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        _binding = FragmentPlayerBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-        track = intent.getSerializableExtra(TRACK_KEY) as Track
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        track = requireArguments().get(TRACK_KEY) as Track
 
         viewModel.preparePlayer()
-        viewModel.observePlayerState().observe(this) {
+        viewModel.observePlayerState().observe(viewLifecycleOwner) {
             when(it) {
                 is PlayerState.Playing -> binding.playButton.setImageResource(R.drawable.pause_button)
                 is PlayerState.Paused, PlayerState.Prepared -> binding.playButton.setImageResource(R.drawable.play_button)
-                else -> Toast.makeText(this, "Exception while preparing player or wait a few seconds", Toast.LENGTH_SHORT).show()
+                else -> Toast.makeText(context, "Exception while preparing player or wait a few seconds", Toast.LENGTH_SHORT).show()
             }
         }
-        viewModel.observeTimer().observe(this) {
+        viewModel.observeTimer().observe(viewLifecycleOwner) {
             binding.trackTimeProgress.text = it
         }
 
         binding.toolbar.setNavigationOnClickListener {
-            finish()
+            findNavController().navigateUp()
         }
 
         binding.playButton.setOnClickListener {
             if (track.previewUrl.isNotEmpty()) {
                 viewModel.playbackControl()
             } else {
-                Toast.makeText(this, "There is no track preview", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "There is no track preview", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -68,6 +77,11 @@ class PlayerActivity : AppCompatActivity() {
         setYear()
         setGenre()
         setCountry()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     private fun setCover() {
@@ -129,5 +143,11 @@ class PlayerActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         viewModel.onPause()
+    }
+
+    companion object {
+        private const val TRACK_KEY = "TRACK"
+        fun createArgs(track: Track): Bundle =
+            bundleOf(TRACK_KEY to track)
     }
 }

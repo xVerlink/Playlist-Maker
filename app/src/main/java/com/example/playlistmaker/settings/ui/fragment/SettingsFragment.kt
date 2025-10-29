@@ -1,29 +1,35 @@
-package com.example.playlistmaker.settings.ui.activity
+package com.example.playlistmaker.settings.ui.fragment
 
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import com.example.playlistmaker.R
-import com.example.playlistmaker.databinding.ActivitySettingsBinding
-import com.example.playlistmaker.sharing.domain.models.EmailData
+import com.example.playlistmaker.databinding.FragmentSettingsBinding
 import com.example.playlistmaker.settings.ui.view_model.SettingsActivityViewModel
+import com.example.playlistmaker.sharing.domain.models.EmailData
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import kotlin.getValue
 
-
-class SettingsActivity : AppCompatActivity() {
-    private lateinit var binding: ActivitySettingsBinding
+class SettingsFragment : Fragment() {
+    private var _binding: FragmentSettingsBinding? = null
+    private val binding get() = _binding!!
     private val viewModel: SettingsActivityViewModel by viewModel<SettingsActivityViewModel>()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivitySettingsBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        _binding = FragmentSettingsBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-        binding.toolbar.setNavigationOnClickListener {
-            finish()
-        }
-
-        binding.themeSwitcher.isChecked = viewModel!!.isChecked()
-        viewModel.observeTheme().observe(this) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding.themeSwitcher.isChecked = viewModel.isChecked()
+        viewModel.observeTheme().observe(viewLifecycleOwner) {
             when (it) {
                 false -> binding.themeSwitcher.isChecked = false
                 true -> binding.themeSwitcher.isChecked = true
@@ -50,5 +56,10 @@ class SettingsActivity : AppCompatActivity() {
             val data = resources.getString(R.string.practicum_offer)
             viewModel.openLicenseAgreement(data)
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

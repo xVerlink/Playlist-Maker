@@ -5,18 +5,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".media_library.ui.activity.MediaLibraryActivity"
+    tools:context=".media_library.ui.fragment.MediaLibraryFragment"
     android:background="?attr/backgroundColor">
 
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
+    <TextView
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:navigationIcon="@drawable/ic_arrow_back"
-        app:navigationIconTint="?attr/colorPrimary"
-        android:background="?attr/backgroundColor"
-        app:title="@string/media_library"
-        app:titleTextAppearance="@style/ToolbarTextStyle"/>
+        style="@style/ToolbarTextStyle"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="16dp"
+        android:text="@string/media_library" />
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabLayout"

@@ -1,19 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/backgroundColor">
+    android:background="?attr/backgroundColor"
+    tools:context=".search.ui.fragment.SearchFragment">
 
-    <com.google.android.material.appbar.MaterialToolbar
+    <TextView
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:navigationIcon="@drawable/ic_arrow_back"
-        app:navigationIconTint="?attr/colorPrimary"
-        app:title="@string/search"
-        app:titleTextAppearance="@style/ToolbarTextStyle"/>
+        style="@style/ToolbarTextStyle"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="16dp"
+        android:text="@string/search"/>
 
     <FrameLayout
         android:layout_width="match_parent"

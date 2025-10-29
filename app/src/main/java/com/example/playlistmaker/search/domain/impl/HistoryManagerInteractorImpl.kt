@@ -32,12 +32,4 @@ class HistoryManagerInteractorImpl(private val repository: HistoryManagerReposit
     override fun clearHistory() {
         repository.clearHistory()
     }
-
-    override fun registerHistoryChangeListener(action: (List<Track>?) -> Unit) {
-        repository.registerHistoryChangeListener(action)
-    }
-
-    override fun unregisterOnSharedPreferenceChangeListener() {
-        repository.unregisterOnSharedPreferenceChangeListener()
-    }
 }

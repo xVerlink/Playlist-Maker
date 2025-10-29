@@ -7,6 +7,4 @@ interface HistoryManagerInteractor {
     fun getTracksHistory(historyKey: String): List<Track>
     fun add(track: Track)
     fun clearHistory()
-    fun registerHistoryChangeListener(action: (List<Track>?) -> Unit)
-    fun unregisterOnSharedPreferenceChangeListener()
 }
