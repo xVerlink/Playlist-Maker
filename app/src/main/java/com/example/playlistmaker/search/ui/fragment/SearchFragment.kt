@@ -27,8 +27,10 @@ class SearchFragment : Fragment() {
     private var input: String? = ""
 
     private val viewModel by viewModel<SearchActivityViewModel>()
-    private lateinit var trackAdapter: TrackAdapter
-    private lateinit var searchHistoryAdapter: TrackAdapter
+    private var _trackAdapter: TrackAdapter? = null
+    private val trackAdapter get() = _trackAdapter!!
+    private var _searchHistoryAdapter: TrackAdapter? = null
+    private val searchHistoryAdapter get() = _searchHistoryAdapter!!
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -36,23 +38,22 @@ class SearchFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentSearchBinding.inflate(inflater, container, false)
+
+        _trackAdapter = TrackAdapter() { track: Track ->
+            viewModel.addTrackToHistory(track)
+            findNavController().navigate(R.id.action_searchFragment_to_playerFragment,
+                PlayerFragment.createArgs(track))
+        }
+        _searchHistoryAdapter = TrackAdapter() { track: Track ->
+            viewModel.addTrackToHistory(track)
+            findNavController().navigate(R.id.action_searchFragment_to_playerFragment,
+                PlayerFragment.createArgs(track))
+        }
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        trackAdapter = TrackAdapter() { track: Track ->
-            viewModel.addTrackToHistory(track)
-            findNavController().navigate(R.id.action_searchFragment_to_playerFragment,
-                PlayerFragment.createArgs(track))
-        }
-
-        searchHistoryAdapter = TrackAdapter() { track: Track ->
-            viewModel.addTrackToHistory(track)
-            findNavController().navigate(R.id.action_searchFragment_to_playerFragment,
-                PlayerFragment.createArgs(track))
-        }
-
         viewModel.observeState().observe(viewLifecycleOwner) {
             if (binding.editText.text.isNotEmpty()) {
                 render(it)
@@ -122,6 +123,8 @@ class SearchFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+        _trackAdapter = null
+        _searchHistoryAdapter = null
     }
 
     private fun showLoading() {
