@@ -6,15 +6,16 @@ import com.example.playlistmaker.search.data.network.NetworkClient
 import com.example.playlistmaker.search.domain.api.TracksRepository
 import com.example.playlistmaker.search.domain.models.ServerResponse
 import com.example.playlistmaker.search.domain.models.Track
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import java.text.SimpleDateFormat
 import java.util.Locale
 
 class TracksRepositoryImpl(private val networkClient: NetworkClient) : TracksRepository {
-    override fun searchTracks(expression: String): ServerResponse<List<Track>> {
+    override fun searchTracks(expression: String): Flow<ServerResponse<List<Track>>> = flow {
         val response = networkClient.doRequest(TracksSearchRequest(expression))
-        return if (response.resultCode == 200) {
-            val trackList = (response as TracksSearchResponse).results
-            ServerResponse.Success(trackList.map {
+        if (response.resultCode == 200) {
+            val trackList = (response as TracksSearchResponse).results.map {
                 val formattedTime = if (!it.trackTime.isNullOrEmpty()) SimpleDateFormat("mm:ss", Locale.getDefault()).format(it.trackTime.toLong()) else ""
                 Track(
                     checkNull(it.trackId),
@@ -28,9 +29,10 @@ class TracksRepositoryImpl(private val networkClient: NetworkClient) : TracksRep
                     checkNull(formattedTime),
                     checkNull(it.artworkUrl100)
                 )
-            })
+            }
+            emit(ServerResponse.Success(trackList))
         } else {
-            ServerResponse.Error(response.resultCode)
+            emit(ServerResponse.Error(response.resultCode))
         }
     }
 

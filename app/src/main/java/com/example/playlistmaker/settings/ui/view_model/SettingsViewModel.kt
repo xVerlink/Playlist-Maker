@@ -7,7 +7,7 @@ import com.example.playlistmaker.settings.domain.api.ThemeSwitcherInteractor
 import com.example.playlistmaker.sharing.domain.api.SharingInteractor
 import com.example.playlistmaker.sharing.domain.models.EmailData
 
-class SettingsActivityViewModel(
+class SettingsViewModel(
     private val sharingInteractor: SharingInteractor,
     private val themeInteractor: ThemeSwitcherInteractor
 ) : ViewModel() {

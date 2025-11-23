@@ -3,7 +3,7 @@ import com.example.playlistmaker.player.data.repository.MediaPlayerRepositoryImp
 import com.example.playlistmaker.player.domain.api.MediaPlayerInteractor
 import com.example.playlistmaker.player.domain.api.MediaPlayerRepository
 import com.example.playlistmaker.player.domain.impl.MediaPlayerInteractorImpl
-import com.example.playlistmaker.player.ui.view_model.PlayerActiityViewModel
+import com.example.playlistmaker.player.ui.view_model.PlayerViewModel
 import org.koin.android.ext.koin.androidApplication
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
@@ -16,11 +16,10 @@ val playerModule = module {
         MediaPlayerInteractorImpl(get())
     }
     viewModel { (trackUrl: String) ->
-        PlayerActiityViewModel(
+        PlayerViewModel(
             application = androidApplication(),
             url = trackUrl,
-            playerInteractor = get(),
-            handler = get()
+            playerInteractor = get()
         )
     }
 }

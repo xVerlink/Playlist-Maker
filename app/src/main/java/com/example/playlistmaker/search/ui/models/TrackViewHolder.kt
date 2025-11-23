@@ -1,7 +1,5 @@
 package com.example.playlistmaker.search.ui.models
 
-import android.os.Handler
-import android.os.Looper
 import android.util.TypedValue
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -12,14 +10,9 @@ import com.example.playlistmaker.search.domain.models.Track
 
 class TrackViewHolder(private val binding: ActivityTrackItemSearchBinding): RecyclerView.ViewHolder(binding.root) {
 
-    private var isClickAllowed = true
-    private val handler = Handler(Looper.getMainLooper())
-
     fun bind(model: Track, action: (Track) -> Unit) {
         itemView.setOnClickListener {
-                if (clickDebounce()) {
-                    action.invoke(model)
-                }
+            action.invoke(model)
         }
 
         val roundRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2f, itemView.context.resources.displayMetrics).toInt()
@@ -32,18 +25,5 @@ class TrackViewHolder(private val binding: ActivityTrackItemSearchBinding): Recy
         binding.viewHolderTrackName.text = model.trackName
         binding.viewHolderArtistName.text = model.artistName
         binding.trackLength.text = model.trackTime
-    }
-
-    private fun clickDebounce(): Boolean {
-        val current = isClickAllowed
-        if (isClickAllowed) {
-            isClickAllowed = false
-            handler.postDelayed({isClickAllowed = true}, CLICK_DEBOUNCE_DELAY)
-        }
-        return current
-    }
-
-    companion object {
-        private const val CLICK_DEBOUNCE_DELAY = 1000L
     }
 }

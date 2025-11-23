@@ -11,22 +11,26 @@ import android.view.inputmethod.InputMethodManager
 import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.FragmentSearchBinding
 import com.example.playlistmaker.player.ui.fragment.PlayerFragment
 import com.example.playlistmaker.search.domain.models.Track
-import com.example.playlistmaker.search.domain.models.TracksProvider
+import com.example.playlistmaker.search.domain.models.TracksState
 import com.example.playlistmaker.search.ui.models.TrackAdapter
-import com.example.playlistmaker.search.ui.view_model.SearchActivityViewModel
+import com.example.playlistmaker.search.ui.view_model.SearchViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SearchFragment : Fragment() {
     private var _binding: FragmentSearchBinding? = null
     private val binding get() = _binding!!
     private var input: String? = ""
+    private var isClickAllowed = true
 
-    private val viewModel by viewModel<SearchActivityViewModel>()
+    private val viewModel by viewModel<SearchViewModel>()
     private var _trackAdapter: TrackAdapter? = null
     private val trackAdapter get() = _trackAdapter!!
     private var _searchHistoryAdapter: TrackAdapter? = null
@@ -36,18 +40,22 @@ class SearchFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentSearchBinding.inflate(inflater, container, false)
 
-        _trackAdapter = TrackAdapter() { track: Track ->
-            viewModel.addTrackToHistory(track)
-            findNavController().navigate(R.id.action_searchFragment_to_playerFragment,
-                PlayerFragment.createArgs(track))
+        _trackAdapter = TrackAdapter { track: Track ->
+            if (clickDebounce()) {
+                viewModel.addTrackToHistory(track)
+                findNavController().navigate(R.id.action_searchFragment_to_playerFragment,
+                    PlayerFragment.createArgs(track))
+            }
         }
-        _searchHistoryAdapter = TrackAdapter() { track: Track ->
-            viewModel.addTrackToHistory(track)
-            findNavController().navigate(R.id.action_searchFragment_to_playerFragment,
-                PlayerFragment.createArgs(track))
+        _searchHistoryAdapter = TrackAdapter { track: Track ->
+            if (clickDebounce()) {
+                viewModel.addTrackToHistory(track)
+                findNavController().navigate(R.id.action_searchFragment_to_playerFragment,
+                    PlayerFragment.createArgs(track))
+            }
         }
         return binding.root
     }
@@ -213,11 +221,26 @@ class SearchFragment : Fragment() {
         }
     }
 
-    private fun render(data: TracksProvider) {
+    private fun render(data: TracksState) {
         when (data) {
-            is TracksProvider.Data -> showContent(data.tracksList)
-            is TracksProvider.Error -> showError(data.code)
+            is TracksState.Data -> showContent(data.tracksList)
+            is TracksState.Error -> showError(data.code)
             else -> showLoading()
         }
+    }
+    private fun clickDebounce(): Boolean {
+        val current = isClickAllowed
+        if (isClickAllowed) {
+            isClickAllowed = false
+            lifecycleScope.launch {
+                delay(CLICK_DEBOUNCE_DELAY)
+                isClickAllowed = true
+            }
+        }
+        return current
+    }
+
+    companion object {
+        private const val CLICK_DEBOUNCE_DELAY = 1000L
     }
 }

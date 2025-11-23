@@ -15,7 +15,7 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.FragmentPlayerBinding
 import com.example.playlistmaker.player.domain.models.PlayerState
-import com.example.playlistmaker.player.ui.view_model.PlayerActiityViewModel
+import com.example.playlistmaker.player.ui.view_model.PlayerViewModel
 import com.example.playlistmaker.search.domain.models.Track
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
@@ -27,7 +27,7 @@ class PlayerFragment : Fragment() {
     private var _binding: FragmentPlayerBinding? = null
     private val binding get() = _binding!!
     private lateinit var track: Track
-    private val viewModel: PlayerActiityViewModel by viewModel<PlayerActiityViewModel> {
+    private val viewModel: PlayerViewModel by viewModel<PlayerViewModel> {
         parametersOf(track.previewUrl)
     }
 
@@ -35,7 +35,7 @@ class PlayerFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentPlayerBinding.inflate(inflater, container, false)
         return binding.root
     }
