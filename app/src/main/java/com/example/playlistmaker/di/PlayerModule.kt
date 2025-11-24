@@ -17,7 +17,6 @@ val playerModule = module {
     }
     viewModel { (trackUrl: String) ->
         PlayerViewModel(
-            application = androidApplication(),
             url = trackUrl,
             playerInteractor = get()
         )

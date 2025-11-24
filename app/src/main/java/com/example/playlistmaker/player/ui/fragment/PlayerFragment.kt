@@ -48,7 +48,11 @@ class PlayerFragment : Fragment() {
         viewModel.observePlayerState().observe(viewLifecycleOwner) {
             when(it) {
                 is PlayerState.Playing -> binding.playButton.setImageResource(R.drawable.pause_button)
-                is PlayerState.Paused, PlayerState.Prepared -> binding.playButton.setImageResource(R.drawable.play_button)
+                is PlayerState.Paused -> binding.playButton.setImageResource(R.drawable.play_button)
+                is PlayerState.Prepared -> {
+                    binding.playButton.setImageResource(R.drawable.play_button)
+                    binding.trackTimeProgress.text = context?.getString(R.string.media_player_default_time)
+                }
                 else -> Toast.makeText(context, "Exception while preparing player or wait a few seconds", Toast.LENGTH_SHORT).show()
             }
         }

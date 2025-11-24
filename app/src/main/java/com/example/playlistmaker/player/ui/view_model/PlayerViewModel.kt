@@ -1,11 +1,9 @@
 package com.example.playlistmaker.player.ui.view_model
 
-import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.playlistmaker.R
 import com.example.playlistmaker.player.domain.api.MediaPlayerInteractor
 import com.example.playlistmaker.player.domain.models.PlayerState
 import kotlinx.coroutines.Job
@@ -15,7 +13,6 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 class PlayerViewModel(
-    private val application: Application,
     private val url: String,
     private val playerInteractor: MediaPlayerInteractor
 ) : ViewModel() {
@@ -61,6 +58,7 @@ class PlayerViewModel(
     }
 
     private fun startTimerUpdate() {
+        timerJob?.cancel()
         timerJob = viewModelScope.launch {
             while (playerState is PlayerState.Playing) {
                 delay(TRACK_CURRENT_TIME_DELAY)
@@ -76,8 +74,6 @@ class PlayerViewModel(
 
     private fun resetTimer() {
         timerJob?.cancel()
-        val timer = application.applicationContext.getString(R.string.media_player_default_time)
-        timerLiveData.postValue(timer)
     }
 
     private fun onPlayerPrepared() {
@@ -111,6 +107,6 @@ class PlayerViewModel(
     }
 
     companion object {
-        private const val TRACK_CURRENT_TIME_DELAY = 333L
+        private const val TRACK_CURRENT_TIME_DELAY = 300L
     }
 }

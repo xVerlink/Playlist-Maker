@@ -11,6 +11,7 @@ import com.example.playlistmaker.search.domain.models.ServerResponse
 import com.example.playlistmaker.search.domain.models.Track
 import com.example.playlistmaker.search.domain.models.TracksState
 import com.example.playlistmaker.util.debounce
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 class SearchViewModel(
@@ -18,6 +19,7 @@ class SearchViewModel(
     private val historyManager: HistoryManagerInteractor,
 ) : ViewModel() {
     private var latestSearchText: String? = null
+    private var searchJob: Job? = null
 
     private val stateLiveData = MutableLiveData<TracksState>()
     fun observeState(): LiveData<TracksState> = stateLiveData
@@ -47,7 +49,8 @@ class SearchViewModel(
         if (newSearchText.isNotEmpty()) {
             renderState(TracksState.Loading)
 
-            viewModelScope.launch {
+            searchJob?.cancel()
+            searchJob = viewModelScope.launch {
                 interactor.searchTracks(newSearchText).collect { serverResponse ->
                     when (serverResponse) {
                         is ServerResponse.Success -> renderState(TracksState.Data(serverResponse.tracksList))
