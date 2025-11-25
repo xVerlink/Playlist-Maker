@@ -6,7 +6,7 @@ import com.example.playlistmaker.settings.data.repository.ThemeSwitcherRepositor
 import com.example.playlistmaker.settings.domain.api.ThemeSwitcherInteractor
 import com.example.playlistmaker.settings.domain.api.ThemeSwitcherRepository
 import com.example.playlistmaker.settings.domain.impl.ThemeSwitcherInteractorImpl
-import com.example.playlistmaker.settings.ui.view_model.SettingsActivityViewModel
+import com.example.playlistmaker.settings.ui.view_model.SettingsViewModel
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -32,6 +32,6 @@ val settingsModule = module {
     }
 
     viewModel {
-        SettingsActivityViewModel(get(), get())
+        SettingsViewModel(get(), get())
     }
 }

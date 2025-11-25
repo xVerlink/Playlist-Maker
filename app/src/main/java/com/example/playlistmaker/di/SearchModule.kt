@@ -1,6 +1,4 @@
 import android.content.Context
-import android.os.Handler
-import android.os.Looper
 import com.example.playlistmaker.App
 import com.example.playlistmaker.search.data.network.NetworkClient
 import com.example.playlistmaker.search.data.network.RetrofitNetworkClient
@@ -16,7 +14,7 @@ import com.example.playlistmaker.search.domain.api.TracksRepository
 import com.example.playlistmaker.search.domain.impl.HistoryManagerInteractorImpl
 import com.example.playlistmaker.search.domain.impl.TracksInteractorImpl
 import com.example.playlistmaker.search.domain.models.Track
-import com.example.playlistmaker.search.ui.view_model.SearchActivityViewModel
+import com.example.playlistmaker.search.ui.view_model.SearchViewModel
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import org.koin.android.ext.koin.androidContext
@@ -73,11 +71,7 @@ val searchModule = module {
         HistoryManagerInteractorImpl(get())
     }
 
-    single {
-        Handler(Looper.getMainLooper())
-    }
-
     viewModel {
-        SearchActivityViewModel(get(), get(), get())
+        SearchViewModel(get(), get())
     }
 }
