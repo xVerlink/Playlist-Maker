@@ -18,7 +18,8 @@ val playerModule = module {
     viewModel { (trackUrl: String) ->
         PlayerViewModel(
             url = trackUrl,
-            playerInteractor = get()
+            playerInteractor = get(),
+            favoritesInteractor = get()
         )
     }
 }

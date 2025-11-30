@@ -3,7 +3,7 @@ package com.example.playlistmaker.search.ui.models
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.playlistmaker.databinding.ActivityTrackItemSearchBinding
+import com.example.playlistmaker.databinding.ListItemTrackBinding
 import com.example.playlistmaker.search.domain.models.Track
 
 class TrackAdapter(private val action: (Track) -> Unit): RecyclerView.Adapter<TrackViewHolder>() {
@@ -11,7 +11,7 @@ class TrackAdapter(private val action: (Track) -> Unit): RecyclerView.Adapter<Tr
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrackViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        val binding = ActivityTrackItemSearchBinding.inflate(inflater, parent, false)
+        val binding = ListItemTrackBinding.inflate(inflater, parent, false)
         return TrackViewHolder(binding)
     }
 

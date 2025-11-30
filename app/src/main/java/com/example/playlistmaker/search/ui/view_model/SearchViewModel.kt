@@ -12,6 +12,7 @@ import com.example.playlistmaker.search.domain.models.Track
 import com.example.playlistmaker.search.domain.models.TracksState
 import com.example.playlistmaker.util.debounce
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.launch
 
 class SearchViewModel(
@@ -33,7 +34,9 @@ class SearchViewModel(
     }
 
     init {
-        updateHistory()
+        viewModelScope.launch {
+            updateHistory()
+        }
     }
 
     fun searchDebounce(changedText: String) {
@@ -65,19 +68,24 @@ class SearchViewModel(
         stateLiveData.postValue(state)
     }
 
-    private fun updateHistory() {
-        historyList = historyManager.getTracksHistory(App.SEARCH_HISTORY_KEY)
+    private suspend fun updateHistory() {
+        historyList = historyManager.getTracksHistory(App.SEARCH_HISTORY_KEY).single()
         historyStateLiveData.postValue(historyList)
     }
 
     fun addTrackToHistory(track: Track) {
-        historyManager.add(track)
-        updateHistory()
+        viewModelScope.launch {
+            historyManager.add(track)
+            updateHistory()
+        }
+
     }
 
     fun clearHistory() {
-        historyManager.clearHistory()
-        updateHistory()
+        viewModelScope.launch {
+            historyManager.clearHistory()
+            updateHistory()
+        }
     }
 
     companion object {

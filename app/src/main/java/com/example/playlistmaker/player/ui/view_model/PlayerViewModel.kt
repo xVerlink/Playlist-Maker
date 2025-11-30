@@ -4,8 +4,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.playlistmaker.media_library.domain.api.FavoritesInteractor
 import com.example.playlistmaker.player.domain.api.MediaPlayerInteractor
 import com.example.playlistmaker.player.domain.models.PlayerState
+import com.example.playlistmaker.search.domain.models.Track
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -14,7 +16,8 @@ import java.util.Locale
 
 class PlayerViewModel(
     private val url: String,
-    private val playerInteractor: MediaPlayerInteractor
+    private val playerInteractor: MediaPlayerInteractor,
+    private val favoritesInteractor: FavoritesInteractor
 ) : ViewModel() {
 
     private var playerState: PlayerState = PlayerState.Default
@@ -23,6 +26,9 @@ class PlayerViewModel(
 
     private val timerLiveData = MutableLiveData<String>()
     fun observeTimer(): LiveData<String> = timerLiveData
+
+    private val isFavoriteLiveData = MutableLiveData<Boolean>()
+    fun observeIsFavorite(): LiveData<Boolean> = isFavoriteLiveData
 
     private var timerJob: Job? = null
 
@@ -98,6 +104,25 @@ class PlayerViewModel(
 
     private fun getCurrentPlayerPosition(): String {
         return SimpleDateFormat("mm:ss", Locale.getDefault()).format(playerInteractor.getCurrentPosition())
+    }
+
+    fun addToFavorites(track: Track) {
+        viewModelScope.launch {
+            favoritesInteractor.addToFavorites(track)
+            updateFavoriteButton(true)
+
+        }
+    }
+
+    fun removeFromFavorites(track: Track) {
+        viewModelScope.launch {
+            favoritesInteractor.removeFromFavorites(track)
+            updateFavoriteButton(false)
+        }
+    }
+
+    private fun updateFavoriteButton (isFavorite: Boolean) {
+        isFavoriteLiveData.postValue(isFavorite)
     }
 
     override fun onCleared() {

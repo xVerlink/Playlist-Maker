@@ -1,7 +1,6 @@
 package com.example.playlistmaker.player.domain.api
 
 interface MediaPlayerInteractor {
-
     fun preparePlayer(dataSource: String)
     fun setOnPreparedListener(listener: () -> Unit)
     fun setOnCompletionListener(listener: () -> Unit)

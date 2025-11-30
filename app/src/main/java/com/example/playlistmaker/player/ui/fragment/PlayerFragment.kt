@@ -60,6 +60,10 @@ class PlayerFragment : Fragment() {
             binding.trackTimeProgress.text = it
         }
 
+        viewModel.observeIsFavorite().observe(viewLifecycleOwner) {
+            setFavoritesButton(it)
+        }
+
         binding.toolbar.setNavigationOnClickListener {
             findNavController().navigateUp()
         }
@@ -72,6 +76,10 @@ class PlayerFragment : Fragment() {
             }
         }
 
+        binding.addToFavoritesButton.setOnClickListener {
+            onFavoritesButtonClicked()
+        }
+
         setCover()
         setTrackName()
         setArtist()
@@ -81,6 +89,7 @@ class PlayerFragment : Fragment() {
         setYear()
         setGenre()
         setCountry()
+        setFavoritesButton(track.isFavorite)
     }
 
     override fun onDestroyView() {
@@ -142,6 +151,26 @@ class PlayerFragment : Fragment() {
     private fun setCountry() {
         binding.country.text = track.country
         binding.countryGroup.isVisible = !binding.country.text.isNullOrEmpty()
+    }
+
+    private fun setFavoritesButton(isFavorite: Boolean) {
+        if (isFavorite) {
+            binding.addToFavoritesButton.setImageResource((R.drawable.add_to_favorites_button_pressed))
+        } else {
+            binding.addToFavoritesButton.setImageResource(R.drawable.add_to_favorites_button_unpressed)
+        }
+    }
+
+    private fun onFavoritesButtonClicked() {
+        if (track.isFavorite) {
+            binding.addToFavoritesButton.setImageResource(R.drawable.add_to_favorites_button_unpressed)
+            track.isFavorite = false
+            viewModel.removeFromFavorites(track)
+        } else {
+            binding.addToFavoritesButton.setImageResource((R.drawable.add_to_favorites_button_pressed))
+            track.isFavorite = true
+            viewModel.addToFavorites(track)
+        }
     }
 
     override fun onPause() {

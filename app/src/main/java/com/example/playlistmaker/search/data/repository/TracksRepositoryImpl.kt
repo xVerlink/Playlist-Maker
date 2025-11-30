@@ -1,5 +1,6 @@
 package com.example.playlistmaker.search.data.repository
 
+import com.example.playlistmaker.media_library.data.db.AppDatabase
 import com.example.playlistmaker.search.data.dto.TracksSearchRequest
 import com.example.playlistmaker.search.data.dto.TracksSearchResponse
 import com.example.playlistmaker.search.data.network.NetworkClient
@@ -11,23 +12,29 @@ import kotlinx.coroutines.flow.flow
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class TracksRepositoryImpl(private val networkClient: NetworkClient) : TracksRepository {
+class TracksRepositoryImpl(
+    private val networkClient: NetworkClient,
+    private val database: AppDatabase
+    ) : TracksRepository {
     override fun searchTracks(expression: String): Flow<ServerResponse<List<Track>>> = flow {
         val response = networkClient.doRequest(TracksSearchRequest(expression))
         if (response.resultCode == 200) {
-            val trackList = (response as TracksSearchResponse).results.map {
-                val formattedTime = if (!it.trackTime.isNullOrEmpty()) SimpleDateFormat("mm:ss", Locale.getDefault()).format(it.trackTime.toLong()) else ""
+            val favoritesIds = database.trackDao().getTracksId()
+            val trackList = (response as TracksSearchResponse).results.map { trackDto ->
+                val formattedTime = if (!trackDto.trackTime.isNullOrEmpty()) SimpleDateFormat("mm:ss", Locale.getDefault()).format(trackDto.trackTime.toLong()) else ""
+                val isFavorite = favoritesIds.contains(trackDto.trackId)
                 Track(
-                    checkNull(it.trackId),
-                    checkNull(it.trackName),
-                    checkNull(it.artistName),
-                    checkNull(it.collectionName),
-                    checkNull(it.releaseDate),
-                    checkNull(it.primaryGenreName),
-                    checkNull(it.country),
-                    checkNull(it.previewUrl), //убрать и проверить с beatles
-                    checkNull(formattedTime),
-                    checkNull(it.artworkUrl100)
+                    trackId = checkNull(trackDto.trackId),
+                    trackName = checkNull(trackDto.trackName),
+                    artistName = checkNull(trackDto.artistName),
+                    collectionName = checkNull(trackDto.collectionName),
+                    releaseDate = checkNull(trackDto.releaseDate),
+                    primaryGenreName = checkNull(trackDto.primaryGenreName),
+                    country = checkNull(trackDto.country),
+                    previewUrl = checkNull(trackDto.previewUrl), //убрать и проверить с beatles
+                    trackTime = checkNull(formattedTime),
+                    artworkUrl100 = checkNull(trackDto.artworkUrl100),
+                    isFavorite = isFavorite
                 )
             }
             emit(ServerResponse.Success(trackList))

@@ -38,7 +38,7 @@ val searchModule = module {
     }
 
     single<TracksRepository> {
-        TracksRepositoryImpl(get())
+        TracksRepositoryImpl(get(), get())
     }
 
     single<TracksInteractor> {
@@ -64,7 +64,7 @@ val searchModule = module {
     }
 
     single<HistoryManagerRepository> {
-        HistoryManagerRepositoryImpl(get(qualifier = named("search")))
+        HistoryManagerRepositoryImpl(get(qualifier = named("search")), get())
     }
 
     single<HistoryManagerInteractor> {
