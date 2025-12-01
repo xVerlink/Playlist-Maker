@@ -22,7 +22,6 @@ class TracksRepositoryImpl(
             val favoritesIds = database.trackDao().getTracksId()
             val trackList = (response as TracksSearchResponse).results.map { trackDto ->
                 val formattedTime = if (!trackDto.trackTime.isNullOrEmpty()) SimpleDateFormat("mm:ss", Locale.getDefault()).format(trackDto.trackTime.toLong()) else ""
-                val isFavorite = favoritesIds.contains(trackDto.trackId)
                 Track(
                     trackId = checkNull(trackDto.trackId),
                     trackName = checkNull(trackDto.trackName),
@@ -31,10 +30,10 @@ class TracksRepositoryImpl(
                     releaseDate = checkNull(trackDto.releaseDate),
                     primaryGenreName = checkNull(trackDto.primaryGenreName),
                     country = checkNull(trackDto.country),
-                    previewUrl = checkNull(trackDto.previewUrl), //убрать и проверить с beatles
+                    previewUrl = checkNull(trackDto.previewUrl),
                     trackTime = checkNull(formattedTime),
                     artworkUrl100 = checkNull(trackDto.artworkUrl100),
-                    isFavorite = isFavorite
+                    isFavorite = favoritesIds.contains(trackDto.trackId)
                 )
             }
             emit(ServerResponse.Success(trackList))

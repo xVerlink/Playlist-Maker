@@ -19,8 +19,7 @@ class HistoryManagerRepositoryImpl(
             appDatabase.trackDao().getTracksId()
         }
         tracks.map { track ->
-            val isFavorite = favoritesIds.contains(track.trackId)
-            track.isFavorite = isFavorite
+            track.isFavorite = favoritesIds.contains(track.trackId)
         }
         emit(tracks)
     }

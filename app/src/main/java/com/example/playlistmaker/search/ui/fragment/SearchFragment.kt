@@ -62,6 +62,9 @@ class SearchFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        lifecycleScope.launch {
+            viewModel.updateHistory()
+        }
         viewModel.observeState().observe(viewLifecycleOwner) {
             if (binding.editText.text.isNotEmpty()) {
                 render(it)

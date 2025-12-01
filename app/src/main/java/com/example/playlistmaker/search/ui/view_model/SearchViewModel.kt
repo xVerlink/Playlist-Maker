@@ -25,18 +25,12 @@ class SearchViewModel(
     private val stateLiveData = MutableLiveData<TracksState>()
     fun observeState(): LiveData<TracksState> = stateLiveData
 
-    private var historyList: List<Track> = listOf()
+    private var historyList: MutableList<Track> = mutableListOf()
     private val historyStateLiveData = MutableLiveData<List<Track>>()
     fun observeHistory(): LiveData<List<Track>> = historyStateLiveData
 
     private val trackSearchDebounce = debounce<String>(SEARCH_DEBOUNCE_DELAY, viewModelScope, true) { changedText ->
         search(changedText)
-    }
-
-    init {
-        viewModelScope.launch {
-            updateHistory()
-        }
     }
 
     fun searchDebounce(changedText: String) {
@@ -68,15 +62,15 @@ class SearchViewModel(
         stateLiveData.postValue(state)
     }
 
-    private suspend fun updateHistory() {
-        historyList = historyManager.getTracksHistory(App.SEARCH_HISTORY_KEY).single()
+    suspend fun updateHistory() {
+        historyList.clear()
+        historyList.addAll(historyManager.getTracksHistory(App.SEARCH_HISTORY_KEY).single())
         historyStateLiveData.postValue(historyList)
     }
 
     fun addTrackToHistory(track: Track) {
         viewModelScope.launch {
             historyManager.add(track)
-            updateHistory()
         }
 
     }
@@ -84,7 +78,6 @@ class SearchViewModel(
     fun clearHistory() {
         viewModelScope.launch {
             historyManager.clearHistory()
-            updateHistory()
         }
     }
 
