@@ -20,14 +20,6 @@ class PlayerViewModel(
     private val favoritesInteractor: FavoritesInteractor
 ) : ViewModel() {
 
-    init {
-        viewModelScope.launch {
-            favoritesInteractor.getFavoritesId().collect { tracks ->
-                updateFavorites(tracks)
-            }
-        }
-    }
-
     private var playerState: PlayerState = PlayerState.Default
     private val playerStateLiveData = MutableLiveData<PlayerState>()
     fun observePlayerState(): LiveData<PlayerState> = playerStateLiveData
@@ -112,6 +104,17 @@ class PlayerViewModel(
 
     private fun getCurrentPlayerPosition(): String {
         return SimpleDateFormat("mm:ss", Locale.getDefault()).format(playerInteractor.getCurrentPosition())
+    }
+
+    fun setupFavoritesList() {
+        if (favoriteTracksLiveData.value == null) {
+            viewModelScope.launch {
+                favoritesInteractor.getFavoritesId().collect { idList ->
+                    favoriteTracksLiveData.postValue(idList)
+                    delay(1000L)
+                }
+            }
+        }
     }
 
     fun addToFavorites(track: Track) {

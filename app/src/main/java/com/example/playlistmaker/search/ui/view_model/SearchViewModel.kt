@@ -18,6 +18,7 @@ class SearchViewModel(
     private val interactor: TracksInteractor,
     private val historyManager: HistoryManagerInteractor,
 ) : ViewModel() {
+
     private var latestSearchText: String? = null
     private var searchJob: Job? = null
 
@@ -60,10 +61,12 @@ class SearchViewModel(
         stateLiveData.postValue(state)
     }
 
-    fun updateHistory() {
-        viewModelScope.launch {
-            historyManager.getTracksHistory(App.SEARCH_HISTORY_KEY).collect { tracks ->
-                historyStateLiveData.postValue(tracks)
+    fun setupHistory() {
+        if (historyStateLiveData.value == null) {
+            viewModelScope.launch {
+                historyManager.getTracksHistory(App.SEARCH_HISTORY_KEY).collect { tracks ->
+                    historyStateLiveData.postValue(tracks)
+                }
             }
         }
     }

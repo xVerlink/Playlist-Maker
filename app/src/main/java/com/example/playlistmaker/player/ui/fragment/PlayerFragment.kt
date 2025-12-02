@@ -44,6 +44,7 @@ class PlayerFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         track = requireArguments().get(TRACK_KEY) as Track
 
+        viewModel.setupFavoritesList()
         viewModel.preparePlayer()
         viewModel.observePlayerState().observe(viewLifecycleOwner) {
             when(it) {
