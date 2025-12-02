@@ -1,6 +1,5 @@
 package com.example.playlistmaker.search.data.repository
 
-import com.example.playlistmaker.media_library.data.db.AppDatabase
 import com.example.playlistmaker.search.data.dto.TracksSearchRequest
 import com.example.playlistmaker.search.data.dto.TracksSearchResponse
 import com.example.playlistmaker.search.data.network.NetworkClient
@@ -13,13 +12,10 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 class TracksRepositoryImpl(
-    private val networkClient: NetworkClient,
-    private val database: AppDatabase
-    ) : TracksRepository {
+    private val networkClient: NetworkClient) : TracksRepository {
     override fun searchTracks(expression: String): Flow<ServerResponse<List<Track>>> = flow {
         val response = networkClient.doRequest(TracksSearchRequest(expression))
         if (response.resultCode == 200) {
-            val favoritesIds = database.trackDao().getTracksId()
             val trackList = (response as TracksSearchResponse).results.map { trackDto ->
                 val formattedTime = if (!trackDto.trackTime.isNullOrEmpty()) SimpleDateFormat("mm:ss", Locale.getDefault()).format(trackDto.trackTime.toLong()) else ""
                 Track(
@@ -32,8 +28,7 @@ class TracksRepositoryImpl(
                     country = checkNull(trackDto.country),
                     previewUrl = checkNull(trackDto.previewUrl),
                     trackTime = checkNull(formattedTime),
-                    artworkUrl100 = checkNull(trackDto.artworkUrl100),
-                    isFavorite = favoritesIds.contains(trackDto.trackId)
+                    artworkUrl100 = checkNull(trackDto.artworkUrl100)
                 )
             }
             emit(ServerResponse.Success(trackList))

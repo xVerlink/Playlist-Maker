@@ -23,11 +23,11 @@ val settingsModule = module {
         )
     }
 
-    single<ThemeSwitcherRepository> {
+    factory<ThemeSwitcherRepository> {
         ThemeSwitcherRepositoryImpl(get())
     }
 
-    single<ThemeSwitcherInteractor> {
+    factory<ThemeSwitcherInteractor> {
         ThemeSwitcherInteractorImpl(get())
     }
 

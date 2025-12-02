@@ -37,11 +37,11 @@ val searchModule = module {
         RetrofitNetworkClient(get())
     }
 
-    single<TracksRepository> {
-        TracksRepositoryImpl(get(), get())
+    factory<TracksRepository> {
+        TracksRepositoryImpl(get())
     }
 
-    single<TracksInteractor> {
+    factory<TracksInteractor> {
         TracksInteractorImpl(get())
     }
 
@@ -63,11 +63,11 @@ val searchModule = module {
         Gson()
     }
 
-    single<HistoryManagerRepository> {
-        HistoryManagerRepositoryImpl(get(qualifier = named("search")), get())
+    factory<HistoryManagerRepository> {
+        HistoryManagerRepositoryImpl(get(qualifier = named("search")))
     }
 
-    single<HistoryManagerInteractor> {
+    factory<HistoryManagerInteractor> {
         HistoryManagerInteractorImpl(get())
     }
 

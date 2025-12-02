@@ -5,16 +5,16 @@ import com.example.playlistmaker.search.domain.api.HistoryManagerInteractor
 import com.example.playlistmaker.search.domain.api.HistoryManagerRepository
 import com.example.playlistmaker.search.domain.models.Track
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.single
-import kotlinx.coroutines.flow.toList
 
 class HistoryManagerInteractorImpl(private val repository: HistoryManagerRepository) : HistoryManagerInteractor {
 
-    override suspend fun getTracksHistory(historyKey: String): Flow<List<Track>> {
+    override fun getTracksHistory(historyKey: String): Flow<List<Track>> {
         return repository.getTracksHistory(historyKey)
      }
 
-    override suspend fun add(track: Track) {
+    override  fun add(track: Track): Flow<List<Track>> = flow {
         val historyList: MutableList<Track> =  getTracksHistory(App.SEARCH_HISTORY_KEY).single().toMutableList()
         var indexNumber = -1
         historyList.forEachIndexed { index, item ->
@@ -30,9 +30,11 @@ class HistoryManagerInteractorImpl(private val repository: HistoryManagerReposit
         }
         historyList.add(track)
         repository.writeTracksHistory(historyList)
+        emit(historyList)
     }
 
-    override fun clearHistory() {
+    override  fun clearHistory(): Flow<List<Track>> = flow {
         repository.clearHistory()
+        emit(emptyList())
     }
 }
