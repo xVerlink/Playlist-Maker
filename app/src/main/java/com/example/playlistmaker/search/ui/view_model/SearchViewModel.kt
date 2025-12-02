@@ -12,7 +12,6 @@ import com.example.playlistmaker.search.domain.models.Track
 import com.example.playlistmaker.search.domain.models.TracksState
 import com.example.playlistmaker.util.debounce
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.launch
 
 class SearchViewModel(
@@ -25,7 +24,6 @@ class SearchViewModel(
     private val stateLiveData = MutableLiveData<TracksState>()
     fun observeState(): LiveData<TracksState> = stateLiveData
 
-    private var historyList: MutableList<Track> = mutableListOf()
     private val historyStateLiveData = MutableLiveData<List<Track>>()
     fun observeHistory(): LiveData<List<Track>> = historyStateLiveData
 
@@ -62,22 +60,27 @@ class SearchViewModel(
         stateLiveData.postValue(state)
     }
 
-    suspend fun updateHistory() {
-        historyList.clear()
-        historyList.addAll(historyManager.getTracksHistory(App.SEARCH_HISTORY_KEY).single())
-        historyStateLiveData.postValue(historyList)
+    fun updateHistory() {
+        viewModelScope.launch {
+            historyManager.getTracksHistory(App.SEARCH_HISTORY_KEY).collect { tracks ->
+                historyStateLiveData.postValue(tracks)
+            }
+        }
     }
 
     fun addTrackToHistory(track: Track) {
         viewModelScope.launch {
-            historyManager.add(track)
+            historyManager.add(track).collect { tracks ->
+                historyStateLiveData.postValue(tracks)
+            }
         }
-
     }
 
     fun clearHistory() {
         viewModelScope.launch {
-            historyManager.clearHistory()
+            historyManager.clearHistory().collect { tracks ->
+                historyStateLiveData.postValue(tracks)
+            }
         }
     }
 

@@ -51,7 +51,7 @@ class PlayerFragment : Fragment() {
                 is PlayerState.Paused -> binding.playButton.setImageResource(R.drawable.play_button)
                 is PlayerState.Prepared -> {
                     binding.playButton.setImageResource(R.drawable.play_button)
-                    binding.trackTimeProgress.text = context?.getString(R.string.media_player_default_time)
+                    binding.trackTimeProgress.text = requireContext().getString(R.string.media_player_default_time)
                 }
                 else -> Toast.makeText(context, "Exception while preparing player or wait a few seconds", Toast.LENGTH_SHORT).show()
             }
@@ -60,8 +60,8 @@ class PlayerFragment : Fragment() {
             binding.trackTimeProgress.text = it
         }
 
-        viewModel.observeIsFavorite().observe(viewLifecycleOwner) {
-            setFavoritesButton(it)
+        viewModel.observeFavoriteTracks().observe(viewLifecycleOwner) { favoriteTracks->
+            setFavoritesButton(favoriteTracks)
         }
 
         binding.toolbar.setNavigationOnClickListener {
@@ -77,7 +77,7 @@ class PlayerFragment : Fragment() {
         }
 
         binding.addToFavoritesButton.setOnClickListener {
-            onFavoritesButtonClicked()
+            onFavoritesButtonClicked(track.isFavorite)
         }
 
         setCover()
@@ -89,7 +89,6 @@ class PlayerFragment : Fragment() {
         setYear()
         setGenre()
         setCountry()
-        setFavoritesButton(track.isFavorite)
     }
 
     override fun onDestroyView() {
@@ -153,22 +152,24 @@ class PlayerFragment : Fragment() {
         binding.countryGroup.isVisible = !binding.country.text.isNullOrEmpty()
     }
 
-    private fun setFavoritesButton(isFavorite: Boolean) {
-        if (isFavorite) {
-            binding.addToFavoritesButton.setImageResource((R.drawable.add_to_favorites_button_pressed))
+    private fun setFavoritesButton(favoritesIds: List<String>) {
+        if (favoritesIds.contains(track.trackId)) {
+            track.isFavorite = true
+            binding.addToFavoritesButton.setImageResource(R.drawable.add_to_favorites_button_pressed)
         } else {
+            track.isFavorite = false
             binding.addToFavoritesButton.setImageResource(R.drawable.add_to_favorites_button_unpressed)
         }
     }
 
-    private fun onFavoritesButtonClicked() {
-        if (track.isFavorite) {
-            binding.addToFavoritesButton.setImageResource(R.drawable.add_to_favorites_button_unpressed)
+    private fun onFavoritesButtonClicked(isFavorite: Boolean) {
+        if (isFavorite) {
             track.isFavorite = false
+            binding.addToFavoritesButton.setImageResource(R.drawable.add_to_favorites_button_unpressed)
             viewModel.removeFromFavorites(track)
         } else {
-            binding.addToFavoritesButton.setImageResource((R.drawable.add_to_favorites_button_pressed))
             track.isFavorite = true
+            binding.addToFavoritesButton.setImageResource(R.drawable.add_to_favorites_button_pressed)
             viewModel.addToFavorites(track)
         }
     }

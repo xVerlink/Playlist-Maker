@@ -62,9 +62,7 @@ class SearchFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        lifecycleScope.launch {
-            viewModel.updateHistory()
-        }
+        viewModel.updateHistory()
         viewModel.observeState().observe(viewLifecycleOwner) {
             if (binding.editText.text.isNotEmpty()) {
                 render(it)
@@ -167,7 +165,6 @@ class SearchFragment : Fragment() {
     }
 
     private fun showContent(tracksList: List<Track>) {
-        trackAdapter.clearTracks()
         trackAdapter.updateTracks(tracksList)
         trackAdapter.notifyDataSetChanged()
         if (tracksList.isEmpty()) {

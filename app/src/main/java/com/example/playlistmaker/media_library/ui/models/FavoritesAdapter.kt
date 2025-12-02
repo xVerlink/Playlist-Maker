@@ -7,7 +7,7 @@ import com.example.playlistmaker.databinding.ListItemTrackBinding
 import com.example.playlistmaker.search.domain.models.Track
 
 class FavoritesAdapter(private val action: (Track) -> Unit) : RecyclerView.Adapter<FavoritesViewHolder>() {
-    private val tracks = ArrayList<Track>()
+    private val tracks = mutableListOf<Track>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FavoritesViewHolder {
         val inflater = LayoutInflater.from(parent.context)

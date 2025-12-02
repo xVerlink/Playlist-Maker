@@ -6,6 +6,6 @@ import kotlinx.coroutines.flow.Flow
 interface HistoryManagerRepository {
 
     fun getTracksHistory(json: String): Flow<List<Track>>
-    fun clearHistory()
-    fun writeTracksHistory(tracks: MutableList<Track>)
+    suspend fun clearHistory()
+    suspend fun writeTracksHistory(tracks: MutableList<Track>)
 }

@@ -24,6 +24,7 @@ class TrackAdapter(private val action: (Track) -> Unit): RecyclerView.Adapter<Tr
     }
 
     fun updateTracks(incomingTracks: List<Track>) {
+        tracks.clear()
         tracks.addAll(incomingTracks)
     }
 
