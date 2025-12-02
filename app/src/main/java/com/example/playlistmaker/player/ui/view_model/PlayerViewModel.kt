@@ -20,14 +20,6 @@ class PlayerViewModel(
     private val favoritesInteractor: FavoritesInteractor
 ) : ViewModel() {
 
-    init {
-        viewModelScope.launch {
-            favoritesInteractor.getFavoritesId().collect { tracks ->
-                updateFavorites(tracks)
-            }
-        }
-    }
-
     private var playerState: PlayerState = PlayerState.Default
     private val playerStateLiveData = MutableLiveData<PlayerState>()
     fun observePlayerState(): LiveData<PlayerState> = playerStateLiveData
@@ -35,8 +27,8 @@ class PlayerViewModel(
     private val timerLiveData = MutableLiveData<String>()
     fun observeTimer(): LiveData<String> = timerLiveData
 
-    private val favoriteTracksLiveData = MutableLiveData<List<String>>()
-    fun observeFavoriteTracks(): LiveData<List<String>> = favoriteTracksLiveData
+    private val isFavoriteLiveData = MutableLiveData<Boolean>()
+    fun observeIsFavorite(): LiveData<Boolean> = isFavoriteLiveData
 
     private var timerJob: Job? = null
 
@@ -116,22 +108,21 @@ class PlayerViewModel(
 
     fun addToFavorites(track: Track) {
         viewModelScope.launch {
-            favoritesInteractor.addToFavorites(track).collect { tracks ->
-                updateFavorites(tracks)
-            }
+            favoritesInteractor.addToFavorites(track)
+            updateFavoriteButton(true)
+
         }
     }
 
     fun removeFromFavorites(track: Track) {
         viewModelScope.launch {
-            favoritesInteractor.removeFromFavorites(track).collect { tracks ->
-                updateFavorites(tracks)
-            }
+            favoritesInteractor.removeFromFavorites(track)
+            updateFavoriteButton(false)
         }
     }
 
-    private fun updateFavorites(track: List<String>) {
-        favoriteTracksLiveData.postValue(track)
+    private fun updateFavoriteButton (isFavorite: Boolean) {
+        isFavoriteLiveData.postValue(isFavorite)
     }
 
     override fun onCleared() {
