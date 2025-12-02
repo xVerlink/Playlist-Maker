@@ -4,8 +4,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.playlistmaker.media_library.domain.api.FavoritesInteractor
 import com.example.playlistmaker.player.domain.api.MediaPlayerInteractor
 import com.example.playlistmaker.player.domain.models.PlayerState
+import com.example.playlistmaker.search.domain.models.Track
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -14,7 +16,8 @@ import java.util.Locale
 
 class PlayerViewModel(
     private val url: String,
-    private val playerInteractor: MediaPlayerInteractor
+    private val playerInteractor: MediaPlayerInteractor,
+    private val favoritesInteractor: FavoritesInteractor
 ) : ViewModel() {
 
     private var playerState: PlayerState = PlayerState.Default
@@ -23,6 +26,9 @@ class PlayerViewModel(
 
     private val timerLiveData = MutableLiveData<String>()
     fun observeTimer(): LiveData<String> = timerLiveData
+
+    private val favoriteTracksLiveData = MutableLiveData<List<String>>()
+    fun observeFavoriteTracks(): LiveData<List<String>> = favoriteTracksLiveData
 
     private var timerJob: Job? = null
 
@@ -98,6 +104,37 @@ class PlayerViewModel(
 
     private fun getCurrentPlayerPosition(): String {
         return SimpleDateFormat("mm:ss", Locale.getDefault()).format(playerInteractor.getCurrentPosition())
+    }
+
+    fun setupFavoritesList() {
+        if (favoriteTracksLiveData.value == null) {
+            viewModelScope.launch {
+                favoritesInteractor.getFavoritesId().collect { idList ->
+                    favoriteTracksLiveData.postValue(idList)
+                    delay(1000L)
+                }
+            }
+        }
+    }
+
+    fun addToFavorites(track: Track) {
+        viewModelScope.launch {
+            favoritesInteractor.addToFavorites(track).collect { tracks ->
+                updateFavorites(tracks)
+            }
+        }
+    }
+
+    fun removeFromFavorites(track: Track) {
+        viewModelScope.launch {
+            favoritesInteractor.removeFromFavorites(track).collect { tracks ->
+                updateFavorites(tracks)
+            }
+        }
+    }
+
+    private fun updateFavorites(track: List<String>) {
+        favoriteTracksLiveData.postValue(track)
     }
 
     override fun onCleared() {

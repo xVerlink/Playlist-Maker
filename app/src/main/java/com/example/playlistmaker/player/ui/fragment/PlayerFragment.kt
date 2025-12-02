@@ -44,6 +44,7 @@ class PlayerFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         track = requireArguments().get(TRACK_KEY) as Track
 
+        viewModel.setupFavoritesList()
         viewModel.preparePlayer()
         viewModel.observePlayerState().observe(viewLifecycleOwner) {
             when(it) {
@@ -51,13 +52,17 @@ class PlayerFragment : Fragment() {
                 is PlayerState.Paused -> binding.playButton.setImageResource(R.drawable.play_button)
                 is PlayerState.Prepared -> {
                     binding.playButton.setImageResource(R.drawable.play_button)
-                    binding.trackTimeProgress.text = context?.getString(R.string.media_player_default_time)
+                    binding.trackTimeProgress.text = requireContext().getString(R.string.media_player_default_time)
                 }
                 else -> Toast.makeText(context, "Exception while preparing player or wait a few seconds", Toast.LENGTH_SHORT).show()
             }
         }
         viewModel.observeTimer().observe(viewLifecycleOwner) {
             binding.trackTimeProgress.text = it
+        }
+
+        viewModel.observeFavoriteTracks().observe(viewLifecycleOwner) { favoriteTracks->
+            setFavoritesButton(favoriteTracks)
         }
 
         binding.toolbar.setNavigationOnClickListener {
@@ -70,6 +75,10 @@ class PlayerFragment : Fragment() {
             } else {
                 Toast.makeText(context, "There is no track preview", Toast.LENGTH_SHORT).show()
             }
+        }
+
+        binding.addToFavoritesButton.setOnClickListener {
+            onFavoritesButtonClicked(track.isFavorite)
         }
 
         setCover()
@@ -142,6 +151,28 @@ class PlayerFragment : Fragment() {
     private fun setCountry() {
         binding.country.text = track.country
         binding.countryGroup.isVisible = !binding.country.text.isNullOrEmpty()
+    }
+
+    private fun setFavoritesButton(favoritesIds: List<String>) {
+        if (favoritesIds.contains(track.trackId)) {
+            track.isFavorite = true
+            binding.addToFavoritesButton.setImageResource(R.drawable.add_to_favorites_button_pressed)
+        } else {
+            track.isFavorite = false
+            binding.addToFavoritesButton.setImageResource(R.drawable.add_to_favorites_button_unpressed)
+        }
+    }
+
+    private fun onFavoritesButtonClicked(isFavorite: Boolean) {
+        if (isFavorite) {
+            track.isFavorite = false
+            binding.addToFavoritesButton.setImageResource(R.drawable.add_to_favorites_button_unpressed)
+            viewModel.removeFromFavorites(track)
+        } else {
+            track.isFavorite = true
+            binding.addToFavoritesButton.setImageResource(R.drawable.add_to_favorites_button_pressed)
+            viewModel.addToFavorites(track)
+        }
     }
 
     override fun onPause() {

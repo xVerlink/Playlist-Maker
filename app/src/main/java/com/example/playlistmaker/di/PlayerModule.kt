@@ -9,16 +9,17 @@ import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
 val playerModule = module {
-    single<MediaPlayerRepository> {
+    factory<MediaPlayerRepository> {
         MediaPlayerRepositoryImpl(MediaPlayer())
     }
-    single<MediaPlayerInteractor> {
+    factory<MediaPlayerInteractor> {
         MediaPlayerInteractorImpl(get())
     }
     viewModel { (trackUrl: String) ->
         PlayerViewModel(
             url = trackUrl,
-            playerInteractor = get()
+            playerInteractor = get(),
+            favoritesInteractor = get()
         )
     }
 }

@@ -11,7 +11,6 @@ class PrefsStorageClient<T>(
     private val type: Type,
     private val gson: Gson
 ) : StorageClient<T> {
-    private lateinit var listener: SharedPreferences.OnSharedPreferenceChangeListener
 
     override fun storeData(data: T) {
         prefs.edit() {
@@ -28,18 +27,7 @@ class PrefsStorageClient<T>(
         }
     }
 
-    override fun registerOnSharedPreferenceChangeListener(action: (T?) -> Unit) {
-        listener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
-            action.invoke(getData())
-        }
-        prefs.registerOnSharedPreferenceChangeListener(listener)
-    }
-
     override fun clearHistory() {
         prefs.edit { remove(dataKey) }
-    }
-
-    override fun unregisterOnSharedPreferenceChangeListener() {
-        prefs.unregisterOnSharedPreferenceChangeListener(listener)
     }
 }

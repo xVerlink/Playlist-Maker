@@ -9,7 +9,7 @@ val sharingModule = module {
     single<ExternalNavigator> {
         ExternalNavigatorImpl(androidContext())
     }
-    single<SharingInteractor> {
+    factory<SharingInteractor> {
         SharingInteractorImpl(get())
     }
 }

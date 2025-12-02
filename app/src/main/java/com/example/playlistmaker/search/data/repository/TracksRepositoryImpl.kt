@@ -11,23 +11,24 @@ import kotlinx.coroutines.flow.flow
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class TracksRepositoryImpl(private val networkClient: NetworkClient) : TracksRepository {
+class TracksRepositoryImpl(
+    private val networkClient: NetworkClient) : TracksRepository {
     override fun searchTracks(expression: String): Flow<ServerResponse<List<Track>>> = flow {
         val response = networkClient.doRequest(TracksSearchRequest(expression))
         if (response.resultCode == 200) {
-            val trackList = (response as TracksSearchResponse).results.map {
-                val formattedTime = if (!it.trackTime.isNullOrEmpty()) SimpleDateFormat("mm:ss", Locale.getDefault()).format(it.trackTime.toLong()) else ""
+            val trackList = (response as TracksSearchResponse).results.map { trackDto ->
+                val formattedTime = if (!trackDto.trackTime.isNullOrEmpty()) SimpleDateFormat("mm:ss", Locale.getDefault()).format(trackDto.trackTime.toLong()) else ""
                 Track(
-                    checkNull(it.trackId),
-                    checkNull(it.trackName),
-                    checkNull(it.artistName),
-                    checkNull(it.collectionName),
-                    checkNull(it.releaseDate),
-                    checkNull(it.primaryGenreName),
-                    checkNull(it.country),
-                    checkNull(it.previewUrl), //убрать и проверить с beatles
-                    checkNull(formattedTime),
-                    checkNull(it.artworkUrl100)
+                    trackId = checkNull(trackDto.trackId),
+                    trackName = checkNull(trackDto.trackName),
+                    artistName = checkNull(trackDto.artistName),
+                    collectionName = checkNull(trackDto.collectionName),
+                    releaseDate = checkNull(trackDto.releaseDate),
+                    primaryGenreName = checkNull(trackDto.primaryGenreName),
+                    country = checkNull(trackDto.country),
+                    previewUrl = checkNull(trackDto.previewUrl),
+                    trackTime = checkNull(formattedTime),
+                    artworkUrl100 = checkNull(trackDto.artworkUrl100)
                 )
             }
             emit(ServerResponse.Success(trackList))

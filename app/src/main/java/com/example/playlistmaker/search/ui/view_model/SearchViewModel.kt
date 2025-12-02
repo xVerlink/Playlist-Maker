@@ -18,22 +18,18 @@ class SearchViewModel(
     private val interactor: TracksInteractor,
     private val historyManager: HistoryManagerInteractor,
 ) : ViewModel() {
+
     private var latestSearchText: String? = null
     private var searchJob: Job? = null
 
     private val stateLiveData = MutableLiveData<TracksState>()
     fun observeState(): LiveData<TracksState> = stateLiveData
 
-    private var historyList: List<Track> = listOf()
     private val historyStateLiveData = MutableLiveData<List<Track>>()
     fun observeHistory(): LiveData<List<Track>> = historyStateLiveData
 
     private val trackSearchDebounce = debounce<String>(SEARCH_DEBOUNCE_DELAY, viewModelScope, true) { changedText ->
         search(changedText)
-    }
-
-    init {
-        updateHistory()
     }
 
     fun searchDebounce(changedText: String) {
@@ -65,19 +61,30 @@ class SearchViewModel(
         stateLiveData.postValue(state)
     }
 
-    private fun updateHistory() {
-        historyList = historyManager.getTracksHistory(App.SEARCH_HISTORY_KEY)
-        historyStateLiveData.postValue(historyList)
+    fun setupHistory() {
+        if (historyStateLiveData.value == null) {
+            viewModelScope.launch {
+                historyManager.getTracksHistory(App.SEARCH_HISTORY_KEY).collect { tracks ->
+                    historyStateLiveData.postValue(tracks)
+                }
+            }
+        }
     }
 
     fun addTrackToHistory(track: Track) {
-        historyManager.add(track)
-        updateHistory()
+        viewModelScope.launch {
+            historyManager.add(track).collect { tracks ->
+                historyStateLiveData.postValue(tracks)
+            }
+        }
     }
 
     fun clearHistory() {
-        historyManager.clearHistory()
-        updateHistory()
+        viewModelScope.launch {
+            historyManager.clearHistory().collect { tracks ->
+                historyStateLiveData.postValue(tracks)
+            }
+        }
     }
 
     companion object {

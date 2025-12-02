@@ -1,6 +1,5 @@
 package com.example.playlistmaker.util
 
-import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -18,7 +17,6 @@ fun <T> debounce(delayMillis: Long,
         if (debounceJob?.isCompleted != false || useLastParam) {
             debounceJob = coroutineScope.launch {
                 delay(delayMillis)
-                Log.i("ASD", "after delay in debounce fun")
                 action(param)
             }
         }
