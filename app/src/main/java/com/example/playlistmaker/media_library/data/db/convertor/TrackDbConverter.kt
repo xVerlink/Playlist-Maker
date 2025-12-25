@@ -3,7 +3,7 @@ package com.example.playlistmaker.media_library.data.db.convertor
 import com.example.playlistmaker.media_library.data.db.entity.TrackEntity
 import com.example.playlistmaker.search.domain.models.Track
 
-class TrackDbConvertor {
+class TrackDbConverter {
     fun map (track: Track): TrackEntity {
         return TrackEntity(
             trackId = track.trackId,

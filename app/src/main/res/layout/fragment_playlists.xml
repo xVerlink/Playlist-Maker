@@ -36,11 +36,13 @@
             style="@style/TextBlackWhite19sp"
             android:textStyle="bold"
             android:text="@string/playlists_are_empty_error"/>
-
     </LinearLayout>
 
-
-
-
-
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="16dp"
+        android:paddingHorizontal="16dp"/>
 </LinearLayout>

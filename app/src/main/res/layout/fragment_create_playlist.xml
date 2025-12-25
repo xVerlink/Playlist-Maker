@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:background="?attr/backgroundColor">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:navigationIcon="@drawable/ic_arrow_back"
+        style="@style/TabStyle"
+        app:title="@string/new_playlist"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <ImageView
+        android:id="@+id/placeholder"
+        android:layout_width="match_parent"
+        android:layout_height="312dp"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="42dp"
+        android:background="@drawable/choose_photo_drawable"
+        android:scaleType="centerCrop"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <EditText
+        android:id="@+id/edit_text_title"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginHorizontal="16dp"
+        android:background="@drawable/stroke_selector"
+        android:paddingStart="16dp"
+        android:maxLines="1"
+        android:hint="@string/edit_text_title"
+        android:textColorHint="?attr/colorPrimary"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/placeholder"/>
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/edit_text_title"
+        android:layout_marginStart="16dp"
+        android:textColor="@color/PM_grey"
+        android:textSize="12sp"
+        android:background="@drawable/text_background"
+        app:layout_constraintTop_toTopOf="@id/edit_text_title"
+        app:layout_constraintBottom_toTopOf="@id/edit_text_title"
+        app:layout_constraintStart_toStartOf="@id/edit_text_title"/>
+
+    <EditText
+        android:id="@+id/edit_text_description"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginHorizontal="16dp"
+        android:background="@drawable/stroke_selector"
+        android:paddingStart="16dp"
+        android:maxLines="1"
+        android:hint="@string/edit_text_description"
+        android:textColorHint="?attr/colorPrimary"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/edit_text_title"/>
+
+    <TextView
+        android:id="@+id/description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/edit_text_description"
+        android:layout_marginStart="16dp"
+        android:textColor="@color/PM_grey"
+        android:textSize="12sp"
+        android:background="@drawable/text_background"
+        app:layout_constraintTop_toTopOf="@id/edit_text_description"
+        app:layout_constraintBottom_toTopOf="@id/edit_text_description"
+        app:layout_constraintStart_toStartOf="@id/edit_text_description"/>
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/create_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/create"
+        android:layout_marginHorizontal="17dp"
+        android:layout_marginBottom="32dp"
+        android:background="@drawable/button_selector"
+        android:textColor="@color/PM_white"
+        android:textAllCaps="false"
+        style="@style/DefaultText"
+        android:fontFamily="@font/ys_display_medium"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:enabled="false"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

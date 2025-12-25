@@ -29,4 +29,11 @@
     <string name="playlists_are_empty_error">Вы не создали\nни одного плейлиста</string>
     <string name="favorites">Избранные треки</string>
     <string name="playlists">Плейлисты</string>
+    <string name="create">Создать</string>
+    <string name="edit_text_title">Название*</string>
+    <string name="edit_text_description">Описание</string>
+    <string name="finish_playlist_creation">Завершить создание плейлиста?</string>
+    <string name="all_unsaved_data_will_be_lost">Все несохраненные данные будут потеряны</string>
+    <string name="cancel">Отмена</string>
+    <string name="finish">Завершить</string>
 </resources>

@@ -1,7 +1,7 @@
 package com.example.playlistmaker.media_library.data.repository
 
 import com.example.playlistmaker.media_library.data.db.TrackDao
-import com.example.playlistmaker.media_library.data.db.convertor.TrackDbConvertor
+import com.example.playlistmaker.media_library.data.db.convertor.TrackDbConverter
 import com.example.playlistmaker.media_library.data.db.entity.TrackEntity
 import com.example.playlistmaker.media_library.domain.api.FavoritesRepository
 import com.example.playlistmaker.search.domain.models.Track
@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.flow
 
 class FavoritesRepositoryImpl(
     private val appDatabase: TrackDao,
-    private val convertor: TrackDbConvertor
+    private val convertor: TrackDbConverter
 ) : FavoritesRepository {
     override fun addToFavorites(track: Track): Flow<List<String>> = flow {
         appDatabase.addToFavorites(convertor.map(track))
