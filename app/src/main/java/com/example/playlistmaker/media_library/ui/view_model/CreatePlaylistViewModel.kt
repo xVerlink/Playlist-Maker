@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.playlistmaker.media_library.domain.api.PlaylistInteractor
+import com.example.playlistmaker.media_library.domain.models.Playlist
 import kotlinx.coroutines.launch
 
 class CreatePlaylistViewModel(private val playlistInteractor: PlaylistInteractor) : ViewModel() {
@@ -13,9 +14,9 @@ class CreatePlaylistViewModel(private val playlistInteractor: PlaylistInteractor
     private val drawableLiveData = MutableLiveData<Drawable>()
     fun observeDrawable(): LiveData<Drawable> = drawableLiveData
 
-    fun addPlaylist(title: String, description: String, uri: String) {
+    fun addPlaylist(playlist: Playlist) {
         viewModelScope.launch {
-            playlistInteractor.addPlaylist(title, description, uri)
+            playlistInteractor.addPlaylist(playlist)
         }
     }
 

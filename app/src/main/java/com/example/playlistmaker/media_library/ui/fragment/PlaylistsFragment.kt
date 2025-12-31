@@ -10,8 +10,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.FragmentPlaylistsBinding
-import com.example.playlistmaker.media_library.domain.models.Playlist
-import com.example.playlistmaker.media_library.ui.models.PlaylistAdapter
+import com.example.playlistmaker.media_library.ui.models.PlaylistGridAdapter
 import com.example.playlistmaker.media_library.ui.view_model.PlaylistsViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -19,7 +18,7 @@ class PlaylistsFragment: Fragment() {
     private var _binding: FragmentPlaylistsBinding? = null
     private val binding get() = _binding!!
     private val playlistsViewModel: PlaylistsViewModel by viewModel<PlaylistsViewModel>()
-    private var _adapter: PlaylistAdapter? = null
+    private var _adapter: PlaylistGridAdapter? = null
     private val adapter get() = _adapter!!
 
     override fun onCreateView(
@@ -33,7 +32,7 @@ class PlaylistsFragment: Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        _adapter = PlaylistAdapter()
+        _adapter = PlaylistGridAdapter()
 
         binding.newPlaylist.setOnClickListener {
             findNavController().navigate(R.id.action_mediaLibraryFragment_to_createPlaylistFragment)

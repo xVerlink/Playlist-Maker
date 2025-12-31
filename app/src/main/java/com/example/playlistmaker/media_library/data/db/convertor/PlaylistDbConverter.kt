@@ -1,6 +1,5 @@
 package com.example.playlistmaker.media_library.data.db.convertor
 
-import android.util.Log
 import com.example.playlistmaker.media_library.data.db.entity.PlaylistEntity
 import com.example.playlistmaker.media_library.domain.models.Playlist
 import com.google.gson.Gson
@@ -21,14 +20,10 @@ class PlaylistDbConverter(private val gson: Gson) {
     }
 
     fun map(playlist: PlaylistEntity): Playlist {
-        Log.d("ASD", "json = ${playlist.trackIdListJson}")
-        Log.d("ASD", "isNull = ${playlist.trackIdListJson == null}")
-        Log.d("ASD", "isEmpty = ${playlist.trackIdListJson.isEmpty()}")
-
         val idList = if (playlist.trackIdListJson.isEmpty()) {
             mutableListOf<String>()
         } else {
-            gson.fromJson<List<String>>(playlist.trackIdListJson, object : TypeToken<List<String>>() {}.type)
+            gson.fromJson<MutableList<String>>(playlist.trackIdListJson, object : TypeToken<MutableList<String>>() {}.type)
         }
         return Playlist(
             id = playlist.id,

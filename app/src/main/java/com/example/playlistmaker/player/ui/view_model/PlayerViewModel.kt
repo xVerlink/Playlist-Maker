@@ -5,6 +5,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.playlistmaker.media_library.domain.api.FavoritesInteractor
+import com.example.playlistmaker.media_library.domain.api.PlaylistInteractor
+import com.example.playlistmaker.media_library.domain.models.Playlist
 import com.example.playlistmaker.player.domain.api.MediaPlayerInteractor
 import com.example.playlistmaker.player.domain.models.PlayerState
 import com.example.playlistmaker.search.domain.models.Track
@@ -17,7 +19,8 @@ import java.util.Locale
 class PlayerViewModel(
     private val url: String,
     private val playerInteractor: MediaPlayerInteractor,
-    private val favoritesInteractor: FavoritesInteractor
+    private val favoritesInteractor: FavoritesInteractor,
+    private val playlistInteractor: PlaylistInteractor
 ) : ViewModel() {
 
     private var playerState: PlayerState = PlayerState.Default
@@ -29,6 +32,12 @@ class PlayerViewModel(
 
     private val favoriteTracksLiveData = MutableLiveData<List<String>>()
     fun observeFavoriteTracks(): LiveData<List<String>> = favoriteTracksLiveData
+
+    private val playlistsLiveData = MutableLiveData<List<Playlist>>()
+    fun observePlaylists(): LiveData<List<Playlist>> = playlistsLiveData
+
+    private val containsFlag = MutableLiveData<Pair<Boolean, String>>()
+    fun observeFlag(): LiveData<Pair<Boolean, String>> = containsFlag
 
     private var timerJob: Job? = null
 
@@ -111,7 +120,7 @@ class PlayerViewModel(
             viewModelScope.launch {
                 favoritesInteractor.getFavoritesId().collect { idList ->
                     favoriteTracksLiveData.postValue(idList)
-                    delay(1000L)
+                    delay(1000L) //Зачем я это сделал? Разобраться
                 }
             }
         }
@@ -135,6 +144,26 @@ class PlayerViewModel(
 
     private fun updateFavorites(track: List<String>) {
         favoriteTracksLiveData.postValue(track)
+    }
+
+    fun getPlaylists() {
+        viewModelScope.launch {
+            playlistInteractor.getPlaylists().collect { playlists ->
+                playlistsLiveData.postValue(playlists)
+            }
+        }
+    }
+
+    fun addToPlaylist(track: Track, playlist: Playlist) {
+        if (playlist.trackIdList.contains(track.trackId)) {
+            containsFlag.postValue(Pair(true, playlist.title))
+        } else {
+            containsFlag.postValue(Pair(false, playlist.title))
+            viewModelScope.launch {
+                playlistInteractor.addTrackToPlaylist(track, playlist)
+            }
+            getPlaylists()
+        }
     }
 
     override fun onCleared() {

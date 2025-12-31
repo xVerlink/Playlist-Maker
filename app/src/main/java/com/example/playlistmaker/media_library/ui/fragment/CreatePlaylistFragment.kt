@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.FragmentCreatePlaylistBinding
+import com.example.playlistmaker.media_library.domain.models.Playlist
 import com.example.playlistmaker.media_library.ui.view_model.CreatePlaylistViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -22,7 +23,7 @@ class CreatePlaylistFragment : Fragment() {
     private var _binding: FragmentCreatePlaylistBinding? = null
     private val binding get() = _binding!!
     private val viewModel by viewModel<CreatePlaylistViewModel>()
-    private lateinit var uri: String
+    private var uri: String? = null
     private lateinit var returnDialog: MaterialAlertDialogBuilder
 
     private val pickMedia = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
@@ -102,8 +103,14 @@ class CreatePlaylistFragment : Fragment() {
         binding.createButton.setOnClickListener {
             val title = binding.editTextTitle.text.toString()
             val description = binding.editTextDescription.text.toString()
-            val uri = this.uri
-            viewModel.addPlaylist(title = title, description = description, uri = uri)
+            val uri = this.uri ?: ""
+            viewModel.addPlaylist(Playlist(id = null,
+                title = title,
+                description = description,
+                cover = uri,
+                mutableListOf(),
+                tracksCount = 0
+            ))
             Toast.makeText(requireContext(), "Плейлист $title создан", Toast.LENGTH_SHORT).show()
             findNavController().navigateUp()
         }

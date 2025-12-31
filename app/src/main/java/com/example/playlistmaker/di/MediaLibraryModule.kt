@@ -4,6 +4,7 @@ import androidx.room.Room
 import com.example.playlistmaker.media_library.data.db.AppDatabase
 import com.example.playlistmaker.media_library.data.db.PlaylistDao
 import com.example.playlistmaker.media_library.data.db.TrackDao
+import com.example.playlistmaker.media_library.data.db.TrackPlaylistDao
 import com.example.playlistmaker.media_library.data.db.convertor.PlaylistDbConverter
 import com.example.playlistmaker.media_library.data.db.convertor.TrackDbConverter
 import com.example.playlistmaker.media_library.data.repository.FavoritesRepositoryImpl
@@ -28,6 +29,10 @@ val mediaLibraryModel = module {
 
     single<PlaylistDao> {
         Room.databaseBuilder(androidContext(), AppDatabase::class.java, AppDatabase.DATABASE_NAME).build().playlistDao()
+    }
+
+    single<TrackPlaylistDao> {
+        Room.databaseBuilder(androidContext(), AppDatabase::class.java, AppDatabase.DATABASE_NAME).build().trackPlaylistDao()
     }
 
     viewModel {
@@ -55,7 +60,7 @@ val mediaLibraryModel = module {
     }
 
     factory<PlaylistRepository> {
-        PlaylistRepositoryImpl(get(), get(), androidContext())
+        PlaylistRepositoryImpl(get(),get(), get(), androidContext())
     }
 
     factory<PlaylistInteractor> {
