@@ -8,7 +8,7 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.widget.addTextChangedListener
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.playlistmaker.R
@@ -63,45 +63,25 @@ class CreatePlaylistFragment : Fragment() {
             binding.placeholder.setImageDrawable(it)
         }
 
-        binding.editTextTitle.setOnClickListener {
-            binding.editTextTitle.requestFocus()
+        binding.titleTextInputLayout.editText?.setOnClickListener {
+            binding.titleInputEditText.requestFocus()
         }
 
-        binding.editTextDescription.setOnClickListener {
-            binding.editTextTitle.requestFocus()
+        binding.descriptionTextInputLayout.editText?.setOnClickListener {
+            binding.descriptionInputEditText.requestFocus()
         }
 
-        binding.editTextTitle.setOnFocusChangeListener { view, hasFocus ->
-            if (hasFocus) {
-                binding.title.setTextColor(resources.getColor(R.color.PM_blue))
-            } else {
-                binding.title.setTextColor(resources.getColor(R.color.PM_grey))
-            }
+        binding.titleInputEditText.doOnTextChanged { text, start, before, count ->
+            binding.createButton.isEnabled = text?.isNotEmpty() == true
         }
-
-        binding.editTextDescription.setOnFocusChangeListener { view, hasFocus ->
-            if (hasFocus) {
-                binding.description.setTextColor(resources.getColor(R.color.PM_blue))
-            } else {
-                binding.description.setTextColor(resources.getColor(R.color.PM_grey))
-            }
-        }
-
-        binding.editTextTitle.addTextChangedListener(
-            { text: CharSequence?, start: Int, count: Int, after: Int -> },
-            { text: CharSequence?, start: Int, before: Int, count: Int ->
-                binding.createButton.isEnabled = text?.isNotEmpty() == true
-
-            }
-        )
 
         binding.placeholder.setOnClickListener {
             choosePlaylistCover()
         }
 
         binding.createButton.setOnClickListener {
-            val title = binding.editTextTitle.text.toString()
-            val description = binding.editTextDescription.text.toString()
+            val title = binding.titleInputEditText.text.toString()
+            val description = binding.descriptionInputEditText.text.toString()
             val uri = this.uri ?: ""
             viewModel.addPlaylist(Playlist(id = null,
                 title = title,
@@ -137,8 +117,8 @@ class CreatePlaylistFragment : Fragment() {
 
     private fun closeScreen() {
         if (binding.placeholder.drawable != null
-            || binding.editTextDescription.text.isNotEmpty()
-            || binding.editTextTitle.text.isNotEmpty()) {
+            || !binding.descriptionInputEditText.text.isNullOrEmpty()
+            || !binding.titleInputEditText.text.isNullOrEmpty()) {
             returnDialog.show()
         } else {
             findNavController().navigateUp()
