@@ -84,6 +84,7 @@ class PlayerFragment : Fragment() {
                 Toast.makeText(requireContext(), "${resources.getString(R.string.track_already_added)} ${pair.second}", Toast.LENGTH_SHORT).show()
             } else {
                 Toast.makeText(requireContext(), "${resources.getString(R.string.added_to_playlist)} ${pair.second}", Toast.LENGTH_SHORT).show()
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
             }
         }
 
@@ -230,13 +231,7 @@ class PlayerFragment : Fragment() {
     }
 
     private fun addToPlaylist(playlist: Playlist) {
-        if (playlist.trackIdList.contains(track.trackId)) {
-            Toast.makeText(requireContext(), "Трек уже добавлен в плейлист ${playlist.title}", Toast.LENGTH_SHORT).show()
-        } else {
-            Toast.makeText(requireContext(), "Добавлено в плейлист ${playlist.title}", Toast.LENGTH_SHORT).show()
-            viewModel.addToPlaylist(track, playlist)
-            bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
-        }
+        viewModel.addToPlaylist(track, playlist)
     }
 
     override fun onPause() {

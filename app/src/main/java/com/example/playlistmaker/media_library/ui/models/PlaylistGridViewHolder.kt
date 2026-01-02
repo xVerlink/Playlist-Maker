@@ -15,6 +15,7 @@ class PlaylistGridViewHolder(private val binding: ListItemPlaylistGridBinding) :
             .centerCrop()
             .into(binding.cover)
         binding.title.text = playlist.title
-        binding.count.text = playlist.tracksCount.toString()
+        val tracksCount = playlist.tracksCount
+        binding.count.text = itemView.context.resources.getQuantityString(R.plurals.numberOfSongs, tracksCount, tracksCount)
     }
 }

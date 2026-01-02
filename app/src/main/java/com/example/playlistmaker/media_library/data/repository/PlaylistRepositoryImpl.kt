@@ -2,7 +2,6 @@ package com.example.playlistmaker.media_library.data.repository
 
 import android.content.Context
 import android.os.Environment
-import android.util.Log
 import androidx.core.net.toUri
 import com.example.playlistmaker.media_library.data.db.PlaylistDao
 import com.example.playlistmaker.media_library.data.db.TrackPlaylistDao
@@ -68,7 +67,6 @@ class PlaylistRepositoryImpl(
             directory.mkdirs()
         }
         val file = File(directory, "${System.currentTimeMillis()}.jpg")
-        Log.d("ASD", file.toString())
         context.contentResolver.openInputStream(cover.toUri()).use { inputStream ->
             file.outputStream().use { outputStream ->
                 inputStream?.copyTo(outputStream)

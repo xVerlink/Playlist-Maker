@@ -51,8 +51,7 @@ class CreatePlaylistFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        returnDialog = MaterialAlertDialogBuilder(requireContext())
-        configureDialog()
+        returnDialog = configureDialog()
         val returnCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 closeScreen()
@@ -124,8 +123,8 @@ class CreatePlaylistFragment : Fragment() {
         pickMedia.launch(PickVisualMediaRequest())
     }
 
-    private fun configureDialog() {
-        returnDialog
+    private fun configureDialog(): MaterialAlertDialogBuilder {
+        return MaterialAlertDialogBuilder(requireContext())
             .setTitle(resources.getString(R.string.finish_playlist_creation))
             .setMessage(resources.getString(R.string.all_unsaved_data_will_be_lost))
             .setPositiveButton(resources.getString(R.string.finish)) { dialog, which ->

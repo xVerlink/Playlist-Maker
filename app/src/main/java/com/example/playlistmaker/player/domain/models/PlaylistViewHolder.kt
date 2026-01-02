@@ -15,7 +15,7 @@ class PlaylistViewHolder(private val binding: ListItemPlaylistBinding) : Recycle
             .centerCrop()
             .into(binding.cover)
         binding.playlistTitle.text = playlist.title
-        val tracksCount = "${playlist.tracksCount} треков"
-        binding.tracksCount.text = tracksCount
+        val tracksCount = playlist.tracksCount
+        binding.tracksCount.text = itemView.context.resources.getQuantityString(R.plurals.numberOfSongs, tracksCount, tracksCount)
     }
 }

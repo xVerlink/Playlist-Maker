@@ -21,6 +21,7 @@
             android:scaleType="centerCrop"
             android:clipToOutline="true"
             android:background="@drawable/rounded_8dp"
+            android:backgroundTint="?attr/backgroundColor"
             tools:src="@tools:sample/avatars"/>
 
         <TextView
