@@ -32,7 +32,10 @@ class PlaylistsFragment: Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        _adapter = PlaylistGridAdapter()
+        _adapter = PlaylistGridAdapter() { playlist ->
+            findNavController().navigate(R.id.action_mediaLibraryFragment_to_playlistFragment,
+                PlaylistFragment.createArgs(playlist.id!!))
+        }
 
         binding.newPlaylist.setOnClickListener {
             findNavController().navigate(R.id.action_mediaLibraryFragment_to_createPlaylistFragment)
