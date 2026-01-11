@@ -7,7 +7,6 @@ import com.example.playlistmaker.media_library.data.db.TrackDao
 import com.example.playlistmaker.media_library.data.db.TrackPlaylistDao
 import com.example.playlistmaker.media_library.data.db.convertor.PlaylistDbConverter
 import com.example.playlistmaker.media_library.data.db.convertor.TrackDbConverter
-import com.example.playlistmaker.media_library.data.db.convertor.TrackPlaylistDbConverter
 import com.example.playlistmaker.media_library.data.repository.FavoritesRepositoryImpl
 import com.example.playlistmaker.media_library.data.repository.PlaylistRepositoryImpl
 import com.example.playlistmaker.media_library.domain.api.FavoritesInteractor
@@ -17,9 +16,7 @@ import com.example.playlistmaker.media_library.domain.api.PlaylistRepository
 import com.example.playlistmaker.media_library.domain.impl.FavoritesInteractorImpl
 import com.example.playlistmaker.media_library.domain.impl.PlaylistInteractorImpl
 import com.example.playlistmaker.media_library.ui.view_model.CreatePlaylistViewModel
-import com.example.playlistmaker.media_library.ui.view_model.EditPlaylistViewModel
 import com.example.playlistmaker.media_library.ui.view_model.FavoritesViewModel
-import com.example.playlistmaker.media_library.ui.view_model.PlaylistViewModel
 import com.example.playlistmaker.media_library.ui.view_model.PlaylistsViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -50,14 +47,6 @@ val mediaLibraryModel = module {
         CreatePlaylistViewModel(get())
     }
 
-    viewModel {
-        PlaylistViewModel(get())
-    }
-
-    viewModel {
-        EditPlaylistViewModel(get())
-    }
-
     single {
         TrackDbConverter()
     }
@@ -71,7 +60,7 @@ val mediaLibraryModel = module {
     }
 
     factory<PlaylistRepository> {
-        PlaylistRepositoryImpl(get(),get(), get(), get(), androidContext())
+        PlaylistRepositoryImpl(get(),get(), get(), androidContext())
     }
 
     factory<PlaylistInteractor> {
@@ -80,9 +69,5 @@ val mediaLibraryModel = module {
 
     single {
         PlaylistDbConverter(get())
-    }
-
-    single {
-        TrackPlaylistDbConverter()
     }
 }

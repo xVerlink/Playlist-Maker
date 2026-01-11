@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.playlistmaker.databinding.ListItemPlaylistGridBinding
 import com.example.playlistmaker.media_library.domain.models.Playlist
 
-class PlaylistGridAdapter(private val actionOnClick: (Playlist) -> Unit) : RecyclerView.Adapter<PlaylistGridViewHolder>() {
+class PlaylistGridAdapter : RecyclerView.Adapter<PlaylistGridViewHolder>() {
     private val playlists = mutableListOf<Playlist>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlaylistGridViewHolder {
@@ -17,9 +17,6 @@ class PlaylistGridAdapter(private val actionOnClick: (Playlist) -> Unit) : Recyc
 
     override fun onBindViewHolder(holder: PlaylistGridViewHolder, position: Int) {
         holder.bind(playlists[position])
-        holder.itemView.setOnClickListener {
-            actionOnClick(playlists[position])
-        }
     }
 
     override fun getItemCount(): Int = playlists.size

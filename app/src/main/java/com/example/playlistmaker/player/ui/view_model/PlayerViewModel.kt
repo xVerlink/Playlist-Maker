@@ -36,8 +36,8 @@ class PlayerViewModel(
     private val playlistsLiveData = MutableLiveData<List<Playlist>>()
     fun observePlaylists(): LiveData<List<Playlist>> = playlistsLiveData
 
-    private val containsFlag = MutableLiveData<Pair<Boolean, String>?>()
-    fun observeFlag(): LiveData<Pair<Boolean, String>?> = containsFlag
+    private val containsFlag = MutableLiveData<Pair<Boolean, String>>()
+    fun observeFlag(): LiveData<Pair<Boolean, String>> = containsFlag
 
     private var timerJob: Job? = null
 
@@ -164,10 +164,6 @@ class PlayerViewModel(
             }
             getPlaylists()
         }
-    }
-
-    fun resetToastMessage() {
-        containsFlag.postValue(null)
     }
 
     override fun onCleared() {

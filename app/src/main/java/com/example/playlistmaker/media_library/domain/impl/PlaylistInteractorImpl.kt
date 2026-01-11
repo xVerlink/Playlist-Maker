@@ -12,41 +12,11 @@ class PlaylistInteractorImpl(private val repository: PlaylistRepository) : Playl
         repository.addPlaylist(playlist)
     }
 
-    override suspend fun getPlaylists(): Flow<List<Playlist>> {
+    override fun getPlaylists(): Flow<List<Playlist>> {
         return repository.getPlaylists()
-    }
-
-    override suspend fun getPlaylist(playlistId: Int): Flow<Playlist> {
-        return repository.getPlaylist(playlistId)
     }
 
     override suspend fun addTrackToPlaylist(track: Track, playlist: Playlist) {
         repository.addTrackToPlaylist(track, playlist)
-    }
-
-    override fun getTracksFromPlaylist(trackIdsList: List<String>): Flow<List<Track>> {
-        return repository.getTracksFromPlaylist(trackIdsList)
-    }
-
-    override suspend fun removeFromPlaylist(track: Track, playlist: Playlist) {
-        repository.removeFromPlaylist(track, playlist)
-    }
-
-    override suspend fun deletePlaylist(playlist: Playlist) {
-        repository.deletePlaylist(playlist)
-    }
-
-    override fun sharePlaylist(playlist: Playlist, tracks: List<Track>) {
-        val builder = StringBuilder()
-        builder.append(playlist.title).appendLine()
-            .append(playlist.description).appendLine()
-            .append(tracks.size).append(" треков").appendLine()
-
-        var trackIndex = 1
-        tracks.forEach { track ->
-            builder.append("$trackIndex. ${track.artistName} - ${track.trackName} (${track.trackTime})").appendLine()
-            trackIndex++
-        }
-        repository.sharePlaylist(builder.toString())
     }
 }

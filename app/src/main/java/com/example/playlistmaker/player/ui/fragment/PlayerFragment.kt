@@ -80,13 +80,11 @@ class PlayerFragment : Fragment() {
         }
 
         viewModel.observeFlag().observe(viewLifecycleOwner) { pair ->
-            if (pair != null) {
-                if (pair.first) {
-                    Toast.makeText(requireContext(), "${resources.getString(R.string.track_already_added)} ${pair.second}", Toast.LENGTH_SHORT).show()
-                } else {
-                    Toast.makeText(requireContext(), "${resources.getString(R.string.added_to_playlist)} ${pair.second}", Toast.LENGTH_SHORT).show()
-                    bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
-                }
+            if (pair.first) {
+                Toast.makeText(requireContext(), "${resources.getString(R.string.track_already_added)} ${pair.second}", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(requireContext(), "${resources.getString(R.string.added_to_playlist)} ${pair.second}", Toast.LENGTH_SHORT).show()
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
             }
         }
 
@@ -134,7 +132,6 @@ class PlayerFragment : Fragment() {
         }
 
         binding.newPlaylistButton.setOnClickListener {
-            viewModel.resetToastMessage()
             findNavController().navigate(R.id.action_playerFragment_to_createPlaylistFragment)
         }
 
