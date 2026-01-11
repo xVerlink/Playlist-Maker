@@ -11,10 +11,6 @@ import com.example.playlistmaker.search.domain.models.Track
 class TrackViewHolder(private val binding: ListItemTrackBinding): RecyclerView.ViewHolder(binding.root) {
 
     fun bind(model: Track, action: (Track) -> Unit) {
-        itemView.setOnClickListener {
-            action.invoke(model)
-        }
-
         val roundRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2f, itemView.context.resources.displayMetrics).toInt()
         Glide.with(itemView)
             .load(model.artworkUrl100)

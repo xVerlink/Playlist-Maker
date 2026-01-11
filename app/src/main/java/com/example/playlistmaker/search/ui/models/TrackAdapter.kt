@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.playlistmaker.databinding.ListItemTrackBinding
 import com.example.playlistmaker.search.domain.models.Track
 
-class TrackAdapter(private val action: (Track) -> Unit): RecyclerView.Adapter<TrackViewHolder>() {
+class TrackAdapter(private val onLongClick: ((Track) -> Unit)? = null, private val onClick: (Track) -> Unit): RecyclerView.Adapter<TrackViewHolder>() {
     private val tracks: MutableList<Track> = mutableListOf()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrackViewHolder {
@@ -16,7 +16,15 @@ class TrackAdapter(private val action: (Track) -> Unit): RecyclerView.Adapter<Tr
     }
 
     override fun onBindViewHolder(holder: TrackViewHolder, position: Int) {
-        holder.bind(tracks[position], action)
+        holder.bind(tracks[position], onClick)
+        holder.itemView.setOnClickListener {
+            onClick.invoke(tracks[position])
+        }
+
+        holder.itemView.setOnLongClickListener {
+            onLongClick?.invoke(tracks[position])
+            onLongClick != null
+        }
     }
 
     override fun getItemCount(): Int {
@@ -26,6 +34,7 @@ class TrackAdapter(private val action: (Track) -> Unit): RecyclerView.Adapter<Tr
     fun updateTracks(incomingTracks: List<Track>) {
         tracks.clear()
         tracks.addAll(incomingTracks)
+        notifyDataSetChanged()
     }
 
     fun tracksIsNotEmpty(): Boolean {
@@ -34,5 +43,6 @@ class TrackAdapter(private val action: (Track) -> Unit): RecyclerView.Adapter<Tr
 
     fun clearTracks() {
         tracks.clear()
+        notifyDataSetChanged()
     }
 }
