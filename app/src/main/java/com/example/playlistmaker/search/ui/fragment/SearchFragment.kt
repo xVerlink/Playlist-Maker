@@ -71,7 +71,6 @@ class SearchFragment : Fragment() {
         }
         viewModel.observeHistory().observe(viewLifecycleOwner) {
             searchHistoryAdapter.updateTracks(it)
-            searchHistoryAdapter.notifyDataSetChanged()
         }
 
         binding.apply {
@@ -107,7 +106,6 @@ class SearchFragment : Fragment() {
             binding.editText.setText("")
             binding.editText.requestFocus()
             trackAdapter.clearTracks()
-            trackAdapter.notifyDataSetChanged()
             val inputMethodManager = activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
             inputMethodManager?.hideSoftInputFromWindow(activity?.currentFocus?.windowToken, 0)
         }
@@ -167,7 +165,6 @@ class SearchFragment : Fragment() {
 
     private fun showContent(tracksList: List<Track>) {
         trackAdapter.updateTracks(tracksList)
-        trackAdapter.notifyDataSetChanged()
         if (tracksList.isEmpty()) {
             showEmpty()
         } else {
