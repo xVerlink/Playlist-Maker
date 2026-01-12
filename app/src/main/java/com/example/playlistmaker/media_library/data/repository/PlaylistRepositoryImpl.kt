@@ -3,7 +3,6 @@ package com.example.playlistmaker.media_library.data.repository
 import android.content.Context
 import android.content.Intent
 import android.os.Environment
-import android.util.Log
 import androidx.core.net.toUri
 import com.example.playlistmaker.media_library.data.db.PlaylistDao
 import com.example.playlistmaker.media_library.data.db.TrackPlaylistDao
@@ -14,6 +13,7 @@ import com.example.playlistmaker.media_library.domain.models.Playlist
 import com.example.playlistmaker.search.domain.models.Track
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -27,13 +27,14 @@ class PlaylistRepositoryImpl(
     private val context: Context
 ) : PlaylistRepository {
     override suspend fun addPlaylist(playlist: Playlist) {
-        val coverUri = addCoverToExternalStorage(playlist.cover)
-        playlist.cover = coverUri
+        if (playlist.cover.startsWith("content://")) {
+            playlist.cover = addCoverToExternalStorage(playlist.cover)
+        }
         playlistDao.addPlaylist(playlistConverter.map(playlist))
     }
 
     override suspend fun getPlaylists(): Flow<List<Playlist>> {
-        val playlistFlow = playlistDao.getPlaylists().map { entityList ->
+        val playlistFlow = playlistDao.getPlaylists().distinctUntilChanged().map { entityList ->
             entityList.map { entity ->
                 playlistConverter.map(entity)
             }
@@ -72,10 +73,6 @@ class PlaylistRepositoryImpl(
         val playlists = playlistDao.getPlaylistsOnce().map {
             playlistConverter.map(it)
         }
-        playlists.forEach {
-            Log.d("ASD", "playlist title: ${it.title}")
-            Log.d("ASD", "playlist trackIdList: ${it.trackIdList}")
-        }
         removeFromTrackTable(track, playlists)
     }
 
@@ -85,8 +82,8 @@ class PlaylistRepositoryImpl(
                 .map { playlistConverter.map(it) }
                 .filter { it.id != playlist.id }
 
-
             playlistDao.deletePlaylist(playlistConverter.map(playlist))
+            deleteCover(playlist.cover)
 
             trackPlaylistDao.getTracksOnce()
                 .filter { it.trackId in playlist.trackIdList }
@@ -96,23 +93,23 @@ class PlaylistRepositoryImpl(
                 }
         }
 
-    private suspend fun removeFromTrackTable(track: Track, playlists: List<Playlist>) {
-        var contains = false
-        playlists.forEach { playlist ->
-            if (playlist.trackIdList.contains(track.trackId)) {
-                contains = true
-            }
+    fun deleteCover(cover: String) {
+        if (cover.isNotEmpty()) {
+            File(cover).delete()
         }
-        if (!contains) {
+    }
+
+    private suspend fun removeFromTrackTable(track: Track, playlists: List<Playlist>) {
+        var isContains = playlists.any { playlist ->
+            track.trackId in playlist.trackIdList
+        }
+
+        if (!isContains) {
             trackPlaylistDao.removeTrack(trackConverter.map(track))
         }
     }
 
     private fun addCoverToExternalStorage(cover: String): String {
-        if (cover.isEmpty()) {
-            return ""
-        }
-
         val directory = File(
            context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
             , PLAYLISTS_COVER_DIR)

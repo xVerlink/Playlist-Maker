@@ -176,7 +176,8 @@ class PlaylistFragment : Fragment() {
     }
 
     private fun sharePlaylist() {
-        viewModel.sharePlaylistOrDisplayErrorMessage(resources.getString(R.string.there_is_no_tracks_in_this_playlist))
+        viewModel.sharePlaylistOrDisplayErrorMessage(resources.getString(R.string.there_is_no_tracks_in_this_playlist),
+            resources.getString(R.string.tracks))
     }
 
     private fun getBottomSheetBehavior(): BottomSheetBehavior<LinearLayout> {

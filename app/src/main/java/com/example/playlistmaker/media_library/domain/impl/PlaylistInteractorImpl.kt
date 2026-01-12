@@ -36,11 +36,11 @@ class PlaylistInteractorImpl(private val repository: PlaylistRepository) : Playl
         repository.deletePlaylist(playlist)
     }
 
-    override fun sharePlaylist(playlist: Playlist, tracks: List<Track>) {
+    override fun sharePlaylist(playlist: Playlist, tracks: List<Track>, tracksWord: String) {
         val builder = StringBuilder()
         builder.append(playlist.title).appendLine()
             .append(playlist.description).appendLine()
-            .append(tracks.size).append(" треков").appendLine()
+            .append(tracks.size).append(" $tracksWord").appendLine()
 
         var trackIndex = 1
         tracks.forEach { track ->

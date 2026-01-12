@@ -28,6 +28,7 @@ class EditPlaylistFragment : CreatePlaylistFragment() {
             viewModel.setPlaylistId(playlist.id!!)
             viewModel.setTracksList(playlist.trackIdList)
             viewModel.setTracksCount(playlist.tracksCount)
+            viewModel.setUri(playlist.cover)
         }
     }
 

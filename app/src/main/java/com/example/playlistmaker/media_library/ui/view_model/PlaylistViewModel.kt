@@ -55,11 +55,13 @@ class PlaylistViewModel(private val playlistInteractor: PlaylistInteractor) : Vi
         }
     }
 
-    fun sharePlaylistOrDisplayErrorMessage(errorMessage: String) {
+    fun sharePlaylistOrDisplayErrorMessage(errorMessage: String, tracksWord: String) {
         if (uiState.value!!.tracks.isEmpty()) {
             toastText.postValue(errorMessage)
         } else {
-            playlistInteractor.sharePlaylist(uiState.value!!.playlist, uiState.value!!.tracks)
+            playlistInteractor.sharePlaylist(uiState.value!!.playlist,
+                uiState.value!!.tracks,
+                tracksWord)
         }
     }
 

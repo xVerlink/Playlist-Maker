@@ -1,6 +1,5 @@
 package com.example.playlistmaker.media_library.ui.view_model
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -20,7 +19,6 @@ open class CreatePlaylistViewModel(private val playlistInteractor: PlaylistInter
 
     fun addPlaylist() {
         viewModelScope.launch {
-            Log.d("ASD", uriLiveData.value.toString())
             val cover = uriLiveData.value ?: ""
             playlistInteractor.addPlaylist(Playlist(
                 id = trackIdLiveData.value,
