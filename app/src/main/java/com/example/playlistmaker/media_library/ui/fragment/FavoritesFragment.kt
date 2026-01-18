@@ -39,6 +39,14 @@ class FavoritesFragment: Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        prepareUi()
+        favoritesViewModel.observeState().observe(viewLifecycleOwner) { state ->
+            render(state)
+        }
+    }
+
+    private fun prepareUi() {
         _adapter = FavoritesAdapter { track ->
             if (clickDebounce()) {
                 findNavController().navigate(R.id.action_mediaLibraryFragment_to_playerFragment, PlayerFragment.createArgs(track))
@@ -47,9 +55,6 @@ class FavoritesFragment: Fragment() {
         binding.favoritesRecyclerView.adapter = adapter
         binding.favoritesRecyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
         favoritesViewModel.fillData()
-        favoritesViewModel.observeState().observe(viewLifecycleOwner) { state ->
-            render(state)
-        }
     }
 
     private fun render(state: FavoritesState) {

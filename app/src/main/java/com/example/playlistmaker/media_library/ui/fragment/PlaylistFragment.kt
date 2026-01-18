@@ -49,6 +49,31 @@ class PlaylistFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        prepareUi()
+        initBottomSheet()
+        initListeners()
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.uiState.collect { playlistState ->
+                playlistState ?: return@collect
+                renderPlaylistInfo(playlistState)
+                adapter.updateTracks(playlistState.tracks)
+            }
+        }
+
+        viewModel.observeToastText().observe(viewLifecycleOwner) { text ->
+            Toast.makeText(requireContext(), text, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
+        _adapter = null
+    }
+
+    private fun prepareUi() {
         _adapter = TrackAdapter(
             onLongClick = { track ->
                 removeTrack(track)
@@ -61,20 +86,9 @@ class PlaylistFragment : Fragment() {
         binding.recyclerView.adapter = adapter
 
         viewModel.loadPlaylist(requireArguments().get(PLAYLIST_ID) as Int)
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.uiState.collect { playlistState ->
-                playlistState ?: return@collect
-                renderPlaylistInfo(playlistState)
-                adapter.updateTracks(playlistState.tracks)
-            }
-        }
+    }
 
-        viewModel.observeToastText().observe(viewLifecycleOwner) { text ->
-            Toast.makeText(requireContext(), text, Toast.LENGTH_SHORT).show()
-        }
-
-        menuBottomSheetBehavior = getBottomSheetBehavior()
-
+    private fun initListeners() {
         binding.returnButton.setOnClickListener {
             findNavController().navigateUp()
         }
@@ -99,12 +113,6 @@ class PlaylistFragment : Fragment() {
         binding.menuDeletePlaylist.setOnClickListener {
             deletePlaylist()
         }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        _binding = null
-        _adapter = null
     }
 
     private fun renderPlaylistInfo(playlistState: PlaylistUiState) {
@@ -180,11 +188,11 @@ class PlaylistFragment : Fragment() {
             resources.getString(R.string.tracks))
     }
 
-    private fun getBottomSheetBehavior(): BottomSheetBehavior<LinearLayout> {
-        val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheetMenu).apply {
+    private fun initBottomSheet() {
+        menuBottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheetMenu).apply {
             state = BottomSheetBehavior.STATE_HIDDEN
         }
-        bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+        menuBottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 if (newState == BottomSheetBehavior.STATE_HIDDEN) {
                     binding.overlay.isVisible = false
@@ -194,7 +202,6 @@ class PlaylistFragment : Fragment() {
 
             }
         })
-        return bottomSheetBehavior
     }
 
     private fun editPlaylist() {

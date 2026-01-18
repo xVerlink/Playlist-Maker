@@ -32,6 +32,22 @@ class PlaylistsFragment: Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        prepareUi()
+
+        playlistsViewModel.observePlaylists().observe(viewLifecycleOwner) { playlistList ->
+            if (playlistList.isEmpty()) {
+                binding.placeholder.isVisible = true
+                binding.recyclerView.isVisible = false
+            } else {
+                binding.placeholder.isVisible = false
+                binding.recyclerView.isVisible = true
+            }
+            adapter.updateList(playlistList)
+        }
+    }
+
+    private fun prepareUi() {
         _adapter = PlaylistGridAdapter() { playlist ->
             findNavController().navigate(R.id.action_mediaLibraryFragment_to_playlistFragment,
                 PlaylistFragment.createArgs(playlist.id!!))
@@ -45,17 +61,6 @@ class PlaylistsFragment: Fragment() {
         binding.recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
 
         playlistsViewModel.getPlaylists()
-
-        playlistsViewModel.observePlaylists().observe(viewLifecycleOwner) { playlistList ->
-            if (playlistList.isEmpty()) {
-                binding.placeholder.isVisible = true
-                binding.recyclerView.isVisible = false
-            } else {
-                binding.placeholder.isVisible = false
-                binding.recyclerView.isVisible = true
-            }
-            adapter.updateList(playlistList)
-        }
     }
 
     override fun onDestroyView() {

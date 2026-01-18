@@ -6,6 +6,7 @@ import androidx.core.net.toUri
 import androidx.core.os.bundleOf
 import androidx.navigation.fragment.findNavController
 import com.example.playlistmaker.R
+import com.example.playlistmaker.media_library.domain.models.Playlist
 import com.example.playlistmaker.media_library.ui.view_model.EditPlaylistViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -25,11 +26,15 @@ class EditPlaylistFragment : CreatePlaylistFragment() {
             binding.descriptionInputEditText.setText(playlist.description)
             binding.placeholder.setImageURI(playlist.cover.toUri())
 
-            viewModel.setPlaylistId(playlist.id!!)
-            viewModel.setTracksList(playlist.trackIdList)
-            viewModel.setTracksCount(playlist.tracksCount)
-            viewModel.setUri(playlist.cover)
+            setPlaylistInfo(playlist)
         }
+    }
+
+    private fun setPlaylistInfo(playlist: Playlist) {
+        viewModel.setPlaylistId(playlist.id!!)
+        viewModel.setTracksList(playlist.trackIdList)
+        viewModel.setTracksCount(playlist.tracksCount)
+        viewModel.setUri(playlist.cover)
     }
 
     override fun onSaveButtonPressed() {

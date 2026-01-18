@@ -35,7 +35,10 @@ class SettingsFragment : Fragment() {
                 true -> binding.themeSwitcher.isChecked = true
             }
         }
+        initListeners()
+    }
 
+    private fun initListeners() {
         binding.themeSwitcher.setOnCheckedChangeListener { switcher, checked ->
             viewModel.switchTheme(checked)
         }

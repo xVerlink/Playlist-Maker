@@ -42,7 +42,26 @@ class SearchFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentSearchBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        prepareUi()
+        initListeners()
+
+        viewModel.observeState().observe(viewLifecycleOwner) {
+            if (binding.editText.text.isNotEmpty()) {
+                render(it)
+            }
+        }
+        viewModel.observeHistory().observe(viewLifecycleOwner) {
+            searchHistoryAdapter.updateTracks(it)
+        }
+    }
+
+    private fun prepareUi() {
         _trackAdapter = TrackAdapter { track: Track ->
             if (clickDebounce()) {
                 viewModel.addTrackToHistory(track)
@@ -57,21 +76,7 @@ class SearchFragment : Fragment() {
                     PlayerFragment.createArgs(track))
             }
         }
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
         viewModel.setupHistory()
-        viewModel.observeState().observe(viewLifecycleOwner) {
-            if (binding.editText.text.isNotEmpty()) {
-                render(it)
-            }
-        }
-        viewModel.observeHistory().observe(viewLifecycleOwner) {
-            searchHistoryAdapter.updateTracks(it)
-        }
 
         binding.apply {
             searchRecyclerView.adapter = trackAdapter
@@ -79,7 +84,9 @@ class SearchFragment : Fragment() {
         }
 
         binding.editText.setText(input)
+    }
 
+    private fun initListeners() {
         binding.editText.setOnClickListener {
             binding.editText.requestFocus()
         }
