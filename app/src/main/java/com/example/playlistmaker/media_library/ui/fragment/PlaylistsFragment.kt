@@ -32,16 +32,8 @@ class PlaylistsFragment: Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        _adapter = PlaylistGridAdapter()
 
-        binding.newPlaylist.setOnClickListener {
-            findNavController().navigate(R.id.action_mediaLibraryFragment_to_createPlaylistFragment)
-        }
-
-        binding.recyclerView.adapter = adapter
-        binding.recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
-
-        playlistsViewModel.getPlaylists()
+        prepareUi()
 
         playlistsViewModel.observePlaylists().observe(viewLifecycleOwner) { playlistList ->
             if (playlistList.isEmpty()) {
@@ -53,6 +45,22 @@ class PlaylistsFragment: Fragment() {
             }
             adapter.updateList(playlistList)
         }
+    }
+
+    private fun prepareUi() {
+        _adapter = PlaylistGridAdapter() { playlist ->
+            findNavController().navigate(R.id.action_mediaLibraryFragment_to_playlistFragment,
+                PlaylistFragment.createArgs(playlist.id!!))
+        }
+
+        binding.newPlaylist.setOnClickListener {
+            findNavController().navigate(R.id.action_mediaLibraryFragment_to_createPlaylistFragment)
+        }
+
+        binding.recyclerView.adapter = adapter
+        binding.recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
+
+        playlistsViewModel.getPlaylists()
     }
 
     override fun onDestroyView() {

@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("kotlin-kapt")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -20,11 +21,22 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            //buildConfigField("String", "SERVER_BASE_URL", "\"https://prod.myapplication.com/\"")
+            //buildConfigField("int", "SERVER_VERSION", "10")
+        }
+
+        debug {
+            isMinifyEnabled = false
+            //Убрали, чтобы не делать второе приложение в Firebase
+            //applicationIdSuffix = ".debug"
+            buildConfigField("String", "SERVER_BASE_URL", "\"https://dev.myapplication.com/\"")
+            buildConfigField("int", "SERVER_VERSION", "7")
+            buildFeatures.buildConfig = true
         }
     }
     compileOptions {
@@ -69,8 +81,11 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
 
     //Room
-    val room_version = "2.6.1"
-    implementation("androidx.room:room-runtime:$room_version")
-    kapt("androidx.room:room-compiler:$room_version")
-    implementation("androidx.room:room-ktx:$room_version")
+    implementation(libs.androidx.room.runtime)
+    kapt(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
+
+    //Firebase
+    implementation(platform("com.google.firebase:firebase-bom:33.6.0"))
+    implementation("com.google.firebase:firebase-analytics")
 }

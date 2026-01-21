@@ -22,6 +22,8 @@ import com.example.playlistmaker.player.domain.models.PlaylistAdapter
 import com.example.playlistmaker.player.ui.view_model.PlayerViewModel
 import com.example.playlistmaker.search.domain.models.Track
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.logEvent
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 import java.text.SimpleDateFormat
@@ -38,6 +40,7 @@ class PlayerFragment : Fragment() {
         parametersOf(track.previewUrl)
     }
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<LinearLayout>
+    private lateinit var analytics: FirebaseAnalytics
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -51,28 +54,12 @@ class PlayerFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         track = requireArguments().get(TRACK_KEY) as Track
-        _adapter = PlaylistAdapter { playlist ->  
-            addToPlaylist(playlist)
-        }
 
-        bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet).apply {
-            state = BottomSheetBehavior.STATE_HIDDEN
-        }
-        bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
-            override fun onStateChanged(bottomSheet: View, newState: Int) {
-                when (newState) {
-                    BottomSheetBehavior.STATE_EXPANDED -> {
-                        viewModel.getPlaylists()
-                    }
-                    BottomSheetBehavior.STATE_HIDDEN -> binding.overlay.isVisible = false
-                }
-            }
-            override fun onSlide(bottomSheet: View, slideOffset: Float) {
-
-            }
-        })
-        binding.recyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
-        binding.recyclerView.adapter = adapter
+        prepareUi()
+        initBottomSheet()
+        preparePlayer()
+        initListeners()
+        initAnalytics()
 
         viewModel.observePlaylists().observe(viewLifecycleOwner) { playlists ->
             binding.recyclerView.isVisible = playlists.isNotEmpty()
@@ -80,16 +67,16 @@ class PlayerFragment : Fragment() {
         }
 
         viewModel.observeFlag().observe(viewLifecycleOwner) { pair ->
-            if (pair.first) {
-                Toast.makeText(requireContext(), "${resources.getString(R.string.track_already_added)} ${pair.second}", Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(requireContext(), "${resources.getString(R.string.added_to_playlist)} ${pair.second}", Toast.LENGTH_SHORT).show()
-                bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+            if (pair != null) {
+                if (pair.first) {
+                    Toast.makeText(requireContext(), "${resources.getString(R.string.track_already_added)} ${pair.second}", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(requireContext(), "${resources.getString(R.string.added_to_playlist)} ${pair.second}", Toast.LENGTH_SHORT).show()
+                    bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+                }
             }
         }
 
-        viewModel.setupFavoritesList()
-        viewModel.preparePlayer()
         viewModel.observePlayerState().observe(viewLifecycleOwner) {
             when(it) {
                 is PlayerState.Playing -> binding.playButton.setImageResource(R.drawable.pause_button)
@@ -109,7 +96,28 @@ class PlayerFragment : Fragment() {
         viewModel.observeFavoriteTracks().observe(viewLifecycleOwner) { favoriteTracks->
             setFavoritesButton(favoriteTracks)
         }
+    }
 
+    private fun initBottomSheet() {
+        bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet).apply {
+            state = BottomSheetBehavior.STATE_HIDDEN
+        }
+        bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                when (newState) {
+                    BottomSheetBehavior.STATE_EXPANDED -> {
+                        viewModel.getPlaylists()
+                    }
+                    BottomSheetBehavior.STATE_HIDDEN -> binding.overlay.isVisible = false
+                }
+            }
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+
+            }
+        })
+    }
+
+    private fun initListeners() {
         binding.toolbar.setNavigationOnClickListener {
             findNavController().navigateUp()
         }
@@ -132,8 +140,21 @@ class PlayerFragment : Fragment() {
         }
 
         binding.newPlaylistButton.setOnClickListener {
+            viewModel.resetToastMessage()
             findNavController().navigate(R.id.action_playerFragment_to_createPlaylistFragment)
         }
+    }
+
+    private fun initAnalytics() {
+        analytics = FirebaseAnalytics.getInstance(requireContext())
+    }
+
+    private fun prepareUi() {
+        _adapter = PlaylistAdapter { playlist ->
+            addToPlaylist(playlist)
+        }
+        binding.recyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+        binding.recyclerView.adapter = adapter
 
         setCover()
         setTrackName()
@@ -144,6 +165,12 @@ class PlayerFragment : Fragment() {
         setYear()
         setGenre()
         setCountry()
+
+        viewModel.setupFavoritesList()
+    }
+
+    private fun preparePlayer() {
+        viewModel.preparePlayer()
     }
 
     override fun onDestroyView() {
@@ -219,6 +246,7 @@ class PlayerFragment : Fragment() {
     }
 
     private fun onFavoritesButtonClicked(isFavorite: Boolean) {
+        sendFavoriteAnalytic(isFavorite)
         if (isFavorite) {
             track.isFavorite = false
             binding.addToFavoritesButton.setImageResource(R.drawable.add_to_favorites_button_unpressed)
@@ -232,6 +260,13 @@ class PlayerFragment : Fragment() {
 
     private fun addToPlaylist(playlist: Playlist) {
         viewModel.addToPlaylist(track, playlist)
+    }
+
+    private fun sendFavoriteAnalytic(isFavorite: Boolean) {
+        analytics.logEvent("favorites_button_clicked_event") {
+            param("track", "${track.artistName} - ${track.trackName}")
+            param("action", if (isFavorite) "removed_from_favorites" else "added_to_favorites")
+        }
     }
 
     override fun onPause() {
