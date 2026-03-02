@@ -1,4 +1,4 @@
-# My pet project with Apple Music Api
+# My pet project with Apple Music API
 
 ## Bottom menu day theme
 
